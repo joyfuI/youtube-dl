@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div>
+	{{ macros.setting_input_text_and_buttons('youtube_dl_path', 'youtube-dl 경로', [['youtube_dl_version', '버전확인']], value=arg['youtube_dl_path']) }}
+	<form id="setting">
+	{{ macros.setting_input_text('temp_path', '임시 폴더', value=arg['temp_path'], placeholder='임시 폴더 경로', desc='다운로드 파일이 임시로 저장될 폴더 입니다.') }}
+	{{ macros.setting_input_text('save_path', '저장 폴더', value=arg['save_path'], placeholder='저장 폴더 경로', desc='정상적으로 완료된 파일이 이동할 폴더 입니다.') }}
+	{{ macros.setting_button([['setting_save', '저장']]) }}
+	{{ macros.m_hr() }}
+	{{ macros.setting_button([['youtube_dl_update', '업데이트']], left='youtube-dl 업데이트', desc=['혹시 정상적으로 동영상 주소를 입력했는데 다운로드에 실패한다면 업데이트를 해보세요.']) }}
+	</form>
+</div>
+
+<script>
+	"use strict";
+	var package_name = '{{ arg["package_name"] }}';
+
+	$(function () {
+		// 설정 저장
+		$('#setting_save').click(function (e) {
+			var formData = get_formdata('#setting');
+			$.ajax({
+				url: '/' + package_name + '/ajax/setting_save',
+				type: 'POST',
+				cache: false,
+				data: formData,
+				dataType: 'json',
+				success: function (ret) {
+					if (ret) {
+						$.notify('<strong>설정을 저장하였습니다.</strong>', {
+							type: 'success'
+						});
+					} else {
+						$.notify('<strong>설정을 저장하지 못하였습니다.</strong>', {
+							type: 'warning'
+						});
+					}
+				}
+			});
+			return false;
+		});
+
+		// 버전
+		$('#youtube_dl_version').click(function (e) {
+			$.ajax({
+				url: '/' + package_name + '/ajax/youtube_dl_version',
+				type: 'POST',
+				cache: false,
+				data: { },
+				dataType: 'json',
+				success: function (ret) {
+					$('#modal_title').html('youtube-dl --version');
+					$('#modal_body').html(ret);
+					$('#large_modal').modal();
+				}
+			});
+			return false;
+		});
+
+		// 버전
+		$('#youtube_dl_update').click(function (e) {
+			$.ajax({
+				url: '/' + package_name + '/ajax/youtube_dl_update',
+				type: 'POST',
+				cache: false,
+				data: { },
+				dataType: 'json',
+				success: function (ret) {
+					$.notify('<strong>youtube-dl 업데이트 완료</strong>', {
+						type: 'success'
+					});
+				}
+			});
+			return false;
+		});
+	});
+</script>
+
+{% endblock %}

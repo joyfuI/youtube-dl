@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div>
+	{{ macros.setting_input_text('url', 'URL', placeholder='http:// 주소', desc='유튜브, 네이버TV 등 동영상 주소') }}
+	{{ macros.setting_input_text('filename', '파일명', value=arg['file_name']) }}
+	{{ macros.setting_button([['download_start', '다운로드']]) }}
+</div>
+
+<script>
+	"use strict";
+	var package_name = '{{ arg["package_name"] }}';
+
+	$(function () {
+		// 다운로드
+		$('#download_start').click(function (e) {
+			if ($('#url').val().startsWith('http') == false) {
+				$.notify('<strong>URL을 입력하세요.</strong>', {
+					type: 'warning'
+				});
+				return;
+			}
+			$.ajax({
+				url: '/' + package_name + '/ajax/download',
+				type: 'POST',
+				cache: false,
+				data: {
+					url: $('#url').val(),
+					filename: $('#filename').val()
+				},
+				dataType: 'json',
+				success: function (data) {
+					$.notify('<strong>분석중..</strong>', {
+						type: 'info'
+					});
+				}
+			});
+			return false;
+		});
+	});
+</script>
+
+{% endblock %}
