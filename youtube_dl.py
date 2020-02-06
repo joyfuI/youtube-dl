@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # python
 import os
+import platform
 from threading import Thread
 import subprocess
 import json
@@ -9,6 +10,7 @@ from enum import Enum
 
 # 패키지
 from .plugin import logger
+from .logic import Logic
 
 class Status(Enum):
 	READY = 0
@@ -53,28 +55,33 @@ class Youtube_dl(object):
 
 	def run(self):
 		command = [
-			'youtube-dl',
+			Logic.youtube_dl_path,
 			'--print-json',
-			'-o', self.temp_path + '/' + self.filename,
-			'--exec', 'mv {} ' + self.save_path + '/',
+			'-o', os.path.join(self.temp_path, self.filename),
+			'--exec', 'move /y {} ' + self.save_path + '\\' if platform.system() == 'Windows' else 'mv -f {} ' + self.save_path + '/',
 			self.url
 		]
+		logger.debug(command)
 		self._process = subprocess.Popen(command, stdout=subprocess.PIPE, universal_newlines=True)	# youtube-dl 실행
 		data = json.loads(self._process.stdout.readline())	# 파일 정보
-		self.filename = data['_filename'].split('/')[-1]
+		self.filename = os.path.basename(data['_filename'])
 		self.duration = data['duration']
 		self.format = data['format']
 		self.status = Status.START
 		self.errorlevel = self._process.wait()	# 실행 결과
+		logger.debug('returncode %d', self.errorlevel)
 		self.end_time = datetime.now()
 		if self.errorlevel == 0:	# 다운로드 성공
 			self.status = Status.SUCCESS
 		else:	# 다운로드 실패
-			logger.debug('returncode %d', self.errorlevel)
 			if self.status != Status.STOP:
 				self.status = Status.FAILURE
-			logger.debug('rm -f ' + self.temp_path + '/' + ''.join(str.split('.')[:-1]) + '*')
-			os.system('rm -f ' + self.temp_path + '/' + ''.join(str.split('.')[:-1]) + '*')	# 임시 파일 삭제
+			if platform.system() == 'Windows':	# 윈도우일 때
+				logger.debug('del /q "' + self.temp_path + '\\' + ''.join(self.filename.split('.')[:-1]) + '"*')
+				os.system('del /q "' + self.temp_path + '\\' + ''.join(self.filename.split('.')[:-1]) + '"*')	# 임시파일 삭제
+			else:
+				logger.debug('rm -f "' + self.temp_path + '/' + ''.join(self.filename.split('.')[:-1]) + '"*')
+				os.system('rm -f "' + self.temp_path + '/' + ''.join(self.filename.split('.')[:-1]) + '"*')	# 임시파일 삭제
 
 	def stop(self):
 		self.status = Status.STOP

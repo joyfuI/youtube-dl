@@ -3,11 +3,13 @@
 # python
 import os
 import traceback
+import platform
+import subprocess
 
 # third-party
 
 # sjva 공용
-from framework import db, path_data
+from framework import db, path_app_root, path_data
 from framework.util import Util
 
 # 패키지
@@ -37,8 +39,11 @@ class Logic(object):
 	def plugin_load():
 		try:
 			logger.debug('%s plugin_load', package_name)
-			# DB 초기화
-			Logic.db_init()
+			Logic.db_init()	# DB 초기화
+			if platform.system() == 'Windows':	# 윈도우일 때
+				Logic.youtube_dl_path = os.path.join(path_app_root, 'bin', 'Windows', 'youtube-dl.exe')
+				if not os.path.isfile(Logic.youtube_dl_path):	# youtube-dl.exe가 없으면
+					Logic.youtube_dl_update()
 
 			# 편의를 위해 json 파일 생성
 			from plugin import plugin_info
@@ -78,3 +83,14 @@ class Logic(object):
 			logger.error(traceback.format_exc())
 
 #########################################################
+
+	youtube_dl_path = 'youtube-dl'
+	youtube_dl_list = []
+
+	@staticmethod
+	def youtube_dl_update():
+		if platform.system() == 'Windows':	# 윈도우일 때
+			subprocess.call(['powershell', "(new-Object System.Net.WebClient).DownloadFile('https://yt-dl.org/latest/youtube-dl.exe', '%s')" % os.path.join(path_app_root, 'bin', 'Windows', 'youtube-dl.exe')])
+		else:	# 나머지 Unix-like
+			subprocess.call(['curl', '-L', 'https://yt-dl.org/downloads/latest/youtube-dl', '-o', '/usr/local/bin/youtube-dl'])
+			subprocess.call(['chmod', 'a+rx', '/usr/local/bin/youtube-dl'])

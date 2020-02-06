@@ -35,12 +35,12 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '0.1.0',
+	'version': '0.1.1',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
 	'developer': 'joyfuI',
-	'description': 'youtube-dl',
+	'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
 	'home': 'https://github.com/joyfuI/youtube-dl',
 	'more': ''
 }
@@ -53,10 +53,6 @@ menu = {
 	],
 	'category': 'vod'
 }
-
-#########################################################
-
-youtube_dl_list = []
 
 #########################################################
 # WEB Menu
@@ -73,19 +69,19 @@ def detail(sub):
 			setting_list = db.session.query(ModelSetting).all()
 			arg = Util.db_list_to_dict(setting_list)
 			arg['package_name'] = package_name
-			arg['youtube_dl_path'] = 'youtube-dl'
-			return render_template('%s_setting.html' % (package_name), arg=arg)
+			arg['youtube_dl_path'] = Logic.youtube_dl_path
+			return render_template('%s_setting.html' % package_name, arg=arg)
 
 		elif sub == 'download':
 			arg = { }
 			arg['package_name'] = package_name
 			arg['file_name'] = '%(title)s-%(id)s.%(ext)s'
-			return render_template('%s_download.html' % (package_name), arg=arg)
+			return render_template('%s_download.html' % package_name, arg=arg)
 
 		elif sub == 'list':
 			arg = { }
 			arg['package_name'] = package_name
-			return render_template('%s_list.html' % (package_name), arg=arg)
+			return render_template('%s_list.html' % package_name, arg=arg)
 
 		elif sub == 'log':
 			return render_template('log.html', package=package_name)
@@ -106,12 +102,11 @@ def ajax(sub):
 			return jsonify(ret)
 
 		elif sub == 'youtube_dl_version':
-			ret = subprocess.check_output(['youtube-dl', '--version'])
+			ret = subprocess.check_output([Logic.youtube_dl_path, '--version'])
 			return jsonify(ret)
 
 		elif sub == 'youtube_dl_update':
-			subprocess.call(['curl', '-L', 'https://yt-dl.org/downloads/latest/youtube-dl', '-o', '/usr/local/bin/youtube-dl'])
-			subprocess.call(['chmod', 'a+rx', '/usr/local/bin/youtube-dl'])
+			Logic.youtube_dl_update()
 			return jsonify([])
 
 		elif sub == 'download':
@@ -120,13 +115,13 @@ def ajax(sub):
 			temp_path = Logic.get_setting_value('temp_path')
 			save_path = Logic.get_setting_value('save_path')
 			youtube_dl = Youtube_dl(url, filename, temp_path, save_path)
-			youtube_dl_list.append(youtube_dl)	# 리스트 추가
+			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
 			return jsonify([])
 
 		elif sub == 'list':
 			ret = []
-			for i in youtube_dl_list:
+			for i in Logic.youtube_dl_list:
 				data = { }
 				data['url'] = i.url
 				data['filename'] = i.filename
@@ -155,7 +150,7 @@ def ajax(sub):
 
 		elif sub == 'stop':
 			index = int(request.form['index'])
-			youtube_dl_list[index].stop()
+			Logic.youtube_dl_list[index].stop()
 			return jsonify([])
 	except Exception as e:
 		logger.error('Exception:%s', e)

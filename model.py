@@ -12,7 +12,7 @@ from framework import db, app, path_app_root
 from .plugin import package_name
 
 db_file = os.path.join(path_app_root, 'data', 'db', '%s.db' % package_name)
-app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % (db_file)
+app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % db_file
 
 class ModelSetting(db.Model):
 	__tablename__ = 'plugin_%s_setting' % package_name
