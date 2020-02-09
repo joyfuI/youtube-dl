@@ -3,8 +3,6 @@
 # python
 import os
 import traceback
-import subprocess
-from datetime import datetime
 
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify
@@ -22,7 +20,7 @@ logger = get_logger(package_name)
 # 패키지
 from .logic import Logic
 from .model import ModelSetting
-from .youtube_dl import Youtube_dl, Status
+from .my_youtube_dl import Youtube_dl
 
 #########################################################
 
@@ -35,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '0.1.1',
+	'version': '1.0.0',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
@@ -69,7 +67,7 @@ def detail(sub):
 			setting_list = db.session.query(ModelSetting).all()
 			arg = Util.db_list_to_dict(setting_list)
 			arg['package_name'] = package_name
-			arg['youtube_dl_path'] = Logic.youtube_dl_path
+			arg['youtube_dl_version'] = Youtube_dl.get_version()
 			return render_template('%s_setting.html' % package_name, arg=arg)
 
 		elif sub == 'download':
@@ -101,14 +99,6 @@ def ajax(sub):
 			ret = Logic.setting_save(request)
 			return jsonify(ret)
 
-		elif sub == 'youtube_dl_version':
-			ret = subprocess.check_output([Logic.youtube_dl_path, '--version'])
-			return jsonify(ret)
-
-		elif sub == 'youtube_dl_update':
-			Logic.youtube_dl_update()
-			return jsonify([])
-
 		elif sub == 'download':
 			url = request.form['url']
 			filename = request.form['filename']
@@ -122,30 +112,9 @@ def ajax(sub):
 		elif sub == 'list':
 			ret = []
 			for i in Logic.youtube_dl_list:
-				data = { }
-				data['url'] = i.url
-				data['filename'] = i.filename
-				data['temp_path'] = i.temp_path
-				data['save_path'] = i.save_path
-				data['index'] = i.index
-				data['status_str'] = i.status.name
-				data['status_ko'] = str(i.status)
-				data['format'] = i.format
-				data['end_time'] = ''
-				if i.status == Status.READY:	# 다운로드 전
-					data['duration_str'] = ''
-					data['download_time'] = ''
-					data['start_time'] = ''
-				else:
-					data['duration_str'] = '%02d:%02d:%02d' % (i.duration / 60 / 60, i.duration / 60 % 60, i.duration % 60)
-					if i.end_time == None:	# 완료 전
-						download_time = datetime.now() - i.start_time
-					else:
-						download_time = i.end_time - i.start_time
-						data['end_time'] = i.end_time.strftime('%m-%d %H:%M:%S')
-					data['download_time'] = '%02d:%02d' % (download_time.seconds / 60, download_time.seconds % 60)
-					data['start_time'] = i.start_time.strftime('%m-%d %H:%M:%S')
-				ret.append(data)
+				data = Logic.get_data(i)
+				if data is not None:
+					ret.append(data)
 			return jsonify(ret)
 
 		elif sub == 'stop':
