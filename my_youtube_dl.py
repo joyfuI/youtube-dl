@@ -78,28 +78,32 @@ class Youtube_dl(object):
 		self.status = Status.START
 
 	def run(self):
-		info_dict = Youtube_dl.get_info_dict(self.url)	# 동영상 정보 가져오기
-		if info_dict is None:	# 가져오기 실패
-			self.status = Status.ERROR
-			return
-		self.extractor = info_dict['extractor']
-		self.title = info_dict['title']
-		self.uploader = info_dict['uploader']
-		self.uploader_url = info_dict['uploader_url']
-		ydl_opts = {
-			'logger': MyLogger(),
-			'progress_hooks': [self.my_hook],
-			# 'match_filter': self.match_filter_func,
-			'outtmpl': os.path.join(self.temp_path, self.filename)
-		}
-		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-			ydl.download([self.url])
-		if self.status == Status.FINISHED:	# 다운로드 성공
-			for i in glob.glob(self.temp_path + '/*'):
-				shutil.move(i, self.save_path)	# 파일 이동
-			self.status = Status.COMPLETED
-		shutil.rmtree(self.temp_path)	# 임시폴더 삭제
-		self.end_time = datetime.now()
+		try:
+			info_dict = Youtube_dl.get_info_dict(self.url)	# 동영상 정보 가져오기
+			if info_dict is None:	# 가져오기 실패
+				self.status = Status.ERROR
+				return
+			self.extractor = info_dict['extractor']
+			self.title = info_dict['title']
+			self.uploader = info_dict['uploader']
+			self.uploader_url = info_dict['uploader_url']
+			ydl_opts = {
+				'logger': MyLogger(),
+				'progress_hooks': [self.my_hook],
+				# 'match_filter': self.match_filter_func,
+				'outtmpl': os.path.join(self.temp_path, self.filename)
+			}
+			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+				ydl.download([self.url])
+			if self.status == Status.FINISHED:	# 다운로드 성공
+				for i in glob.glob(self.temp_path + '/*'):
+					shutil.move(i, self.save_path)	# 파일 이동
+				self.status = Status.COMPLETED
+			shutil.rmtree(self.temp_path)	# 임시폴더 삭제
+			self.end_time = datetime.now()
+		except Exception as e:
+			logger.error('Exception:%s', e)
+			logger.error(traceback.format_exc())
 
 	def stop(self):
 		self.status = Status.STOP
@@ -120,6 +124,8 @@ class Youtube_dl(object):
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([url])
 		except Exception as e:
+			logger.error('Exception:%s', e)
+			logger.error(traceback.format_exc())
 			return None
 		return json.loads(Youtube_dl._last_msg)
 
