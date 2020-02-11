@@ -90,6 +90,21 @@ class Logic(object):
 	youtube_dl_list = []
 
 	@staticmethod
+	def get_preset_list():
+		preset_list = [
+			['bestvideo+bestaudio/best', '최고 화질'],
+			['bestvideo[height<=1080]+bestaudio/best[height<=1080]', '1080p'],
+			['worstvideo+worstaudio/worst', '최저 화질'],
+			['bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]', '최고 화질(mp4)'],
+			['bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]', '1080p(mp4)'],
+			['webm', 'webm'],
+			['bestvideo[filesize<50M]+bestaudio/best[filesize<50M]', '50MB 미만'],
+			['bestaudio', '오디오만'],
+			['_custom', '사용자 정의']
+		]
+		return preset_list
+
+	@staticmethod
 	def get_data(youtube_dl):
 		try:
 			data = { }

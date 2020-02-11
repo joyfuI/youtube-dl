@@ -33,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '1.0.2',
+	'version': '1.1.0',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
@@ -74,6 +74,7 @@ def detail(sub):
 			arg = { }
 			arg['package_name'] = package_name
 			arg['file_name'] = '%(title)s-%(id)s.%(ext)s'
+			arg['preset_list'] = Logic.get_preset_list()
 			return render_template('%s_download.html' % package_name, arg=arg)
 
 		elif sub == 'list':
@@ -104,7 +105,8 @@ def ajax(sub):
 			filename = request.form['filename']
 			temp_path = Logic.get_setting_value('temp_path')
 			save_path = Logic.get_setting_value('save_path')
-			youtube_dl = Youtube_dl(url, filename, temp_path, save_path)
+			format_code = request.form['format'] if request.form['format'] else None
+			youtube_dl = Youtube_dl(url, filename, temp_path, save_path, format_code)
 			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
 			return jsonify([])

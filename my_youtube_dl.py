@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 # python
 import os
+import traceback
 import shutil
 import tempfile
 import glob
@@ -42,11 +43,12 @@ class Youtube_dl(object):
 	_index = 0
 	_last_msg = ''
 
-	def __init__(self, url, filename, temp_path, save_path):
+	def __init__(self, url, filename, temp_path, save_path, format_code=None):
 		self.url = url
 		self.filename = filename
 		self.temp_path = tempfile.mkdtemp(prefix='youtube-dl_', dir=temp_path)
 		self.save_path = save_path
+		self.format_code = format_code
 		self.index = Youtube_dl._index
 		Youtube_dl._index += 1
 		self.status = Status.READY
@@ -73,12 +75,12 @@ class Youtube_dl(object):
 
 	def start(self):
 		self._thread = Thread(target=self.run)
-		self.start_time = datetime.now()
 		self._thread.start()
-		self.status = Status.START
 
 	def run(self):
 		try:
+			self.start_time = datetime.now()
+			self.status = Status.START
 			info_dict = Youtube_dl.get_info_dict(self.url)	# 동영상 정보 가져오기
 			if info_dict is None:	# 가져오기 실패
 				self.status = Status.ERROR
@@ -93,17 +95,21 @@ class Youtube_dl(object):
 				# 'match_filter': self.match_filter_func,
 				'outtmpl': os.path.join(self.temp_path, self.filename)
 			}
+			if self.format_code is not None:
+				ydl_opts['format'] = self.format_code
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공
 				for i in glob.glob(self.temp_path + '/*'):
 					shutil.move(i, self.save_path)	# 파일 이동
 				self.status = Status.COMPLETED
-			shutil.rmtree(self.temp_path)	# 임시폴더 삭제
-			self.end_time = datetime.now()
 		except Exception as e:
+			self.status = Status.ERROR
 			logger.error('Exception:%s', e)
 			logger.error(traceback.format_exc())
+		finally:
+			shutil.rmtree(self.temp_path, ignore_errors=True)	# 임시폴더 삭제
+			self.end_time = datetime.now()
 
 	def stop(self):
 		self.status = Status.STOP
