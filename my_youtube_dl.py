@@ -93,7 +93,8 @@ class Youtube_dl(object):
 				'logger': MyLogger(),
 				'progress_hooks': [self.my_hook],
 				# 'match_filter': self.match_filter_func,
-				'outtmpl': os.path.join(self.temp_path, self.filename)
+				'outtmpl': os.path.join(self.temp_path, self.filename),
+				'ignoreerrors': True
 			}
 			if self.format_code is not None:
 				ydl_opts['format'] = self.format_code
@@ -125,6 +126,7 @@ class Youtube_dl(object):
 			ydl_opts = {
 				'simulate': True,
 				'dump_single_json': True,
+				'extract_flat': 'in_playlist',
 				'logger': MyLogger()
 			}
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:

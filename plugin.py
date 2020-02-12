@@ -33,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '1.1.0',
+	'version': '1.1.1',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
@@ -92,7 +92,8 @@ def detail(sub):
 #########################################################
 # For UI
 #########################################################
-@blueprint.route('/ajax/<sub>', methods=['GET', 'POST'])
+@blueprint.route('/ajax/<sub>', methods=['POST'])
+@login_required
 def ajax(sub):
 	logger.debug('AJAX %s %s', package_name, sub)
 	try:
