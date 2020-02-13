@@ -33,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '1.2.0',
+	'version': '1.2.1',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
@@ -231,7 +231,9 @@ def api(sub):
 				'errorCode': 0,
 				'status': None,
 				'start_time': None,
-				'end_time': None
+				'end_time': None,
+				'temp_path': None,
+				'save_path': None
 			}
 			if None in (index, key):
 				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
@@ -242,8 +244,10 @@ def api(sub):
 			if youtube_dl._key != key:
 				return Logic.abort(ret, 4)	# 키가 일치하지 않음
 			ret['status'] = youtube_dl.status.name
-			ret['start_time'] = youtube_dl.start_time
-			ret['end_time'] = youtube_dl.end_time
+			ret['start_time'] = youtube_dl.start_time.strftime('%Y %m %d %H %M %S') if youtube_dl.start_time is not None else None
+			ret['end_time'] = youtube_dl.end_time.strftime('%Y %m %d %H %M %S') if youtube_dl.end_time is not None else None
+			ret['temp_path'] = youtube_dl.temp_path
+			ret['save_path'] = youtube_dl.save_path
 			return jsonify(ret)
 	except Exception as e:
 		logger.error('Exception:%s', e)
