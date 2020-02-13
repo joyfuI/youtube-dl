@@ -50,6 +50,7 @@ SJVA에서 "시스템 → 플러그인 → 플러그인 수동 설치" 칸에 �
 --- | --- | ---
 `errorCode` | 에러 코드 | Integer
 `info_dict` | 동영상 정보 | Object
+
 동영상 정보(`info_dict` 키)에는 youtube-dl에서 생성한 info_dict 정보가 그대로 들어있습니다. 따라서 이 부분은 직접 주소를 넣어가며 반환되는 정보를 확인해보는게 좋습니다.  
 간단한 예로 `thumbnail` 키엔 썸네일 주소, `uploader` 키엔 업로더 이름, `title` 키엔 동영상 제목, `duration` 키엔 동영상 길이 등이 들어 있습니다.  
 그리고 만약 주소가 플레이리스트라면 `_type` 키에 "`playlist`"라는 값이 들어 있습니다. 이때는 `entries` 키에 리스트가 들어있어 동영상들의 제목과 ID를 확인할 수 있습니다.
@@ -118,6 +119,7 @@ SJVA에서 "시스템 → 플러그인 → 플러그인 수동 설치" 칸에 �
 `end_time` | 다운로드 종료 시간 | String
 `temp_path` | 임시 폴더 경로 | String
 `save_path` | 저장 폴더 경로 | String
+
 `start_time` 키와 `end_time` 키에 들어있는 시간은 "년 월 일 시 분 초" 형식으로 공백으로 분리된 숫자들이 모여있는 문자열입니다.  
 물론 해당 정보가 없으면 null입니다.
 
