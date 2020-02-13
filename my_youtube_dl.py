@@ -43,7 +43,8 @@ class Youtube_dl(object):
 	_index = 0
 	_last_msg = ''
 
-	def __init__(self, url, filename, temp_path, save_path, format_code=None):
+	def __init__(self, plugin, url, filename, temp_path, save_path, format_code=None):
+		self.plugin = plugin
 		self.url = url
 		self.filename = filename
 		self.temp_path = tempfile.mkdtemp(prefix='youtube-dl_', dir=temp_path)
@@ -53,6 +54,7 @@ class Youtube_dl(object):
 		Youtube_dl._index += 1
 		self.status = Status.READY
 		self._thread = None
+		self._key = None
 		self.start_time = None	# 시작 시간
 		self.end_time = None	# 종료 시간
 		# info_dict에서 얻는 정보
@@ -74,8 +76,11 @@ class Youtube_dl(object):
 		self.speed = None	# 다운로드 속도(bytes/s)
 
 	def start(self):
+		if self.status != Status.READY:
+			return False
 		self._thread = Thread(target=self.run)
 		self._thread.start()
+		return True
 
 	def run(self):
 		try:
@@ -113,8 +118,11 @@ class Youtube_dl(object):
 			self.end_time = datetime.now()
 
 	def stop(self):
+		if self.status in (Status.ERROR, Status.STOP, Status.COMPLETED):
+			return False
 		self.status = Status.STOP
 		self.end_time = datetime.now()
+		return True
 
 	@staticmethod
 	def get_version():

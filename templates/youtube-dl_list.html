@@ -24,9 +24,10 @@
 	<thead>
 		<tr>
 			<th style="width:5%">IDX</th>
+			<th style="width:8%">Plugin</th>
 			<th style="width:10%">시작시간</th>
-			<th style="width:11%">타입</th>
-			<th style="width:35%">제목</th>
+			<th style="width:10%">타입</th>
+			<th style="width:28%">제목</th>
 			<th style="width:8%">상태</th>
 			<th style="width:15%">진행률</th>
 			<th style="width:8%">진행시간</th>
@@ -78,6 +79,7 @@
 	function make_item(data) {
 		var str = '<tr style="cursor: pointer;" data-toggle="collapse" data-target="#collapse_' + data.index + '" aria-expanded="true">';
 		str += '<td scope="col">' + (data.index + 1) + '</td>';
+		str += '<td scope="col">' + data.plugin + '</td>';
 		str += '<td scope="col">' + data.start_time + '</td>';
 		str += '<td scope="col">' + data.extractor + '</td>';
 		str += '<td scope="col">' + data.title + '</td>';

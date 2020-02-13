@@ -5,7 +5,7 @@ import os
 import traceback
 
 # third-party
-from flask import Blueprint, request, render_template, redirect, jsonify
+from flask import Blueprint, request, render_template, redirect, jsonify, abort
 from flask_login import login_required
 
 # sjva 공용
@@ -33,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '1.1.1',
+	'version': '1.2.0',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
@@ -107,7 +107,7 @@ def ajax(sub):
 			temp_path = Logic.get_setting_value('temp_path')
 			save_path = Logic.get_setting_value('save_path')
 			format_code = request.form['format'] if request.form['format'] else None
-			youtube_dl = Youtube_dl(url, filename, temp_path, save_path, format_code)
+			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code)
 			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
 			return jsonify([])
@@ -131,6 +131,122 @@ def ajax(sub):
 #########################################################
 # API
 #########################################################
+# API 명세는 https://github.com/joyfuI/youtube-dl#api
 @blueprint.route('/api/<sub>', methods=['GET', 'POST'])
 def api(sub):
-	logger.debug('api %s %s', package_name, sub)
+	plugin = request.form.get('plugin')
+	logger.debug('API %s %s: %s', package_name, sub, plugin)
+	if not plugin:	# 요청한 플러그인명이 빈문자열이거나 None면
+		abort(403)	# 403 에러(거부)
+	try:
+		# 동영상 정보를 반환하는 API
+		if sub == 'info_dict':
+			url = request.form.get('url')
+			ret = {
+				'errorCode': 0,
+				'info_dict': None
+			}
+			if None == url:
+				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
+			if not url.startswith('http'):
+				return Logic.abort(ret, 2)	# 잘못된 주소
+			info_dict = Youtube_dl.get_info_dict(url)
+			if info_dict is None:
+				return Logic.abort(ret, 10)	# 실패
+			ret['info_dict'] = info_dict
+			return jsonify(ret)
+
+		# 다운로드 준비를 요청하는 API
+		elif sub == 'download':
+			key = request.form.get('key')
+			url = request.form.get('url')
+			filename = request.form.get('filename')
+			temp_path = request.form.get('temp_path')
+			save_path = request.form.get('save_path')
+			format_code = request.form.get('format_code', None)
+			start = request.form.get('start', False)
+			ret = {
+				'errorCode': 0,
+				'index': None
+			}
+			if None in (key, url, filename, temp_path, save_path):
+				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
+			if not url.startswith('http'):
+				return Logic.abort(ret, 2)	# 잘못된 주소
+			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code)
+			youtube_dl._key = key
+			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가
+			ret['index'] = youtube_dl.index
+			if start:
+				youtube_dl.start()
+			return jsonify(ret)
+
+		# 다운로드 시작을 요청하는 API
+		elif sub == 'start':
+			index = request.form.get('index')
+			key = request.form.get('key')
+			ret = {
+				'errorCode': 0,
+				'status': None
+			}
+			if None in (index, key):
+				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
+			index = int(index)
+			if not (0 <= index and index < Youtube_dl._index):
+				return Logic.abort(ret, 3)	# 인덱스 범위를 벗어남
+			youtube_dl = Logic.youtube_dl_list[index]
+			if youtube_dl._key != key:
+				return Logic.abort(ret, 4)	# 키가 일치하지 않음
+			ret['status'] = youtube_dl.status.name
+			if not youtube_dl.start():
+				return Logic.abort(ret, 10)	# 실패
+			return jsonify(ret)
+
+		# 다운로드 중지를 요청하는 API
+		elif sub == 'stop':
+			index = request.form.get('index')
+			key = request.form.get('key')
+			ret = {
+				'errorCode': 0,
+				'status': None
+			}
+			if None in (index, key):
+				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
+			index = int(index)
+			if not (0 <= index and index < Youtube_dl._index):
+				return Logic.abort(ret, 3)	# 인덱스 범위를 벗어남
+			youtube_dl = Logic.youtube_dl_list[index]
+			if youtube_dl._key != key:
+				return Logic.abort(ret, 4)	# 키가 일치하지 않음
+			ret['status'] = youtube_dl.status.name
+			if not youtube_dl.stop():
+				return Logic.abort(ret, 10)	# 실패
+			return jsonify(ret)
+
+		# 현재 상태를 반환하는 API
+		elif sub == 'status':
+			index = request.form.get('index')
+			key = request.form.get('key')
+			ret = {
+				'errorCode': 0,
+				'status': None,
+				'start_time': None,
+				'end_time': None
+			}
+			if None in (index, key):
+				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
+			index = int(index)
+			if not (0 <= index and index < Youtube_dl._index):
+				return Logic.abort(ret, 3)	# 인덱스 범위를 벗어남
+			youtube_dl = Logic.youtube_dl_list[index]
+			if youtube_dl._key != key:
+				return Logic.abort(ret, 4)	# 키가 일치하지 않음
+			ret['status'] = youtube_dl.status.name
+			ret['start_time'] = youtube_dl.start_time
+			ret['end_time'] = youtube_dl.end_time
+			return jsonify(ret)
+	except Exception as e:
+		logger.error('Exception:%s', e)
+		logger.error(traceback.format_exc())
+		abort(500)	# 500 에러(서버 오류)
+	abort(404)	# 404 에러(페이지 없음)

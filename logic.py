@@ -7,6 +7,7 @@ import platform
 from datetime import datetime
 
 # third-party
+from flask import jsonify
 
 # sjva 공용
 from framework import db, path_data
@@ -108,6 +109,7 @@ class Logic(object):
 	def get_data(youtube_dl):
 		try:
 			data = { }
+			data['plugin'] = youtube_dl.plugin
 			data['url'] = youtube_dl.url
 			data['filename'] = youtube_dl.filename
 			data['temp_path'] = youtube_dl.temp_path
@@ -153,3 +155,8 @@ class Logic(object):
 				return '%3.1f %s%s' % (size, unit, suffix)
 			size /= 1024.0
 		return '%.1f %s%s' % (size, 'YB', suffix)
+
+	@staticmethod
+	def abort(base, code):
+		base['errorCode'] = code
+		return jsonify(base)
