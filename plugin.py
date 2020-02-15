@@ -33,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '1.2.1',
+	'version': '1.2.2',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',
@@ -149,7 +149,7 @@ def api(sub):
 			if None == url:
 				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
-				return Logic.abort(ret, 2)	# 잘못된 주소
+				return Logic.abort(ret, 2)	# 잘못된 동영상 주소
 			info_dict = Youtube_dl.get_info_dict(url)
 			if info_dict is None:
 				return Logic.abort(ret, 10)	# 실패
@@ -172,7 +172,7 @@ def api(sub):
 			if None in (key, url, filename, temp_path, save_path):
 				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
-				return Logic.abort(ret, 2)	# 잘못된 주소
+				return Logic.abort(ret, 2)	# 잘못된 동영상 주소
 			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code)
 			youtube_dl._key = key
 			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가

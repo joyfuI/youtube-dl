@@ -2,6 +2,7 @@
 #########################################################
 # python
 import os
+import subprocess
 import traceback
 import platform
 from datetime import datetime
@@ -44,10 +45,12 @@ class Logic(object):
 			Logic.db_init()	# DB 초기화
 
 			# youtube-dl 업데이트
+			logger.debug('youtube-dl upgrade')
 			if platform.system() == 'Windows':	# 윈도우일 때
-				os.system('pip.exe install --upgrade youtube-dl')
+				pip = 'pip.exe'
 			else:
-				os.system('pip install --upgrade youtube-dl')
+				pip = 'pip'
+			logger.debug(subprocess.check_output([pip, 'install', '--upgrade', 'youtube-dl'], universal_newlines=True))
 
 			# 편의를 위해 json 파일 생성
 			from plugin import plugin_info
