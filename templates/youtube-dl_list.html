@@ -39,9 +39,9 @@
 
 <script>
 	"use strict";
-	$(function () {
-		var package_name = '{{ arg["package_name"] }}';
+	var package_name = '{{ arg["package_name"] }}';
 
+	$(function () {
 		$.ajax({
 			url: '/' + package_name + '/ajax/list',
 			type: 'POST',

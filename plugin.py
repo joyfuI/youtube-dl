@@ -33,7 +33,7 @@ def plugin_unload():
 	Logic.plugin_unload()
 
 plugin_info = {
-	'version': '1.2.2',
+	'version': '1.2.3',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'icon': '',

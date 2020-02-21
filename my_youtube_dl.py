@@ -47,7 +47,11 @@ class Youtube_dl(object):
 		self.plugin = plugin
 		self.url = url
 		self.filename = filename
+		if not os.path.isdir(temp_path):
+			os.makedirs(temp_path)
 		self.temp_path = tempfile.mkdtemp(prefix='youtube-dl_', dir=temp_path)
+		if not os.path.isdir(save_path):
+			os.makedirs(save_path)
 		self.save_path = save_path
 		self.format_code = format_code
 		self.index = Youtube_dl._index
