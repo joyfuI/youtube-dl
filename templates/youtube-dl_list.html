@@ -42,6 +42,8 @@
 	var package_name = '{{ arg["package_name"] }}';
 
 	$(function () {
+		// var socket = io.connect(location.origin + "/" + package_name);
+
 		$.ajax({
 			url: '/' + package_name + '/ajax/list',
 			type: 'POST',

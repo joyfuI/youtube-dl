@@ -10,7 +10,7 @@ from flask_login import login_required
 
 # sjva 공용
 from framework.logger import get_logger
-from framework import db
+from framework import db, socketio
 from framework.util import Util
 
 # 로그
@@ -23,27 +23,10 @@ from .model import ModelSetting
 from .my_youtube_dl import Youtube_dl
 
 #########################################################
-
+# 플러그인 공용
+#########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 
-def plugin_load():
-	Logic.plugin_load()
-
-def plugin_unload():
-	Logic.plugin_unload()
-
-plugin_info = {
-	'version': '1.2.3',
-	'name': 'youtube-dl',
-	'category_name': 'vod',
-	'icon': '',
-	'developer': 'joyfuI',
-	'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
-	'home': 'https://github.com/joyfuI/youtube-dl',
-	'more': ''
-}
-
-# 메뉴 구성
 menu = {
 	'main': [package_name, 'youtube-dl'],
 	'sub': [
@@ -51,6 +34,22 @@ menu = {
 	],
 	'category': 'vod'
 }
+
+plugin_info = {
+	'version': '1.2.3',
+	'name': 'youtube-dl',
+	'category_name': 'vod',
+	'developer': 'joyfuI',
+	'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
+	'home': 'https://github.com/joyfuI/youtube-dl',
+	'more': ''
+}
+
+def plugin_load():
+	Logic.plugin_load()
+
+def plugin_unload():
+	Logic.plugin_unload()
 
 #########################################################
 # WEB Menu
@@ -63,23 +62,20 @@ def home():
 @login_required
 def detail(sub):
 	try:
+		arg = { 'package_name': package_name }
+
 		if sub == 'setting':
 			setting_list = db.session.query(ModelSetting).all()
-			arg = Util.db_list_to_dict(setting_list)
-			arg['package_name'] = package_name
+			arg.update(Util.db_list_to_dict(setting_list))
 			arg['youtube_dl_version'] = Youtube_dl.get_version()
 			return render_template('%s_setting.html' % package_name, arg=arg)
 
 		elif sub == 'download':
-			arg = { }
-			arg['package_name'] = package_name
 			arg['file_name'] = '%(title)s-%(id)s.%(ext)s'
 			arg['preset_list'] = Logic.get_preset_list()
 			return render_template('%s_download.html' % package_name, arg=arg)
 
 		elif sub == 'list':
-			arg = { }
-			arg['package_name'] = package_name
 			return render_template('%s_list.html' % package_name, arg=arg)
 
 		elif sub == 'log':
@@ -254,3 +250,22 @@ def api(sub):
 		logger.error(traceback.format_exc())
 		abort(500)	# 500 에러(서버 오류)
 	abort(404)	# 404 에러(페이지 없음)
+
+#########################################################
+# socketio
+#########################################################
+@socketio.on('connect', namespace='/%s' % package_name)
+def connect():
+	try:
+		logger.debug('socket_connect')
+	except Exception as e:
+		logger.error('Exception:%s', e)
+		logger.error(traceback.format_exc())
+
+@socketio.on('disconnect', namespace='/%s' % package_name)
+def disconnect():
+	try:
+		logger.debug('socket_disconnect')
+	except Exception as e:
+		logger.error('Exception:%s', e)
+		logger.error(traceback.format_exc())
