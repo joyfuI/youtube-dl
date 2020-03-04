@@ -10,7 +10,7 @@ from flask_login import login_required
 
 # sjva 공용
 from framework.logger import get_logger
-from framework import db, socketio
+from framework import db, check_api, socketio
 from framework.util import Util
 
 # 로그
@@ -36,7 +36,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.2.3',
+	'version': '1.2.4',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -129,6 +129,7 @@ def ajax(sub):
 #########################################################
 # API 명세는 https://github.com/joyfuI/youtube-dl#api
 @blueprint.route('/api/<sub>', methods=['GET', 'POST'])
+@check_api
 def api(sub):
 	plugin = request.form.get('plugin')
 	logger.debug('API %s %s: %s', package_name, sub, plugin)
