@@ -36,7 +36,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.2.4',
+	'version': '1.2.5',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -71,7 +71,7 @@ def detail(sub):
 			return render_template('%s_setting.html' % package_name, arg=arg)
 
 		elif sub == 'download':
-			arg['file_name'] = '%(title)s-%(id)s.%(ext)s'
+			arg['file_name'] = Logic.get_setting_value('default_filename')
 			arg['preset_list'] = Logic.get_preset_list()
 			return render_template('%s_download.html' % package_name, arg=arg)
 
@@ -157,16 +157,16 @@ def api(sub):
 		elif sub == 'download':
 			key = request.form.get('key')
 			url = request.form.get('url')
-			filename = request.form.get('filename')
-			temp_path = request.form.get('temp_path')
-			save_path = request.form.get('save_path')
+			filename = request.form.get('filename', Logic.get_setting_value('default_filename'))
+			temp_path = request.form.get('temp_path', Logic.get_setting_value('temp_path'))
+			save_path = request.form.get('save_path', Logic.get_setting_value('save_path'))
 			format_code = request.form.get('format_code', None)
 			start = request.form.get('start', False)
 			ret = {
 				'errorCode': 0,
 				'index': None
 			}
-			if None in (key, url, filename, temp_path, save_path):
+			if None in (key, url):
 				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
 				return Logic.abort(ret, 2)	# 잘못된 동영상 주소

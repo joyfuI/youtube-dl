@@ -63,10 +63,10 @@ SJVA에서 "시스템 → 플러그인 → 플러그인 수동 설치" 칸에 �
 `plugin` | 플러그인 이름 | O | String
 `key` | 임의의 키. 이후 다운로드를 제어할 때 이 키가 필요함 | O | String
 `url` | 동영상 주소 | O | String
-`filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고 | O | String
-`temp_path` | 임시 폴더 경로 | O | String
-`save_path` | 저장 폴더 경로 | O | String
-`format_code` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 지정하지 않으면 최고 화질로 다운로드됨 | X | String
+`filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고. 기본값: 사용자 설정 | X | String
+`temp_path` | 임시 폴더 경로. 기본값: 사용자 설정 | X | String
+`save_path` | 저장 폴더 경로. 기본값: 사용자 설정 | X | String
+`format_code` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 기본값: 최고 화질 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: false | X | Boolean
 #### Response
 키 | 설명 | 타입
@@ -124,6 +124,10 @@ SJVA에서 "시스템 → 플러그인 → 플러그인 수동 설치" 칸에 �
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.2.5
+* 기본 파일명 설정 추가
+* API에서 일부 키를 선택으로 변경
+
 v1.2.4
 * API Key 기능 추가
 

@@ -24,7 +24,8 @@ from .my_youtube_dl import Status
 class Logic(object):
 	db_default = {
 		'temp_path': os.path.join(path_data, 'download_tmp'),
-		'save_path': os.path.join(path_data, 'download')
+		'save_path': os.path.join(path_data, 'download'),
+		'default_filename': '%(title)s-%(id)s.%(ext)s'
 	}
 
 	@staticmethod
