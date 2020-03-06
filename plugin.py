@@ -36,7 +36,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.2.5',
+	'version': '1.3.0',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -73,6 +73,7 @@ def detail(sub):
 		elif sub == 'download':
 			arg['file_name'] = Logic.get_setting_value('default_filename')
 			arg['preset_list'] = Logic.get_preset_list()
+			arg['postprocessor_list'] = Logic.get_postprocessor_list()
 			return render_template('%s_download.html' % package_name, arg=arg)
 
 		elif sub == 'list':
@@ -103,7 +104,20 @@ def ajax(sub):
 			temp_path = Logic.get_setting_value('temp_path')
 			save_path = Logic.get_setting_value('save_path')
 			format_code = request.form['format'] if request.form['format'] else None
-			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code)
+			postprocessor = request.form['postprocessor'] if request.form['postprocessor'] else None
+			video_convertor, extract_audio = Logic.get_postprocessor()
+			if postprocessor in video_convertor:
+				postprocessor = [{
+					'key': 'FFmpegVideoConvertor',
+					'preferedformat': postprocessor
+				}]
+			elif postprocessor in extract_audio:
+				postprocessor = [{
+					'key': 'FFmpegExtractAudio',
+					'preferredcodec': postprocessor,
+					'preferredquality': '192'
+				}]
+			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code, postprocessor)
 			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
 			return jsonify([])
@@ -161,6 +175,9 @@ def api(sub):
 			temp_path = request.form.get('temp_path', Logic.get_setting_value('temp_path'))
 			save_path = request.form.get('save_path', Logic.get_setting_value('save_path'))
 			format_code = request.form.get('format_code', None)
+			preferedformat = request.form.get('preferedformat', None)
+			preferredcodec = request.form.get('preferredcodec', None)
+			preferredquality = request.form.get('preferredquality', '192')
 			start = request.form.get('start', False)
 			ret = {
 				'errorCode': 0,
@@ -170,7 +187,19 @@ def api(sub):
 				return Logic.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
 				return Logic.abort(ret, 2)	# 잘못된 동영상 주소
-			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code)
+			postprocessor = []
+			if preferedformat is not None:
+				postprocessor.append({
+					'key': 'FFmpegVideoConvertor',
+					'preferedformat': preferedformat
+				})
+			if preferredcodec is not None:
+				postprocessor.append({
+					'key': 'FFmpegExtractAudio',
+					'preferredcodec': preferredcodec,
+					'preferredquality': preferredquality
+				})
+			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code, postprocessor)
 			youtube_dl._key = key
 			Logic.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			ret['index'] = youtube_dl.index

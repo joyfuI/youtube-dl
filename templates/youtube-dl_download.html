@@ -6,7 +6,7 @@
 	{{ macros.setting_input_text('filename', '파일명', value=arg['file_name'], desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고') }}
 	{{ macros.setting_select('preset', '동영상 포맷 프리셋', arg['preset_list'], col='3') }}
 	{{ macros.setting_input_text('format', '동영상 포맷', desc=['포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고', '빈칸으로 두면 최고 화질로 다운로드합니다.']) }}
-	<!-- {{ macros.setting_select('merge_output_format', '파일 포맷', [['auto', '자동'], ['mkv', 'mkv'], ['mp4', 'mp4'], ['ogg', 'ogg'], ['webm', 'webm'], ['flv', 'flv']], col='3', value=arg['merge_output_format'], desc='병합이 필요한 경우 지정한 포맷으로 병합을 합니다.') }} -->
+	{{ macros.setting_select('postprocessor', '후처리', arg['postprocessor_list'], col='3', desc='다운로드 후 FFmpeg로 후처리합니다.') }}
 	{{ macros.setting_button([['download_start', '다운로드']]) }}
 </div>
 
@@ -15,9 +15,26 @@
 	var package_name = '{{ arg["package_name"] }}';
 
 	$(function () {
+		// 후처리 목록
+		var optgroup = null;
+		$('#postprocessor > option').map(function () {
+			var i = $(this);
+			if (i.val() === '_optgroup') {
+				if (i.text() !== '') {	// optgroup 태그 열기
+					optgroup = $('<optgroup label="' + i.text() + '"></optgroup>');
+					i.before(optgroup).remove();
+				} else {	// optgroup 태그 닫기
+					optgroup = null;
+					i.remove();
+				}
+			} else if (optgroup !== null) {	// optgroup 태그로 이동
+				optgroup.append(i);
+			}
+		});
+
 		// 프리셋 변경
 		$('#preset').change(function (e) {
-			if ($(this).val() == '_custom') {
+			if ($(this).val() === '_custom') {
 				return;
 			}
 			$('#format').val($(this).val());
@@ -26,9 +43,17 @@
 			$('#preset').val('_custom');
 		});
 
+		// 후처리 변경
+		$('#postprocessor').change(function (e) {
+			if ($(this).find($('option[value="' + $(this).val() + '"]')).parent().attr('label') === '오디오 추출') {
+				$('#preset').val('bestaudio/best').change();
+			}
+		});
+
 		// 다운로드
 		$('#download_start').click(function (e) {
-			if ($('#url').val().startsWith('http') == false) {
+			var url = $('#url').val();
+			if (url.startsWith('http') === false) {
 				$.notify('<strong>URL을 입력하세요.</strong>', {
 					type: 'warning'
 				});
@@ -39,9 +64,10 @@
 				type: 'POST',
 				cache: false,
 				data: {
-					url: $('#url').val(),
+					url: url,
 					filename: $('#filename').val(),
-					format: $('#format').val()
+					format: $('#format').val(),
+					postprocessor: $('#postprocessor').val()
 				},
 				dataType: 'json',
 				success: function (data) {

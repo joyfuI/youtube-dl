@@ -43,7 +43,7 @@ class Youtube_dl(object):
 	_index = 0
 	_last_msg = ''
 
-	def __init__(self, plugin, url, filename, temp_path, save_path, format_code=None):
+	def __init__(self, plugin, url, filename, temp_path, save_path, format_code=None, postprocessor=None):
 		self.plugin = plugin
 		self.url = url
 		self.filename = filename
@@ -54,6 +54,7 @@ class Youtube_dl(object):
 			os.makedirs(save_path)
 		self.save_path = save_path
 		self.format_code = format_code
+		self.postprocessor = postprocessor
 		self.index = Youtube_dl._index
 		Youtube_dl._index += 1
 		self.status = Status.READY
@@ -67,12 +68,10 @@ class Youtube_dl(object):
 		self.uploader = None	# 업로더
 		self.uploader_url = None	# 업로더 주소
 		# info_dict에서 얻는 정보(entries)
-		"""
-		self.playlist_index = None
-		self.duration = None	# 길이
-		self.format = None	# 포맷
-		self.thumbnail = None	# 썸네일
-		"""
+		# self.playlist_index = None
+		# self.duration = None	# 길이
+		# self.format = None	# 포맷
+		# self.thumbnail = None	# 썸네일
 		# progress_hooks에서 얻는 정보
 		self.downloaded_bytes = None	# 다운로드한 크기
 		self.total_bytes = None	# 전체 크기
@@ -107,6 +106,8 @@ class Youtube_dl(object):
 			}
 			if self.format_code is not None:
 				ydl_opts['format'] = self.format_code
+			if self.postprocessor is not None:
+				ydl_opts['postprocessors'] = self.postprocessor
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공

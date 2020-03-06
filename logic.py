@@ -102,12 +102,56 @@ class Logic(object):
 			['worstvideo+worstaudio/worst', '최저 화질'],
 			['bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]', '최고 화질(mp4)'],
 			['bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]', '1080p(mp4)'],
-			['webm', 'webm'],
 			['bestvideo[filesize<50M]+bestaudio/best[filesize<50M]', '50MB 미만'],
-			['bestaudio', '오디오만'],
+			['bestaudio/best', '오디오만'],
 			['_custom', '사용자 정의']
 		]
 		return preset_list
+
+	@staticmethod
+	def get_postprocessor_list():
+		postprocessor_list = [
+			['', '후처리 안함'],
+			['_optgroup', '비디오 변환'],
+			['mp4', 'MP4'],
+			['flv', 'FLV'],
+			['webm', 'WebM'],
+			['ogg', 'Ogg'],
+			['mkv', 'MKV'],
+			['ts', 'TS'],
+			['avi', 'AVI'],
+			['wmv', 'WMV'],
+			['mov', 'MOV'],
+			['gif', 'GIF'],
+			['_optgroup', ''],
+			['_optgroup', '오디오 추출'],
+			['mp3', 'MP3'],
+			['aac', 'AAC'],
+			['flac', 'FLAC'],
+			['m4a', 'M4A'],
+			['opus', 'Opus'],
+			['vorbis', 'Vorbis'],
+			['wav', 'WAV'],
+			['_optgroup', '']
+		]
+		return postprocessor_list
+
+	@staticmethod
+	def get_postprocessor():
+		video_convertor = []
+		extract_audio = []
+		optgroup = None
+		for i in Logic.get_postprocessor_list():
+			if i[0] == '_optgroup':
+				if i[1] != '':	# optgroup 태그 열기
+					optgroup = i[1]
+				else:	# optgroup 태그 닫기
+					optgroup = None
+			elif optgroup == '비디오 변환':
+				video_convertor.append(i[0])
+			elif optgroup == '오디오 추출':
+				extract_audio.append(i[0])
+		return video_convertor, extract_audio
 
 	@staticmethod
 	def get_data(youtube_dl):
