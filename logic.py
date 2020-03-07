@@ -111,28 +111,24 @@ class Logic(object):
 	@staticmethod
 	def get_postprocessor_list():
 		postprocessor_list = [
-			['', '후처리 안함'],
-			['_optgroup', '비디오 변환'],
-			['mp4', 'MP4'],
-			['flv', 'FLV'],
-			['webm', 'WebM'],
-			['ogg', 'Ogg'],
-			['mkv', 'MKV'],
-			['ts', 'TS'],
-			['avi', 'AVI'],
-			['wmv', 'WMV'],
-			['mov', 'MOV'],
-			['gif', 'GIF'],
-			['_optgroup', ''],
-			['_optgroup', '오디오 추출'],
-			['mp3', 'MP3'],
-			['aac', 'AAC'],
-			['flac', 'FLAC'],
-			['m4a', 'M4A'],
-			['opus', 'Opus'],
-			['vorbis', 'Vorbis'],
-			['wav', 'WAV'],
-			['_optgroup', '']
+			['', '후처리 안함', None],
+			['mp4', 'MP4', '비디오 변환'],
+			['flv', 'FLV', '비디오 변환'],
+			['webm', 'WebM', '비디오 변환'],
+			['ogg', 'Ogg', '비디오 변환'],
+			['mkv', 'MKV', '비디오 변환'],
+			['ts', 'TS', '비디오 변환'],
+			['avi', 'AVI', '비디오 변환'],
+			['wmv', 'WMV', '비디오 변환'],
+			['mov', 'MOV', '비디오 변환'],
+			['gif', 'GIF', '비디오 변환'],
+			['mp3', 'MP3', '오디오 추출'],
+			['aac', 'AAC', '오디오 추출'],
+			['flac', 'FLAC', '오디오 추출'],
+			['m4a', 'M4A', '오디오 추출'],
+			['opus', 'Opus', '오디오 추출'],
+			['vorbis', 'Vorbis', '오디오 추출'],
+			['wav', 'WAV', '오디오 추출']
 		]
 		return postprocessor_list
 
@@ -140,16 +136,10 @@ class Logic(object):
 	def get_postprocessor():
 		video_convertor = []
 		extract_audio = []
-		optgroup = None
 		for i in Logic.get_postprocessor_list():
-			if i[0] == '_optgroup':
-				if i[1] != '':	# optgroup 태그 열기
-					optgroup = i[1]
-				else:	# optgroup 태그 닫기
-					optgroup = None
-			elif optgroup == '비디오 변환':
+			if i[2] == '비디오 변환':
 				video_convertor.append(i[0])
-			elif optgroup == '오디오 추출':
+			elif i[2] == '오디오 추출':
 				extract_audio.append(i[0])
 		return video_convertor, extract_audio
 

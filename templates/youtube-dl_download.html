@@ -1,3 +1,32 @@
+{% macro setting_select2(id, title, options, col='9', desc=None, value=None) %}
+	{{ macros.setting_top(title) }}
+	<div class="input-group col-sm-{{ col }}">
+		<select id="{{ id }}" name="{{ id }}" class="form-control form-control-sm">
+			{% set ns = namespace(optgroup=none) %}
+			{% for item in options %}
+				{% if ns.optgroup != item[2] %}
+					{% if ns.optgroup is not none %}
+						</optgroup>
+					{% endif %}
+					{% if item[2] is not none %}
+						<optgroup label="{{ item[2] }}">
+					{% endif %}
+					{% set ns.optgroup = item[2] %}
+				{% endif %}
+				{% if value is not none and value == item[0] %}
+					<option value="{{ item[0] }}" selected>{{ item[1] }}</option>
+				{% else %}
+					<option value="{{ item[0] }}">{{ item[1] }}</option>
+				{% endif %}
+			{% endfor %}
+			{% if ns.optgroup is not none %}
+				</optgroup>
+			{% endif %}
+		</select>
+	</div>
+	{{ macros.setting_bottom(desc) }}
+{% endmacro %}
+
 {% extends "base.html" %}
 {% block content %}
 
@@ -6,7 +35,7 @@
 	{{ macros.setting_input_text('filename', '파일명', value=arg['file_name'], desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고') }}
 	{{ macros.setting_select('preset', '동영상 포맷 프리셋', arg['preset_list'], col='3') }}
 	{{ macros.setting_input_text('format', '동영상 포맷', desc=['포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고', '빈칸으로 두면 최고 화질로 다운로드합니다.']) }}
-	{{ macros.setting_select('postprocessor', '후처리', arg['postprocessor_list'], col='3', desc='다운로드 후 FFmpeg로 후처리합니다.') }}
+	{{ setting_select2('postprocessor', '후처리', arg['postprocessor_list'], col='3', desc='다운로드 후 FFmpeg로 후처리합니다.') }}
 	{{ macros.setting_button([['download_start', '다운로드']]) }}
 </div>
 
@@ -15,23 +44,6 @@
 	var package_name = '{{ arg["package_name"] }}';
 
 	$(function () {
-		// 후처리 목록
-		var optgroup = null;
-		$('#postprocessor > option').map(function () {
-			var i = $(this);
-			if (i.val() === '_optgroup') {
-				if (i.text() !== '') {	// optgroup 태그 열기
-					optgroup = $('<optgroup label="' + i.text() + '"></optgroup>');
-					i.before(optgroup).remove();
-				} else {	// optgroup 태그 닫기
-					optgroup = null;
-					i.remove();
-				}
-			} else if (optgroup !== null) {	// optgroup 태그로 이동
-				optgroup.append(i);
-			}
-		});
-
 		// 프리셋 변경
 		$('#preset').change(function (e) {
 			if ($(this).val() === '_custom') {
