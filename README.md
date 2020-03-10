@@ -29,7 +29,8 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 * `1` - 필수 요청 변수가 없음
 * `2` - 잘못된 동영상 주소
 * `3` - 인덱스 범위를 벗어남
-* `4` - 키가 일치하지 않음
+* `4` - 키 값이 일치하지 않음
+* `5` - 허용되지 않은 값이 있음
 * `10` - 실패. 요청은 성공하였으나 실행 결과가 실패
 #### Status 타입
 상태를 나타냄
@@ -72,7 +73,7 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `format_code` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 미지정 시 최고 화질 | X | String
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
-`preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `"192"` | X | String
+`preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
 #### Response
 키 | 설명 | 타입
@@ -130,6 +131,9 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.3.3
+* API 변경
+
 v1.3.2
 * 파일명에 경로 지정 시 이미 존재하는 경로면 에러가 발생하는 문제 수정
 * celery 적용

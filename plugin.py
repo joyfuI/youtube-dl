@@ -36,7 +36,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.3.2',
+	'version': '1.3.3',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -177,7 +177,7 @@ def api(sub):
 			format_code = request.form.get('format_code', None)
 			preferedformat = request.form.get('preferedformat', None)
 			preferredcodec = request.form.get('preferredcodec', None)
-			preferredquality = request.form.get('preferredquality', '192')
+			preferredquality = request.form.get('preferredquality', 192)
 			start = request.form.get('start', False)
 			ret = {
 				'errorCode': 0,
@@ -194,10 +194,12 @@ def api(sub):
 					'preferedformat': preferedformat
 				})
 			if preferredcodec is not None:
+				if preferredcodec not in ('best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
+					return Logic.abort(ret, 5)	# 허용되지 않은 값이 있음
 				postprocessor.append({
 					'key': 'FFmpegExtractAudio',
 					'preferredcodec': preferredcodec,
-					'preferredquality': preferredquality
+					'preferredquality': str(preferredquality)
 				})
 			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code, postprocessor)
 			youtube_dl._key = key
