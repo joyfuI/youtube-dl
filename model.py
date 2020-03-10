@@ -6,7 +6,7 @@ import os
 # third-party
 
 # sjva 공용
-from framework import db, app, path_app_root
+from framework import app, db, path_app_root
 
 # 패키지
 from .plugin import package_name

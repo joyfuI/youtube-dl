@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 # python
 import os
 import traceback
-import shutil
 import tempfile
-import glob
+# import glob2
 from threading import Thread
 import json
 from datetime import datetime
@@ -15,8 +14,23 @@ from enum import Enum
 # third-party
 import youtube_dl
 
-# 패키지
+# sjva 공용, 패키지
+import framework.common.celery as celery_shutil
 from .plugin import logger
+
+try:
+	import glob2
+except Exception as e:
+	import subprocess
+	import platform
+	# glob2 설치
+	logger.debug('glob2 install')
+	if platform.system() == 'Windows':	# 윈도우일 때
+		pip = 'pip.exe'
+	else:
+		pip = 'pip'
+	logger.debug(subprocess.check_output([pip, 'install', 'glob2'], universal_newlines=True))
+	import glob2
 
 class Status(Enum):
 	READY = 0
@@ -111,15 +125,20 @@ class Youtube_dl(object):
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공
-				for i in glob.glob(self.temp_path + '/*'):
-					shutil.move(i, self.save_path)	# 파일 이동
+				for i in glob2.glob(self.temp_path + '/**/*'):
+					path = i.replace(self.temp_path, self.save_path, 1)
+					if os.path.isdir(i):
+						if not os.path.isdir(path):
+							os.mkdir(path)
+						continue
+					celery_shutil.move(i, path)	# 파일 이동
 				self.status = Status.COMPLETED
 		except Exception as e:
 			self.status = Status.ERROR
 			logger.error('Exception:%s', e)
 			logger.error(traceback.format_exc())
 		finally:
-			shutil.rmtree(self.temp_path, ignore_errors=True)	# 임시폴더 삭제
+			celery_shutil.rmtree(self.temp_path)	# 임시폴더 삭제
 			self.end_time = datetime.now()
 
 	def stop(self):
