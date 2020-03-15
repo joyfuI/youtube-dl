@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import os
 import traceback
 import tempfile
-# import glob2
 from threading import Thread
 import json
 from datetime import datetime
@@ -18,19 +17,6 @@ import youtube_dl
 import framework.common.celery as celery_shutil
 from .plugin import logger
 
-try:
-	import glob2
-except Exception as e:
-	import subprocess
-	import platform
-	# glob2 설치
-	logger.debug('glob2 install')
-	if platform.system() == 'Windows':	# 윈도우일 때
-		pip = 'pip.exe'
-	else:
-		pip = 'pip'
-	logger.debug(subprocess.check_output([pip, 'install', 'glob2'], universal_newlines=True))
-	import glob2
 
 class Status(Enum):
 	READY = 0
@@ -53,6 +39,7 @@ class Status(Enum):
 		]
 		return str_list[self.value]
 
+
 class Youtube_dl(object):
 	_index = 0
 	_last_msg = ''
@@ -73,7 +60,7 @@ class Youtube_dl(object):
 		Youtube_dl._index += 1
 		self.status = Status.READY
 		self._thread = None
-		self._key = None
+		self.key = None
 		self.start_time = None	# 시작 시간
 		self.end_time = None	# 종료 시간
 		# info_dict에서 얻는 정보
@@ -125,6 +112,7 @@ class Youtube_dl(object):
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공
+				import glob2
 				for i in glob2.glob(self.temp_path + '/**/*'):
 					path = i.replace(self.temp_path, self.save_path, 1)
 					if os.path.isdir(i):
@@ -189,6 +177,7 @@ class Youtube_dl(object):
 		self.format = info_dict['format']
 		self.thumbnail = info_dict['thumbnail']
 		return None
+
 
 class MyLogger(object):
 	def debug(self, msg):
