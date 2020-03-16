@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.3.4',
+	'version': '1.3.5',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -65,16 +65,16 @@ def first_menu(sub):
 		if sub == 'setting':
 			arg.update(ModelSetting.to_dict())
 			arg['youtube_dl_version'] = Youtube_dl.get_version()
-			return render_template('%s_setting.html' % package_name, arg=arg)
+			return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
 		elif sub == 'download':
 			arg['file_name'] = ModelSetting.get('default_filename')
 			arg['preset_list'] = LogicNormal.get_preset_list()
 			arg['postprocessor_list'] = LogicNormal.get_postprocessor_list()
-			return render_template('%s_download.html' % package_name, arg=arg)
+			return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
 		elif sub == 'list':
-			return render_template('%s_list.html' % package_name, arg=arg)
+			return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
 		elif sub == 'log':
 			return render_template('log.html', package=package_name)

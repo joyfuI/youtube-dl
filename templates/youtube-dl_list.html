@@ -11,11 +11,9 @@
 		word-break: break-all;
 	}
 	.row > div:nth-child(odd) {
-		align-items: right;
 		text-align: right;
 	}
 	.row > div:nth-child(even) {
-		align-items: left;
 		text-align: left;
 	}
 </style>
@@ -51,17 +49,15 @@
 			data: { },
 			dataType: 'json',
 			success: function (data) {
-			    var list = $('#list');
-				list.html('');
 				var str = '';
 				for (var i in data) {
 					str += make_item(data[i]);
 				}
-				list.html(str);
+				$('#list').html(str);
 			}
 		});
 
-		$('body').on('click', '#stop', function (e) {
+		$('#list').on('click', '.youtube-dl_stop', function () {
 			var index = $(this).data('index');
 			$.ajax({
 				url: '/' + package_name + '/ajax/stop',
@@ -95,7 +91,7 @@
 		str += '<td id="download_time_' + data.index + '" scope="col">' + data.download_time + '</td>';
 		str += '<td id="button_' + data.index + '" scope="col" class="tableRowHoverOff">';
 		if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
-			str += '<button id="stop" class="align-middle btn btn-outline-danger btn-sm" data-index="' + data.index + '">중지</button>';
+			str += '<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="' + data.index + '">중지</button>';
 		}
 		str += '</td>';
 		str += '</tr>';

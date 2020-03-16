@@ -2,9 +2,9 @@
 #########################################################
 # python
 import os
+import sys
 import subprocess
 import traceback
-import platform
 
 # third-party
 
@@ -43,21 +43,16 @@ class Logic(object):
 			logger.debug('%s plugin_load', package_name)
 			Logic.db_init()	# DB 초기화
 
-			if platform.system() == 'Windows':	# 윈도우일 때
-				pip = 'pip.exe'
-			else:
-				pip = 'pip'
-
 			try:
 				import glob2
 			except Exception as e:
 				# glob2 설치
 				logger.debug('glob2 install')
-				logger.debug(subprocess.check_output([pip, 'install', 'glob2'], universal_newlines=True))
+				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
 
 			# youtube-dl 업데이트
 			logger.debug('youtube-dl upgrade')
-			logger.debug(subprocess.check_output([pip, 'install', '--upgrade', 'youtube-dl'], universal_newlines=True))
+			logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl'], universal_newlines=True))
 
 			# 편의를 위해 json 파일 생성
 			from plugin import plugin_info

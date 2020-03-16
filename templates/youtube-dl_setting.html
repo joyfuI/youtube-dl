@@ -17,7 +17,7 @@
 
 	$(function () {
 		// 설정 저장
-		$('#setting_save').click(function (e) {
+		$('#setting_save').click(function () {
 			var formData = get_formdata('#setting');
 			$.ajax({
 				url: '/' + package_name + '/ajax/setting_save',

@@ -45,25 +45,25 @@
 
 	$(function () {
 		// 프리셋 변경
-		$('#preset').change(function (e) {
+		$('#preset').change(function () {
 			if ($(this).val() === '_custom') {
 				return;
 			}
 			$('#format').val($(this).val());
 		});
-		$('#format').change(function (e) {
+		$('#format').change(function () {
 			$('#preset').val('_custom');
 		});
 
 		// 후처리 변경
-		$('#postprocessor').change(function (e) {
+		$('#postprocessor').change(function () {
 			if ($(this).find($('option[value="' + $(this).val() + '"]')).parent().attr('label') === '오디오 추출') {
 				$('#preset').val('bestaudio/best').change();
 			}
 		});
 
 		// 다운로드
-		$('#download_start').click(function (e) {
+		$('#download_start').click(function () {
 			var url = $('#url').val();
 			if (url.startsWith('http') === false) {
 				$.notify('<strong>URL을 입력하세요.</strong>', {
