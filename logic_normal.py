@@ -109,7 +109,7 @@ class LogicNormal(object):
 
 	@staticmethod
 	def human_readable_size(size, suffix=''):
-		for unit in ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']:
+		for unit in ('Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB'):
 			if size < 1024.0:
 				return '%3.1f %s%s' % (size, unit, suffix)
 			size /= 1024.0

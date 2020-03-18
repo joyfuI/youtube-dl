@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.3.5',
+	'version': '1.4.0',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -117,6 +117,7 @@ def ajax(sub):
 			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code, postprocessor)
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
+			socketio_emit('add', youtube_dl)
 			return jsonify([])
 
 		elif sub == 'list':
@@ -154,7 +155,7 @@ def api(sub):
 				'errorCode': 0,
 				'info_dict': None
 			}
-			if None == url:
+			if None in (url,):
 				return LogicNormal.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
 				return LogicNormal.abort(ret, 2)	# 잘못된 동영상 주소
@@ -204,6 +205,7 @@ def api(sub):
 			ret['index'] = youtube_dl.index
 			if start:
 				youtube_dl.start()
+			socketio_emit('add', youtube_dl)
 			return jsonify(ret)
 
 		# 다운로드 시작을 요청하는 API
@@ -283,18 +285,5 @@ def api(sub):
 #########################################################
 # socketio
 #########################################################
-@socketio.on('connect', namespace='/%s' % package_name)
-def connect():
-	try:
-		logger.debug('socket_connect')
-	except Exception as e:
-		logger.error('Exception:%s', e)
-		logger.error(traceback.format_exc())
-
-@socketio.on('disconnect', namespace='/%s' % package_name)
-def disconnect():
-	try:
-		logger.debug('socket_disconnect')
-	except Exception as e:
-		logger.error('Exception:%s', e)
-		logger.error(traceback.format_exc())
+def socketio_emit(cmd, data):
+	socketio.emit(cmd, LogicNormal.get_data(data), namespace='/%s' % package_name, broadcast=True)

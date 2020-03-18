@@ -58,7 +58,7 @@ class Youtube_dl(object):
 		self.postprocessor = postprocessor
 		self.index = Youtube_dl._index
 		Youtube_dl._index += 1
-		self.status = Status.READY
+		self._status = Status.READY
 		self._thread = None
 		self.key = None
 		self.start_time = None	# 시작 시간
@@ -87,6 +87,7 @@ class Youtube_dl(object):
 		return True
 
 	def run(self):
+		import glob2
 		try:
 			self.start_time = datetime.now()
 			self.status = Status.START
@@ -112,7 +113,6 @@ class Youtube_dl(object):
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공
-				import glob2
 				for i in glob2.glob(self.temp_path + '/**/*'):
 					path = i.replace(self.temp_path, self.save_path, 1)
 					if os.path.isdir(i):
@@ -177,6 +177,16 @@ class Youtube_dl(object):
 		self.format = info_dict['format']
 		self.thumbnail = info_dict['thumbnail']
 		return None
+
+	@property
+	def status(self):
+		return self._status
+
+	@status.setter
+	def status(self, value):
+		from .plugin import socketio_emit
+		self._status = value
+		socketio_emit('status', self)
 
 
 class MyLogger(object):

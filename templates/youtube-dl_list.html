@@ -40,7 +40,15 @@
 	var package_name = '{{ arg["package_name"] }}';
 
 	$(function () {
-		// var socket = io.connect(location.origin + "/" + package_name);
+		var socket = io.connect(location.origin + "/" + package_name);
+
+		socket.on('add', function (data) {
+			$('#list').append(make_item(data));
+		});
+
+		socket.on('status', function (data) {
+			status_html(data);
+		});
 
 		$.ajax({
 			url: '/' + package_name + '/ajax/list',
@@ -76,24 +84,8 @@
 	});
 
 	function make_item(data) {
-		var str = '<tr style="cursor: pointer;" data-toggle="collapse" data-target="#collapse_' + data.index + '" aria-expanded="true">';
-		str += '<td scope="col">' + (data.index + 1) + '</td>';
-		str += '<td scope="col">' + data.plugin + '</td>';
-		str += '<td scope="col">' + data.start_time + '</td>';
-		str += '<td scope="col">' + data.extractor + '</td>';
-		str += '<td scope="col">' + data.title + '</td>';
-		str += '<td id="status_' + data.index + '" scope="col">' + data.status_ko + '</td>';
-		var visi = 'hidden';
-		if (parseInt(data.percent) > 0 && data.status_str !== 'STOP') {
-			visi = 'visible';
-		}
-		str += '<td scope="col"><div class="progress"><div id="progress_' + data.index + '" class="progress-bar" style="visibility: ' + visi + '; width:' + data.percent + '%">' + data.percent + '%</div></div></td>';
-		str += '<td id="download_time_' + data.index + '" scope="col">' + data.download_time + '</td>';
-		str += '<td id="button_' + data.index + '" scope="col" class="tableRowHoverOff">';
-		if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
-			str += '<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="' + data.index + '">중지</button>';
-		}
-		str += '</td>';
+		var str = '<tr id="item_' + data.index + '" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse_' + data.index + '" aria-expanded="true">';
+		str += get_item(data);
 		str += '</tr>';
 		str += '<tr class="collapse tableRowHoverOff" style="cursor: pointer;" id="collapse_' + data.index + '">';
 		str += '<td colspan="9">';
@@ -102,6 +94,27 @@
 		str += '</div>';
 		str += '</td>';
 		str += '</tr>';
+		return str;
+	}
+
+	function get_item(data) {
+		var str = '<td scope="col">' + (data.index + 1) + '</td>';
+		str += '<td scope="col">' + data.plugin + '</td>';
+		str += '<td scope="col">' + data.start_time + '</td>';
+		str += '<td scope="col">' + data.extractor + '</td>';
+		str += '<td scope="col">' + data.title + '</td>';
+		str += '<td scope="col">' + data.status_ko + '</td>';
+		var visi = 'hidden';
+		if (parseInt(data.percent) > 0 && data.status_str !== 'STOP') {
+			visi = 'visible';
+		}
+		str += '<td scope="col"><div class="progress"><div class="progress-bar" style="visibility: ' + visi + '; width:' + data.percent + '%">' + data.percent + '%</div></div></td>';
+		str += '<td scope="col">' + data.download_time + '</td>';
+		str += '<td scope="col" class="tableRowHoverOff">';
+		if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
+			str += '<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="' + data.index + '">중지</button>';
+		}
+		str += '</td>';
 		return str;
 	}
 
@@ -139,6 +152,11 @@
 		}
 		str += '</span></div></div></div>';
 		return str;
+	}
+
+	function status_html(data) {
+		$('#item_' + data.index).html(get_item(data));
+		$('#detail_' + data.index).html(get_detail(data));
 	}
 </script>
 
