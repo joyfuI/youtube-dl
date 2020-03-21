@@ -26,7 +26,7 @@ from .my_youtube_dl import Youtube_dl
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 
 menu = {
-	'main': [package_name, 'youtube-dl'],
+	'main': [package_name, 'youtube-dl-repack'],
 	'sub': [
 		['setting', '설정'], ['download', '다운로드'], ['list', '목록'], ['log', '로그']
 	],
@@ -35,11 +35,11 @@ menu = {
 
 plugin_info = {
 	'version': '1.4.0',
-	'name': 'youtube-dl',
+	'name': 'youtube-dl-repack',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
 	'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
-	'home': 'https://github.com/joyfuI/youtube-dl',
+	'home': 'https://github.com/dbswnschl/youtube-dl',
 	'more': ''
 }
 
