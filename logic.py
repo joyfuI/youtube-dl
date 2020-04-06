@@ -50,6 +50,13 @@ class Logic(object):
 				# glob2 설치
 				logger.debug('glob2 install')
 				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
+			try:
+				import flask_cors
+			except Exception as e:
+				# flask_cors 설치
+				logger.debug('flask_cors install')
+				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask_cors'], universal_newlines=True))
+
 
 			# youtube-dl 업데이트
 			logger.debug('youtube-dl upgrade')
