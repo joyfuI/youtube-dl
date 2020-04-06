@@ -25,7 +25,13 @@ from .my_youtube_dl import Youtube_dl
 # 플러그인 공용
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
-flask_cors.CORS(blueprint)
+try:
+	if ModelSetting.get_bool('activate_cors') == True:
+		flask_cors.CORS(blueprint)
+except Exception as e:
+	logger.error('Exception:%s', e)
+	logger.error(traceback.format_exc())
+
 menu = {
 	'main': [package_name, 'youtube-dl-repack'],
 	'sub': [
