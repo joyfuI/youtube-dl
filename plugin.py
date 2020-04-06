@@ -24,8 +24,11 @@ from .my_youtube_dl import Youtube_dl
 #########################################################
 # 플러그인 공용
 #########################################################
+
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
                       template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
+if ModelSetting.get_bool('activate_cors') == True:
+    flask_cors.CORS(blueprint)
 
 menu = {
     'main': [package_name, 'youtube-dl-repack'],
@@ -100,12 +103,6 @@ def ajax(sub):
     try:
         if sub == 'setting_save':
             ret = ModelSetting.setting_save(request)
-            print(ret)
-            if ModelSetting.get_bool('activate_cors') == True:
-                flask_cors.CORS(blueprint, supports_credentials=True)
-            else:
-                blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
-                                      template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
             return jsonify(ret)
 
         elif sub == 'download':
