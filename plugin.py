@@ -7,7 +7,6 @@ import traceback
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
 from flask_login import login_required
-import flask_cors
 
 # sjva 공용
 from framework.logger import get_logger
@@ -26,6 +25,8 @@ from .my_youtube_dl import Youtube_dl
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 try:
+	import flask_cors
+	logger.debug("##DEBUG##: {0}".format(ModelSetting.get_bool('activate_cors')))
 	if ModelSetting.get_bool('activate_cors') == True:
 		flask_cors.CORS(blueprint)
 except Exception as e:
