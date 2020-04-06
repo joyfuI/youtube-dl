@@ -7,6 +7,7 @@ import traceback
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
 from flask_login import login_required
+import flask_cors
 
 # sjva 공용
 from framework.logger import get_logger
@@ -99,6 +100,12 @@ def ajax(sub):
     try:
         if sub == 'setting_save':
             ret = ModelSetting.setting_save(request)
+            print(ret)
+            if ModelSetting.get_bool('activate_cors') == True:
+                flask_cors.CORS(blueprint, supports_credentials=True)
+            else:
+                blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
+                                      template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
             return jsonify(ret)
 
         elif sub == 'download':
@@ -138,17 +145,6 @@ def ajax(sub):
             index = int(request.form['index'])
             LogicNormal.youtube_dl_list[index].stop()
             return jsonify([])
-    except Exception as e:
-        logger.error('Exception:%s', e)
-        logger.error(traceback.format_exc())
-
-    try:
-        import flask_cors
-        logger.debug("##DEBUG##: {0}".format(ModelSetting.get_bool('activate_cors')))
-        if ModelSetting.get_bool('activate_cors') == True:
-            flask_cors.CORS(blueprint, supports_credentials=True)
-        else:
-            blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
     except Exception as e:
         logger.error('Exception:%s', e)
         logger.error(traceback.format_exc())
