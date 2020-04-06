@@ -40,7 +40,7 @@ menu = {
 
 plugin_info = {
     'version': '1.4.0',
-    'name': 'youtube-dl-repack',
+    'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
     'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
