@@ -44,7 +44,7 @@ plugin_info = {
     'category_name': 'vod',
     'developer': 'joyfuI',
     'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
-    'home': 'https://github.com/dbswnschl/youtube-dl',
+    'home': 'https://github.com/joyfuI/youtube-dl',
     'more': ''
 }
 
