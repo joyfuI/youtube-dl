@@ -22,7 +22,8 @@ class Logic(object):
 		'db_version': '1',
 		'temp_path': os.path.join(path_data, 'download_tmp'),
 		'save_path': os.path.join(path_data, 'download'),
-		'default_filename': '%(title)s-%(id)s.%(ext)s'
+		'default_filename': '%(title)s-%(id)s.%(ext)s',
+		'activate_cors':True
 	}
 
 	@staticmethod
