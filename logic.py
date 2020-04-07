@@ -22,7 +22,8 @@ class Logic(object):
 		'db_version': '1',
 		'temp_path': os.path.join(path_data, 'download_tmp'),
 		'save_path': os.path.join(path_data, 'download'),
-		'default_filename': '%(title)s-%(id)s.%(ext)s'
+		'default_filename': '%(title)s-%(id)s.%(ext)s',
+		'activate_cors': True
 	}
 
 	@staticmethod
@@ -49,6 +50,11 @@ class Logic(object):
 				# glob2 설치
 				logger.debug('glob2 install')
 				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
+			try:
+				import flask_cors
+			except Exception as e:
+				logger.debug('flask_cors install')
+				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask_cors'], universal_newlines=True))
 
 			# youtube-dl 업데이트
 			logger.debug('youtube-dl upgrade')
