@@ -7,7 +7,7 @@
 	{{ macros.setting_input_text('temp_path', '임시 폴더', value=arg['temp_path'], placeholder='임시 폴더 경로', desc='다운로드 파일이 임시로 저장될 폴더 입니다.') }}
 	{{ macros.setting_input_text('save_path', '저장 폴더', value=arg['save_path'], placeholder='저장 폴더 경로', desc='정상적으로 완료된 파일이 이동할 폴더 입니다.') }}
 	{{ macros.setting_input_text('default_filename', '기본 파일명', value=arg['default_filename'], placeholder='저장 폴더 경로', desc=['템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고', '기본값은 "%(title)s-%(id)s.%(ext)s"입니다.']) }}
-	{{ macros.setting_checkbox('activate_cors', 'CORS 허용', value=arg['activate_cors'], desc='api로의 크로스 도메인요청 허용 유무 입니다. 설정 저장후 재시작이 필요합니다.') }}
+	{{ macros.setting_checkbox('activate_cors', 'CORS 허용', value=arg['activate_cors'], desc='API로의 크로스 도메인 요청을 허용합니다. 설정 저장 후 재시작이 필요합니다.') }}
 	{{ macros.setting_button([['setting_save', '저장']]) }}
 	</form>
 </div>

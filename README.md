@@ -131,8 +131,12 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.4.1
+* CORS 허용 설정 추가  
+  Thanks to [dbswnschl](https://github.com/dbswnschl)
+
 v1.4.0
-* socketio 적용
+* socketio 적용  
   목록 페이지에서 목록이 실시간으로 업데이트됩니다.
 
 v1.3.5

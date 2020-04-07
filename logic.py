@@ -23,7 +23,7 @@ class Logic(object):
 		'temp_path': os.path.join(path_data, 'download_tmp'),
 		'save_path': os.path.join(path_data, 'download'),
 		'default_filename': '%(title)s-%(id)s.%(ext)s',
-		'activate_cors': True
+		'activate_cors': False
 	}
 
 	@staticmethod
@@ -53,8 +53,9 @@ class Logic(object):
 			try:
 				import flask_cors
 			except Exception as e:
-				logger.debug('flask_cors install')
-				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask_cors'], universal_newlines=True))
+				# flask-cors 설치
+				logger.debug('flask-cors install')
+				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'], universal_newlines=True))
 
 			# youtube-dl 업데이트
 			logger.debug('youtube-dl upgrade')

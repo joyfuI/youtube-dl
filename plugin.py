@@ -7,7 +7,6 @@ import traceback
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
 from flask_login import login_required
-import flask_cors
 
 # sjva 공용
 from framework.logger import get_logger
@@ -25,8 +24,7 @@ from .my_youtube_dl import Youtube_dl
 # 플러그인 공용
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
-if ModelSetting.get_bool('activate_cors') == True:
-    flask_cors.CORS(blueprint)
+
 menu = {
 	'main': [package_name, 'youtube-dl'],
 	'sub': [
@@ -36,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.4.0',
+	'version': '1.4.1',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -47,6 +45,9 @@ plugin_info = {
 
 def plugin_load():
 	Logic.plugin_load()
+	if ModelSetting.get_bool('activate_cors'):
+		import flask_cors
+		flask_cors.CORS(blueprint)
 
 def plugin_unload():
 	Logic.plugin_unload()
