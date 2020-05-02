@@ -131,6 +131,10 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.4.2
+* --rm-cache-dir 옵션 추가
+* 플러그인 최초 설치 시 작동 안 되는 문제 수정
+
 v1.4.1
 * CORS 허용 설정 추가  
   Thanks to [dbswnschl](https://github.com/dbswnschl)

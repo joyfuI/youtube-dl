@@ -11,7 +11,6 @@ from datetime import datetime
 from enum import Enum
 
 # third-party
-import youtube_dl
 
 # sjva 공용, 패키지
 import framework.common.celery as celery_shutil
@@ -87,6 +86,7 @@ class Youtube_dl(object):
 		return True
 
 	def run(self):
+		import youtube_dl
 		import glob2
 		try:
 			self.start_time = datetime.now()
@@ -104,7 +104,8 @@ class Youtube_dl(object):
 				'progress_hooks': [self.my_hook],
 				# 'match_filter': self.match_filter_func,
 				'outtmpl': os.path.join(self.temp_path, self.filename),
-				'ignoreerrors': True
+				'ignoreerrors': True,
+				'cachedir': False
 			}
 			if self.format_code is not None:
 				ydl_opts['format'] = self.format_code
@@ -138,10 +139,12 @@ class Youtube_dl(object):
 
 	@staticmethod
 	def get_version():
+		import youtube_dl
 		return youtube_dl.version.__version__
 
 	@staticmethod
 	def get_info_dict(url):
+		import youtube_dl
 		try:
 			ydl_opts = {
 				'simulate': True,
