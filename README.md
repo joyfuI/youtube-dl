@@ -74,6 +74,7 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
+`archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있을 경우 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
 #### Response
 키 | 설명 | 타입
@@ -127,10 +128,16 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `temp_path` | 임시 폴더 경로 | String
 `save_path` | 저장 폴더 경로 | String
 
-`start_time` 키와 `end_time` 키에 들어있는 시간은 "년 월 일 시 분 초" 형식으로 공백으로 분리된 숫자들이 모여있는 문자열입니다.  
+`start_time` 키와 `end_time` 키에 들어있는 시간은 "YYYY-MM-DDThh:mm:ss" 형식의 문자열입니다.  
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.5.0
+* 프록시 설정 추가
+* API에 archive 추가  
+  download-archive 기능으로 다운로드한 동영상의 ID를 기록하여 이미 다운로드한 동영상은 다운로드 하지 않는 옵션입니다.
+* status API의 시간 형식 변경 (ISO 8601)
+
 v1.4.2
 * --rm-cache-dir 옵션 추가
 * 플러그인 최초 설치 시 작동 안 되는 문제 수정

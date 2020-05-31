@@ -43,7 +43,7 @@ class Youtube_dl(object):
 	_index = 0
 	_last_msg = ''
 
-	def __init__(self, plugin, url, filename, temp_path, save_path, format_code=None, postprocessor=None):
+	def __init__(self, plugin, url, filename, temp_path, save_path, format_code=None, postprocessor=None, proxy='', archive=None):
 		self.plugin = plugin
 		self.url = url
 		self.filename = filename
@@ -55,6 +55,8 @@ class Youtube_dl(object):
 		self.save_path = save_path
 		self.format_code = format_code
 		self.postprocessor = postprocessor
+		self.proxy = proxy
+		self.archive = archive
 		self.index = Youtube_dl._index
 		Youtube_dl._index += 1
 		self._status = Status.READY
@@ -111,6 +113,10 @@ class Youtube_dl(object):
 				ydl_opts['format'] = self.format_code
 			if self.postprocessor is not None:
 				ydl_opts['postprocessors'] = self.postprocessor
+			if not self.proxy:
+				ydl_opts['proxy'] = self.proxy
+			if self.archive is not None:
+				ydl_opts['download_archive'] = self.archive
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공

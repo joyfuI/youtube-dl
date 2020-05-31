@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.4.2',
+	'version': '1.5.0',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -105,6 +105,7 @@ def ajax(sub):
 			save_path = ModelSetting.get('save_path')
 			format_code = request.form['format'] if request.form['format'] else None
 			postprocessor = request.form['postprocessor'] if request.form['postprocessor'] else None
+			proxy = ModelSetting.get('proxy')
 			video_convertor, extract_audio = LogicNormal.get_postprocessor()
 			if postprocessor in video_convertor:
 				postprocessor = [{
@@ -117,7 +118,7 @@ def ajax(sub):
 					'preferredcodec': postprocessor,
 					'preferredquality': '192'
 				}]
-			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code, postprocessor)
+			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code, postprocessor, proxy)
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
 			socketio_emit('add', youtube_dl)
@@ -179,6 +180,7 @@ def api(sub):
 			preferedformat = request.form.get('preferedformat', None)
 			preferredcodec = request.form.get('preferredcodec', None)
 			preferredquality = request.form.get('preferredquality', 192)
+			archive = request.form.get('archive', None)
 			start = request.form.get('start', False)
 			ret = {
 				'errorCode': 0,
@@ -202,7 +204,8 @@ def api(sub):
 					'preferredcodec': preferredcodec,
 					'preferredquality': str(preferredquality)
 				})
-			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code, postprocessor)
+			proxy = ModelSetting.get('proxy')
+			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code, postprocessor, proxy, archive)
 			youtube_dl.key = key
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			ret['index'] = youtube_dl.index
@@ -274,8 +277,8 @@ def api(sub):
 			if youtube_dl.key != key:
 				return LogicNormal.abort(ret, 4)	# 키가 일치하지 않음
 			ret['status'] = youtube_dl.status.name
-			ret['start_time'] = youtube_dl.start_time.strftime('%Y %m %d %H %M %S') if youtube_dl.start_time is not None else None
-			ret['end_time'] = youtube_dl.end_time.strftime('%Y %m %d %H %M %S') if youtube_dl.end_time is not None else None
+			ret['start_time'] = youtube_dl.start_time.strftime('%Y-%m-%dT%H:%M:%S') if youtube_dl.start_time is not None else None
+			ret['end_time'] = youtube_dl.end_time.strftime('%Y-%m-%dT%H:%M:%S') if youtube_dl.end_time is not None else None
 			ret['temp_path'] = youtube_dl.temp_path
 			ret['save_path'] = youtube_dl.save_path
 			return jsonify(ret)

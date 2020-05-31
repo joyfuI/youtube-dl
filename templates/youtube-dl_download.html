@@ -41,7 +41,7 @@
 
 <script>
 	"use strict";
-	var package_name = '{{ arg["package_name"] }}';
+	const package_name = '{{ arg["package_name"] }}';
 
 	$(function () {
 		// 프리셋 변경
@@ -64,7 +64,7 @@
 
 		// 다운로드
 		$('#download_start').click(function () {
-			var url = $('#url').val();
+			let url = $('#url').val();
 			if (url.startsWith('http') === false) {
 				$.notify('<strong>URL을 입력하세요.</strong>', {
 					type: 'warning'
@@ -82,7 +82,7 @@
 					postprocessor: $('#postprocessor').val()
 				},
 				dataType: 'json',
-				success: function (data) {
+				success: function () {
 					$.notify('<strong>분석중..</strong>', {
 						type: 'info'
 					});

@@ -37,10 +37,10 @@
 
 <script>
 	"use strict";
-	var package_name = '{{ arg["package_name"] }}';
+	const package_name = '{{ arg["package_name"] }}';
 
 	$(function () {
-		var socket = io.connect(location.origin + "/" + package_name);
+		let socket = io.connect(location.origin + "/" + package_name);
 
 		socket.on('add', function (data) {
 			$('#list').append(make_item(data));
@@ -57,16 +57,16 @@
 			data: { },
 			dataType: 'json',
 			success: function (data) {
-				var str = '';
-				for (var i in data) {
-					str += make_item(data[i]);
+				let str = '';
+				for (let i of data) {
+					str += make_item(i);
 				}
 				$('#list').html(str);
 			}
 		});
 
 		$('#list').on('click', '.youtube-dl_stop', function () {
-			var index = $(this).data('index');
+			let index = $(this).data('index');
 			$.ajax({
 				url: '/' + package_name + '/ajax/stop',
 				type: 'POST',
@@ -75,7 +75,7 @@
 					index: index
 				},
 				dataType: 'json',
-				success: function (data) {
+				success: function () {
 					location.reload();	// 새로고침
 				}
 			});
@@ -84,7 +84,7 @@
 	});
 
 	function make_item(data) {
-		var str = '<tr id="item_' + data.index + '" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse_' + data.index + '" aria-expanded="true">';
+		let str = '<tr id="item_' + data.index + '" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse_' + data.index + '" aria-expanded="true">';
 		str += get_item(data);
 		str += '</tr>';
 		str += '<tr class="collapse tableRowHoverOff" style="cursor: pointer;" id="collapse_' + data.index + '">';
@@ -98,19 +98,19 @@
 	}
 
 	function get_item(data) {
-		var str = '<td scope="col">' + (data.index + 1) + '</td>';
-		str += '<td scope="col">' + data.plugin + '</td>';
-		str += '<td scope="col">' + data.start_time + '</td>';
-		str += '<td scope="col">' + data.extractor + '</td>';
-		str += '<td scope="col">' + data.title + '</td>';
-		str += '<td scope="col">' + data.status_ko + '</td>';
-		var visi = 'hidden';
+		let str = '<td>' + (data.index + 1) + '</td>';
+		str += '<td>' + data.plugin + '</td>';
+		str += '<td>' + data.start_time + '</td>';
+		str += '<td>' + data.extractor + '</td>';
+		str += '<td>' + data.title + '</td>';
+		str += '<td>' + data.status_ko + '</td>';
+		let visi = 'hidden';
 		if (parseInt(data.percent) > 0 && data.status_str !== 'STOP') {
 			visi = 'visible';
 		}
-		str += '<td scope="col"><div class="progress"><div class="progress-bar" style="visibility: ' + visi + '; width:' + data.percent + '%">' + data.percent + '%</div></div></td>';
-		str += '<td scope="col">' + data.download_time + '</td>';
-		str += '<td scope="col" class="tableRowHoverOff">';
+		str += '<td><div class="progress"><div class="progress-bar" style="visibility: ' + visi + '; width:' + data.percent + '%">' + data.percent + '%</div></div></td>';
+		str += '<td>' + data.download_time + '</td>';
+		str += '<td class="tableRowHoverOff">';
 		if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
 			str += '<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="' + data.index + '">중지</button>';
 		}
@@ -119,7 +119,7 @@
 	}
 
 	function get_detail(data) {
-		var str = info_html('URL', data.url, data.url);
+		let str = info_html('URL', data.url, data.url);
 		str += info_html('업로더', data.uploader, data.uploader_url);
 		str += info_html('임시폴더', data.temp_path);
 		str += info_html('저장폴더', data.save_path);
@@ -135,8 +135,8 @@
 	}
 
 	function info_html(left, right, option) {
-		var str = '<div class="row">';
-		var link = (left === 'URL' || left === '업로더');
+		let str = '<div class="row">';
+		let link = (left === 'URL' || left === '업로더');
 		str += '<div class="col-sm-2">';
 		str += '<b>' + left + '</b>';
 		str += '</div>';
