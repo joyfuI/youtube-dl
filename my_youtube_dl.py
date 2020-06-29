@@ -43,7 +43,7 @@ class Youtube_dl(object):
 	_index = 0
 	_last_msg = ''
 
-	def __init__(self, plugin, url, filename, temp_path, save_path, format_code=None, postprocessor=None, proxy='', archive=None):
+	def __init__(self, plugin, url, filename, temp_path, save_path, opts):
 		self.plugin = plugin
 		self.url = url
 		self.filename = filename
@@ -53,10 +53,7 @@ class Youtube_dl(object):
 		if not os.path.isdir(save_path):
 			os.makedirs(save_path)
 		self.save_path = save_path
-		self.format_code = format_code
-		self.postprocessor = postprocessor
-		self.proxy = proxy
-		self.archive = archive
+		self.opts = opts
 		self.index = Youtube_dl._index
 		Youtube_dl._index += 1
 		self._status = Status.READY
@@ -64,21 +61,23 @@ class Youtube_dl(object):
 		self.key = None
 		self.start_time = None	# 시작 시간
 		self.end_time = None	# 종료 시간
-		# info_dict에서 얻는 정보
-		self.extractor = None	# 타입
-		self.title = None	# 제목
-		self.uploader = None	# 업로더
-		self.uploader_url = None	# 업로더 주소
+		self.info_dict = {	# info_dict에서 얻는 정보
+			'extractor': None,	# 타입
+			'title': None,	# 제목
+			'uploader': None,	# 업로더
+			'uploader_url': None	# 업로더 주소
+		}
 		# info_dict에서 얻는 정보(entries)
-		# self.playlist_index = None
-		# self.duration = None	# 길이
-		# self.format = None	# 포맷
-		# self.thumbnail = None	# 썸네일
-		# progress_hooks에서 얻는 정보
-		self.downloaded_bytes = None	# 다운로드한 크기
-		self.total_bytes = None	# 전체 크기
-		self.eta = None	# 예상 시간(s)
-		self.speed = None	# 다운로드 속도(bytes/s)
+		# self.info_dict['playlist_index'] = None
+		# self.info_dict['duration'] = None	# 길이
+		# self.info_dict['format'] = None	# 포맷
+		# self.info_dict['thumbnail'] = None	# 썸네일
+		self.progress_hooks = {	# progress_hooks에서 얻는 정보
+			'downloaded_bytes': None,	# 다운로드한 크기
+			'total_bytes': None,	# 전체 크기
+			'eta': None,	# 예상 시간(s)
+			'speed': None	# 다운로드 속도(bytes/s)
+		}
 
 	def start(self):
 		if self.status != Status.READY:
@@ -97,10 +96,10 @@ class Youtube_dl(object):
 			if info_dict is None:	# 가져오기 실패
 				self.status = Status.ERROR
 				return
-			self.extractor = info_dict['extractor']
-			self.title = info_dict['title']
-			self.uploader = info_dict['uploader']
-			self.uploader_url = info_dict['uploader_url']
+			self.info_dict['extractor'] = info_dict['extractor']
+			self.info_dict['title'] = info_dict['title']
+			self.info_dict['uploader'] = info_dict['uploader']
+			self.info_dict['uploader_url'] = info_dict['uploader_url']
 			ydl_opts = {
 				'logger': MyLogger(),
 				'progress_hooks': [self.my_hook],
@@ -109,14 +108,14 @@ class Youtube_dl(object):
 				'ignoreerrors': True,
 				'cachedir': False
 			}
-			if self.format_code is not None:
-				ydl_opts['format'] = self.format_code
-			if self.postprocessor is not None:
-				ydl_opts['postprocessors'] = self.postprocessor
-			if not self.proxy:
-				ydl_opts['proxy'] = self.proxy
-			if self.archive is not None:
-				ydl_opts['download_archive'] = self.archive
+			if 'format' in self.opts:
+				ydl_opts['format'] = self.opts['format']
+			if 'postprocessors' in self.opts:
+				ydl_opts['postprocessors'] = self.opts['postprocessors']
+			if 'proxy' in self.opts:
+				ydl_opts['proxy'] = self.opts['proxy']
+			if 'download_archive' in self.opts:
+				ydl_opts['download_archive'] = self.opts['download_archive']
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
 			if self.status == Status.FINISHED:	# 다운로드 성공
@@ -134,7 +133,8 @@ class Youtube_dl(object):
 			logger.error(traceback.format_exc())
 		finally:
 			celery_shutil.rmtree(self.temp_path)	# 임시폴더 삭제
-			self.end_time = datetime.now()
+			if self.status != Status.STOP:
+				self.end_time = datetime.now()
 
 	def stop(self):
 		if self.status in (Status.ERROR, Status.STOP, Status.COMPLETED):
@@ -175,16 +175,16 @@ class Youtube_dl(object):
 			}[d['status']]
 		if d['status'] != 'error':
 			self.filename = os.path.basename(d.get('filename'))
-			self.downloaded_bytes = d.get('downloaded_bytes')
-			self.total_bytes = d.get('total_bytes')
-			self.eta = d.get('eta')
-			self.speed = d.get('speed')
+			self.progress_hooks['downloaded_bytes'] = d.get('downloaded_bytes')
+			self.progress_hooks['total_bytes'] = d.get('total_bytes')
+			self.progress_hooks['eta'] = d.get('eta')
+			self.progress_hooks['speed'] = d.get('speed')
 
 	def match_filter_func(self, info_dict):
-		self.playlist_index = info_dict['playlist_index']
-		self.duration = info_dict['duration']
-		self.format = info_dict['format']
-		self.thumbnail = info_dict['thumbnail']
+		self.info_dict['playlist_index'] = info_dict['playlist_index']
+		self.info_dict['duration'] = info_dict['duration']
+		self.info_dict['format'] = info_dict['format']
+		self.info_dict['thumbnail'] = info_dict['thumbnail']
 		return None
 
 	@property

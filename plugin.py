@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.5.0',
+	'version': '1.5.1',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -94,10 +94,12 @@ def first_menu(sub):
 def ajax(sub):
 	logger.debug('AJAX %s %s', package_name, sub)
 	try:
+		# 공통 요청
 		if sub == 'setting_save':
 			ret = ModelSetting.setting_save(request)
 			return jsonify(ret)
 
+		# UI 요청
 		elif sub == 'download':
 			url = request.form['url']
 			filename = request.form['filename']
@@ -105,7 +107,6 @@ def ajax(sub):
 			save_path = ModelSetting.get('save_path')
 			format_code = request.form['format'] if request.form['format'] else None
 			postprocessor = request.form['postprocessor'] if request.form['postprocessor'] else None
-			proxy = ModelSetting.get('proxy')
 			video_convertor, extract_audio = LogicNormal.get_postprocessor()
 			if postprocessor in video_convertor:
 				postprocessor = [{
@@ -118,7 +119,12 @@ def ajax(sub):
 					'preferredcodec': postprocessor,
 					'preferredquality': '192'
 				}]
-			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, format_code, postprocessor, proxy)
+			opts = {
+				'format': format_code,
+				'postprocessors': postprocessor,
+				'proxy': ModelSetting.get('proxy')
+			}
+			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, opts)
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
 			socketio_emit('add', youtube_dl)
@@ -204,8 +210,13 @@ def api(sub):
 					'preferredcodec': preferredcodec,
 					'preferredquality': str(preferredquality)
 				})
-			proxy = ModelSetting.get('proxy')
-			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, format_code, postprocessor, proxy, archive)
+			opts = {
+				'format': format_code,
+				'postprocessors': postprocessor,
+				'proxy': ModelSetting.get('proxy'),
+				'download_archive': archive
+			}
+			youtube_dl = Youtube_dl(plugin, url, filename, temp_path, save_path, opts)
 			youtube_dl.key = key
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			ret['index'] = youtube_dl.index
@@ -260,14 +271,7 @@ def api(sub):
 		elif sub == 'status':
 			index = request.form.get('index')
 			key = request.form.get('key')
-			ret = {
-				'errorCode': 0,
-				'status': None,
-				'start_time': None,
-				'end_time': None,
-				'temp_path': None,
-				'save_path': None
-			}
+			ret = {'errorCode': 0}
 			if None in (index, key):
 				return LogicNormal.abort(ret, 1)	# 필수 요청 변수가 없음
 			index = int(index)

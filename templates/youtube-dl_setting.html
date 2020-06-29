@@ -9,39 +9,13 @@
 		{{ macros.setting_input_text('default_filename', '기본 파일명', value=arg['default_filename'], placeholder='저장 폴더 경로', desc=['템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고', '기본값은 "%(title)s-%(id)s.%(ext)s"입니다.']) }}
 		{{ macros.setting_input_text('proxy', '프록시', value=arg['proxy'], placeholder='프록시 주소', desc=['HTTP/HTTPS/SOCKS를 지원합니다. 예) socks5://127.0.0.1:1080/', '빈칸으로 두면 프록시를 사용하지 않습니다.']) }}
 		{{ macros.setting_checkbox('activate_cors', 'CORS 허용', value=arg['activate_cors'], desc='API로의 크로스 도메인 요청을 허용합니다. 설정 저장 후 재시작이 필요합니다.') }}
-		{{ macros.setting_button([['setting_save', '저장']]) }}
+		{{ macros.setting_button([['global_setting_save_btn', '저장']]) }}
 	</form>
 </div>
 
 <script>
 	"use strict";
 	const package_name = '{{ arg["package_name"] }}';
-
-	$(function () {
-		// 설정 저장
-		$('#setting_save').click(function () {
-			let formData = get_formdata('#setting');
-			$.ajax({
-				url: '/' + package_name + '/ajax/setting_save',
-				type: 'POST',
-				cache: false,
-				data: formData,
-				dataType: 'json',
-				success: function (ret) {
-					if (ret) {
-						$.notify('<strong>설정을 저장하였습니다.</strong>', {
-							type: 'success'
-						});
-					} else {
-						$.notify('<strong>설정을 저장하지 못하였습니다.</strong>', {
-							type: 'warning'
-						});
-					}
-				}
-			});
-			return false;
-		});
-	});
 </script>
 
 {% endblock %}

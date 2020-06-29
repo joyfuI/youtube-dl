@@ -47,13 +47,13 @@ class Logic(object):
 
 			try:
 				import glob2
-			except Exception as e:
+			except ImportError:
 				# glob2 설치
 				logger.debug('glob2 install')
 				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
 			try:
 				import flask_cors
-			except Exception as e:
+			except ImportError:
 				# flask-cors 설치
 				logger.debug('flask-cors install')
 				logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'], universal_newlines=True))

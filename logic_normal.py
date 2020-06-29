@@ -77,15 +77,15 @@ class LogicNormal(object):
 			data['status_str'] = youtube_dl.status.name
 			data['status_ko'] = str(youtube_dl.status)
 			data['end_time'] = ''
-			data['extractor'] = youtube_dl.extractor if youtube_dl.extractor is not None else ''
-			data['title'] = youtube_dl.title if youtube_dl.title is not None else youtube_dl.url
-			data['uploader'] = youtube_dl.uploader if youtube_dl.uploader is not None else ''
-			data['uploader_url'] = youtube_dl.uploader_url if youtube_dl.uploader_url is not None else ''
+			data['extractor'] = youtube_dl.info_dict['extractor'] if youtube_dl.info_dict['extractor'] is not None else ''
+			data['title'] = youtube_dl.info_dict['title'] if youtube_dl.info_dict['title'] is not None else youtube_dl.url
+			data['uploader'] = youtube_dl.info_dict['uploader'] if youtube_dl.info_dict['uploader'] is not None else ''
+			data['uploader_url'] = youtube_dl.info_dict['uploader_url'] if youtube_dl.info_dict['uploader_url'] is not None else ''
 			data['downloaded_bytes_str'] = ''
 			data['total_bytes_str'] = ''
 			data['percent'] = '0'
-			data['eta'] = youtube_dl.eta if youtube_dl.eta is not None else ''
-			data['speed_str'] = LogicNormal.human_readable_size(youtube_dl.speed, '/s') if youtube_dl.speed is not None else ''
+			data['eta'] = youtube_dl.progress_hooks['eta'] if youtube_dl.progress_hooks['eta'] is not None else ''
+			data['speed_str'] = LogicNormal.human_readable_size(youtube_dl.progress_hooks['speed'], '/s') if youtube_dl.progress_hooks['speed'] is not None else ''
 			if youtube_dl.status == Status.READY:	# 다운로드 전
 				data['start_time'] = ''
 				data['download_time'] = ''
@@ -95,10 +95,10 @@ class LogicNormal(object):
 				else:
 					download_time = youtube_dl.end_time - youtube_dl.start_time
 					data['end_time'] = youtube_dl.end_time.strftime('%m-%d %H:%M:%S')
-				if None not in (youtube_dl.downloaded_bytes, youtube_dl.total_bytes):	# 둘 다 값이 있으면
-					data['downloaded_bytes_str'] = LogicNormal.human_readable_size(youtube_dl.downloaded_bytes)
-					data['total_bytes_str'] = LogicNormal.human_readable_size(youtube_dl.total_bytes)
-					data['percent'] = '%.2f' % (float(youtube_dl.downloaded_bytes) / float(youtube_dl.total_bytes) * 100)
+				if None not in (youtube_dl.progress_hooks['downloaded_bytes'], youtube_dl.progress_hooks['total_bytes']):	# 둘 다 값이 있으면
+					data['downloaded_bytes_str'] = LogicNormal.human_readable_size(youtube_dl.progress_hooks['downloaded_bytes'])
+					data['total_bytes_str'] = LogicNormal.human_readable_size(youtube_dl.progress_hooks['total_bytes'])
+					data['percent'] = '%.2f' % (float(youtube_dl.progress_hooks['downloaded_bytes']) / float(youtube_dl.progress_hooks['total_bytes']) * 100)
 				data['start_time'] = youtube_dl.start_time.strftime('%m-%d %H:%M:%S')
 				data['download_time'] = '%02d:%02d' % (download_time.seconds / 60, download_time.seconds % 60)
 			return data
