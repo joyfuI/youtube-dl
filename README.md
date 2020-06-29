@@ -68,9 +68,8 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `key` | 임의의 키. 이후 다운로드를 제어할 때 이 키가 필요함 | O | String
 `url` | 동영상 주소 | O | String
 `filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고. 미지정 시 사용자 설정 | X | String
-`temp_path` | 임시 폴더 경로. 미지정 시 사용자 설정 | X | String
 `save_path` | 저장 폴더 경로. 미지정 시 사용자 설정 | X | String
-`format_code` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 미지정 시 최고 화질 | X | String
+`format` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 미지정 시 최고 화질 | X | String
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
@@ -132,6 +131,10 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.6.0
+* API에 format_code를 format로 변경
+* API에 temp_path 삭제
+
 v1.5.1
 
 v1.5.0
