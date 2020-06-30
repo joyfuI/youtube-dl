@@ -108,13 +108,13 @@ class Youtube_dl(object):
 				'ignoreerrors': True,
 				'cachedir': False
 			}
-			if 'format' in self.opts:
+			if self.opts.get('format'):
 				ydl_opts['format'] = self.opts['format']
-			if 'postprocessors' in self.opts:
+			if self.opts.get('postprocessors'):
 				ydl_opts['postprocessors'] = self.opts['postprocessors']
-			if 'proxy' in self.opts:
+			if self.opts.get('proxy'):
 				ydl_opts['proxy'] = self.opts['proxy']
-			if 'download_archive' in self.opts:
+			if self.opts.get('download_archive'):
 				ydl_opts['download_archive'] = self.opts['download_archive']
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([self.url])
