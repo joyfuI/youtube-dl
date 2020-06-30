@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.6.1',
+	'version': '1.6.2',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -105,25 +105,26 @@ def ajax(sub):
 			filename = request.form['filename']
 			temp_path = ModelSetting.get('temp_path')
 			save_path = ModelSetting.get('save_path')
-			format = request.form['format'] if request.form['format'] else None
-			postprocessor = request.form['postprocessor'] if request.form['postprocessor'] else None
+			format_code = request.form['format']
+			postprocessor = request.form['postprocessor']
+			proxy = ModelSetting.get('proxy')
+			opts = {}
+			if format_code:
+				opts['format'] = format_code
 			video_convertor, extract_audio = LogicNormal.get_postprocessor()
 			if postprocessor in video_convertor:
-				postprocessor = [{
+				opts['postprocessors'] = [{
 					'key': 'FFmpegVideoConvertor',
 					'preferedformat': postprocessor
 				}]
 			elif postprocessor in extract_audio:
-				postprocessor = [{
+				opts['postprocessors'] = [{
 					'key': 'FFmpegExtractAudio',
 					'preferredcodec': postprocessor,
 					'preferredquality': '192'
 				}]
-			opts = {
-				'format': format,
-				'postprocessors': postprocessor,
-				'proxy': ModelSetting.get('proxy')
-			}
+			if proxy:
+				opts['proxy'] = proxy
 			youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, opts)
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가
 			youtube_dl.start()
@@ -181,7 +182,7 @@ def api(sub):
 			url = request.form.get('url')
 			filename = request.form.get('filename', ModelSetting.get('default_filename'))
 			save_path = request.form.get('save_path', ModelSetting.get('save_path'))
-			format = request.form.get('format', None)
+			format_code = request.form.get('format', None)
 			preferedformat = request.form.get('preferedformat', None)
 			preferredcodec = request.form.get('preferredcodec', None)
 			preferredquality = request.form.get('preferredquality', 192)
@@ -195,6 +196,9 @@ def api(sub):
 				return LogicNormal.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
 				return LogicNormal.abort(ret, 2)	# 잘못된 동영상 주소
+			opts = {}
+			if format_code is not None:
+				opts['format'] = format_code
 			postprocessor = []
 			if preferedformat is not None:
 				postprocessor.append({
@@ -209,12 +213,13 @@ def api(sub):
 					'preferredcodec': preferredcodec,
 					'preferredquality': str(preferredquality)
 				})
-			opts = {
-				'format': format,
-				'postprocessors': postprocessor,
-				'proxy': ModelSetting.get('proxy'),
-				'download_archive': archive
-			}
+			if postprocessor:
+				opts['postprocessors'] = postprocessor
+			proxy = ModelSetting.get('proxy')
+			if proxy:
+				opts['proxy'] = proxy
+			if archive is not None:
+				opts['download_archive'] = archive
 			youtube_dl = Youtube_dl(plugin, url, filename, ModelSetting.get('temp_path'), save_path, opts)
 			youtube_dl.key = key
 			LogicNormal.youtube_dl_list.append(youtube_dl)	# 리스트 추가

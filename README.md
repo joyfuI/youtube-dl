@@ -131,10 +131,12 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.6.2
+
 v1.6.1
 
 v1.6.0
-* API에 format_code를 format로 변경
+* API에 format_code를 format으로 변경
 * API에 temp_path 삭제
 
 v1.5.1
