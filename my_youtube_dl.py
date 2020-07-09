@@ -96,7 +96,7 @@ class Youtube_dl(object):
 		try:
 			self.start_time = datetime.now()
 			self.status = Status.START
-			info_dict = Youtube_dl.get_info_dict(self.url)	# 동영상 정보 가져오기
+			info_dict = Youtube_dl.get_info_dict(self.url, self.opts.get('proxy'))	# 동영상 정보 가져오기
 			if info_dict is None:	# 가져오기 실패
 				self.status = Status.ERROR
 				return
@@ -146,7 +146,7 @@ class Youtube_dl(object):
 		return youtube_dl.version.__version__
 
 	@staticmethod
-	def get_info_dict(url):
+	def get_info_dict(url, proxy=None):
 		import youtube_dl
 		try:
 			ydl_opts = {
@@ -155,6 +155,8 @@ class Youtube_dl(object):
 				'extract_flat': 'in_playlist',
 				'logger': MyLogger()
 			}
+			if proxy:
+				ydl_opts['proxy'] = proxy
 			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 				ydl.download([url])
 		except Exception as e:

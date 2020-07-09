@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-	'version': '1.6.2',
+	'version': '1.6.3',
 	'name': 'youtube-dl',
 	'category_name': 'vod',
 	'developer': 'joyfuI',
@@ -170,7 +170,7 @@ def api(sub):
 				return LogicNormal.abort(ret, 1)	# 필수 요청 변수가 없음
 			if not url.startswith('http'):
 				return LogicNormal.abort(ret, 2)	# 잘못된 동영상 주소
-			info_dict = Youtube_dl.get_info_dict(url)
+			info_dict = Youtube_dl.get_info_dict(url, ModelSetting.get('proxy'))
 			if info_dict is None:
 				return LogicNormal.abort(ret, 10)	# 실패
 			ret['info_dict'] = info_dict
