@@ -2,162 +2,165 @@
 {% block content %}
 
 <style>
-	.row > div {
-		padding-top: 3px;
-		padding-bottom: 3px;
-	}
-	.row {
-		align-items: center;
-		word-break: break-all;
-	}
-	.row > div:nth-child(odd) {
-		text-align: right;
-	}
-	.row > div:nth-child(even) {
-		text-align: left;
-	}
+    .row > div {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+
+    .row {
+        align-items: center;
+        word-break: break-all;
+    }
+
+    .row > div:nth-child(odd) {
+        text-align: right;
+    }
+
+    .row > div:nth-child(even) {
+        text-align: left;
+    }
 </style>
 
 <table id="result_table" class="table table-sm tableRowHover">
-	<thead>
-		<tr>
-			<th style="width: 5%">IDX</th>
-			<th style="width: 8%">Plugin</th>
-			<th style="width: 10%">시작시간</th>
-			<th style="width: 10%">타입</th>
-			<th style="width: 28%">제목</th>
-			<th style="width: 8%">상태</th>
-			<th style="width: 15%">진행률</th>
-			<th style="width: 8%">진행시간</th>
-			<th style="width: 8%">Action</th>
-		</tr>
-	</thead>
-	<tbody id="list"></tbody>
+    <thead>
+    <tr>
+        <th style="width: 5%">IDX</th>
+        <th style="width: 8%">Plugin</th>
+        <th style="width: 10%">시작시간</th>
+        <th style="width: 10%">타입</th>
+        <th style="width: 28%">제목</th>
+        <th style="width: 8%">상태</th>
+        <th style="width: 15%">진행률</th>
+        <th style="width: 8%">진행시간</th>
+        <th style="width: 8%">Action</th>
+    </tr>
+    </thead>
+    <tbody id="list"></tbody>
 </table>
 
 <script>
-	"use strict";
-	const package_name = '{{ arg["package_name"] }}';
+    "use strict";
+    const package_name = '{{ arg["package_name"] }}';
 
-	$(function () {
-		let socket = io.connect(location.origin + '/' + package_name);
+    $(function () {
+        let socket = io.connect(location.origin + '/' + package_name);
 
-		socket.on('add', function (data) {
-			$('#list').append(make_item(data));
-		});
+        socket.on('add', function (data) {
+            $('#list').append(make_item(data));
+        });
 
-		socket.on('status', function (data) {
-			status_html(data);
-		});
+        socket.on('status', function (data) {
+            status_html(data);
+        });
 
-		$.ajax({
-			url: '/' + package_name + '/ajax/list',
-			type: 'POST',
-			cache: false,
-			data: { },
-			dataType: 'json',
-			success: function (data) {
-				let str = '';
-				for (let i of data) {
-					str += make_item(i);
-				}
-				$('#list').html(str);
-			}
-		});
+        $.ajax({
+            url: '/' + package_name + '/ajax/list',
+            type: 'POST',
+            cache: false,
+            data: {},
+            dataType: 'json',
+            success: function (data) {
+                let str = '';
+                for (let i of data) {
+                    str += make_item(i);
+                }
+                $('#list').html(str);
+            }
+        });
 
-		$('#list').on('click', '.youtube-dl_stop', function () {
-			let index = $(this).data('index');
-			$.ajax({
-				url: '/' + package_name + '/ajax/stop',
-				type: 'POST',
-				cache: false,
-				data: {
-					index: index
-				},
-				dataType: 'json',
-				success: function () {
-					location.reload();	// 새로고침
-				}
-			});
-			return false;
-		});
-	});
+        $('#list').on('click', '.youtube-dl_stop', function () {
+            let index = $(this).data('index');
+            $.ajax({
+                url: '/' + package_name + '/ajax/stop',
+                type: 'POST',
+                cache: false,
+                data: {
+                    index: index
+                },
+                dataType: 'json',
+                success: function () {
+                    location.reload();	// 새로고침
+                }
+            });
+            return false;
+        });
+    });
 
-	function make_item(data) {
-		let str = `<tr id="item_${data.index}" aria-expanded="true" style="cursor: pointer" data-toggle="collapse" data-target="#collapse_${data.index}">`;
-		str += get_item(data);
-		str += '</tr>';
-		str += `<tr id="collapse_${data.index}" class="collapse tableRowHoverOff" style="cursor: pointer">`;
-		str += '<td colspan="9">';
-		str += `<div id="detail_${data.index}">`;
-		str += get_detail(data);
-		str += '</div>';
-		str += '</td>';
-		str += '</tr>';
-		return str;
-	}
+    function make_item(data) {
+        let str = `<tr id="item_${data.index}" aria-expanded="true" style="cursor: pointer" data-toggle="collapse" data-target="#collapse_${data.index}">`;
+        str += get_item(data);
+        str += '</tr>';
+        str += `<tr id="collapse_${data.index}" class="collapse tableRowHoverOff" style="cursor: pointer">`;
+        str += '<td colspan="9">';
+        str += `<div id="detail_${data.index}">`;
+        str += get_detail(data);
+        str += '</div>';
+        str += '</td>';
+        str += '</tr>';
+        return str;
+    }
 
-	function get_item(data) {
-		let str = `<td>${data.index + 1}</td>`;
-		str += `<td>${data.plugin}</td>`;
-		str += `<td>${data.start_time}</td>`;
-		str += `<td>${data.extractor}</td>`;
-		str += `<td>${data.title}</td>`;
-		str += `<td>${data.status_ko}</td>`;
-		let visi = 'hidden';
-		if (parseInt(data.percent) > 0 && data.status_str !== 'STOP') {
-			visi = 'visible';
-		}
-		str += `<td><div class="progress"><div class="progress-bar" style="visibility: ${visi}; width: ${data.percent}%">${data.percent}%</div></div></td>`;
-		str += `<td>${data.download_time}</td>`;
-		str += '<td class="tableRowHoverOff">';
-		if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
-			str += `<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="${data.index}">중지</button>`;
-		}
-		str += '</td>';
-		return str;
-	}
+    function get_item(data) {
+        let str = `<td>${data.index + 1}</td>`;
+        str += `<td>${data.plugin}</td>`;
+        str += `<td>${data.start_time}</td>`;
+        str += `<td>${data.extractor}</td>`;
+        str += `<td>${data.title}</td>`;
+        str += `<td>${data.status_ko}</td>`;
+        let visi = 'hidden';
+        if (parseInt(data.percent) > 0 && data.status_str !== 'STOP') {
+            visi = 'visible';
+        }
+        str += `<td><div class="progress"><div class="progress-bar" style="visibility: ${visi}; width: ${data.percent}%">${data.percent}%</div></div></td>`;
+        str += `<td>${data.download_time}</td>`;
+        str += '<td class="tableRowHoverOff">';
+        if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
+            str += `<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="${data.index}">중지</button>`;
+        }
+        str += '</td>';
+        return str;
+    }
 
-	function get_detail(data) {
-		let str = info_html('URL', data.url, data.url);
-		str += info_html('업로더', data.uploader, data.uploader_url);
-		str += info_html('임시폴더', data.temp_path);
-		str += info_html('저장폴더', data.save_path);
-		str += info_html('종료시간', data.end_time);
-		if (data.status_str === 'DOWNLOADING') {
-			str += info_html('', '<b>현재 다운로드 중인 파일에 대한 정보</b>');
-			str += info_html('파일명', data.filename);
-			str += info_html('진행률(current/total)', `${data.percent}% (${data.downloaded_bytes_str} / ${data.total_bytes_str})`);
-			str += info_html('남은 시간', `${data.eta}초`);
-			str += info_html('다운 속도', data.speed_str);
-		}
-		return str;
-	}
+    function get_detail(data) {
+        let str = info_html('URL', data.url, data.url);
+        str += info_html('업로더', data.uploader, data.uploader_url);
+        str += info_html('임시폴더', data.temp_path);
+        str += info_html('저장폴더', data.save_path);
+        str += info_html('종료시간', data.end_time);
+        if (data.status_str === 'DOWNLOADING') {
+            str += info_html('', '<b>현재 다운로드 중인 파일에 대한 정보</b>');
+            str += info_html('파일명', data.filename);
+            str += info_html('진행률(current/total)', `${data.percent}% (${data.downloaded_bytes_str} / ${data.total_bytes_str})`);
+            str += info_html('남은 시간', `${data.eta}초`);
+            str += info_html('다운 속도', data.speed_str);
+        }
+        return str;
+    }
 
-	function info_html(left, right, option) {
-		let str = '<div class="row">';
-		let link = (left === 'URL' || left === '업로더');
-		str += '<div class="col-sm-2">';
-		str += `<b>${left}</b>`;
-		str += '</div>';
-		str += '<div class="col-sm-10">';
-		str += '<div class="input-group col-sm-9">';
-		str += '<span class="text-left" style="padding-left: 10px; padding-top: 3px">';
-		if (link) {
-			str += `<a href="${option}" target="_blank">`;
-		}
-		str += right;
-		if (link) {
-			str += '</a>';
-		}
-		str += '</span></div></div></div>';
-		return str;
-	}
+    function info_html(left, right, option) {
+        let str = '<div class="row">';
+        let link = (left === 'URL' || left === '업로더');
+        str += '<div class="col-sm-2">';
+        str += `<b>${left}</b>`;
+        str += '</div>';
+        str += '<div class="col-sm-10">';
+        str += '<div class="input-group col-sm-9">';
+        str += '<span class="text-left" style="padding-left: 10px; padding-top: 3px">';
+        if (link) {
+            str += `<a href="${option}" target="_blank">`;
+        }
+        str += right;
+        if (link) {
+            str += '</a>';
+        }
+        str += '</span></div></div></div>';
+        return str;
+    }
 
-	function status_html(data) {
-		$('#item_' + data.index).html(get_item(data));
-		$('#detail_' + data.index).html(get_detail(data));
-	}
+    function status_html(data) {
+        $('#item_' + data.index).html(get_item(data));
+        $('#detail_' + data.index).html(get_detail(data));
+    }
 </script>
 
 {% endblock %}
