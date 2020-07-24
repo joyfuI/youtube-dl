@@ -43,7 +43,7 @@
     const package_name = '{{ arg["package_name"] }}';
 
     $(function () {
-        let socket = io.connect(location.origin + '/' + package_name);
+        let socket = io.connect(`${location.origin}/${package_name}`);
 
         socket.on('add', function (data) {
             $('#list').append(make_item(data));
@@ -54,33 +54,31 @@
         });
 
         $.ajax({
-            url: '/' + package_name + '/ajax/list',
+            url: `/${package_name}/ajax/list`,
             type: 'POST',
             cache: false,
             data: {},
-            dataType: 'json',
-            success: function (data) {
-                let str = '';
-                for (let i of data) {
-                    str += make_item(i);
-                }
-                $('#list').html(str);
+            dataType: 'json'
+        }).done(function (data) {
+            let str = '';
+            for (let item of data) {
+                str += make_item(item);
             }
+            $('#list').html(str);
         });
 
         $('#list').on('click', '.youtube-dl_stop', function () {
             let index = $(this).data('index');
             $.ajax({
-                url: '/' + package_name + '/ajax/stop',
+                url: `/${package_name}/ajax/stop`,
                 type: 'POST',
                 cache: false,
                 data: {
                     index: index
                 },
-                dataType: 'json',
-                success: function () {
-                    location.reload();	// 새로고침
-                }
+                dataType: 'json'
+            }).done(function () {
+                location.reload();
             });
             return false;
         });
@@ -158,8 +156,8 @@
     }
 
     function status_html(data) {
-        $('#item_' + data.index).html(get_item(data));
-        $('#detail_' + data.index).html(get_detail(data));
+        $(`#item_${data.index}`).html(get_item(data));
+        $(`#detail_${data.index}`).html(get_detail(data));
     }
 </script>
 

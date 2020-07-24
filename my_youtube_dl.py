@@ -39,8 +39,8 @@ class Status(Enum):
         return str_list[self.value]
 
 
-class Youtube_dl(object):
-    _index = 0
+class MyYoutubeDL(object):
+    __index = 0
     _last_msg = ''
 
     def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None):
@@ -58,10 +58,10 @@ class Youtube_dl(object):
             os.makedirs(save_path)
         self.save_path = save_path
         self.opts = opts
-        self.index = Youtube_dl._index
-        Youtube_dl._index += 1
-        self._status = Status.READY
-        self._thread = None
+        self.index = MyYoutubeDL.__index
+        MyYoutubeDL.__index += 1
+        self.__status = Status.READY
+        self.__thread = None
         self.key = None
         self.start_time = None  # 시작 시간
         self.end_time = None  # 종료 시간
@@ -86,8 +86,8 @@ class Youtube_dl(object):
     def start(self):
         if self.status != Status.READY:
             return False
-        self._thread = Thread(target=self.run)
-        self._thread.start()
+        self.__thread = Thread(target=self.run)
+        self.__thread.start()
         return True
 
     def run(self):
@@ -96,7 +96,7 @@ class Youtube_dl(object):
         try:
             self.start_time = datetime.now()
             self.status = Status.START
-            info_dict = Youtube_dl.get_info_dict(self.url, self.opts.get('proxy'))  # 동영상 정보 가져오기
+            info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'))  # 동영상 정보 가져오기
             if info_dict is None:  # 가져오기 실패
                 self.status = Status.ERROR
                 return
@@ -163,7 +163,7 @@ class Youtube_dl(object):
             logger.error('Exception:%s', e)
             logger.error(traceback.format_exc())
             return None
-        return json.loads(Youtube_dl._last_msg)
+        return json.loads(MyYoutubeDL._last_msg)
 
     def my_hook(self, d):
         if self.status != Status.STOP:
@@ -188,18 +188,18 @@ class Youtube_dl(object):
 
     @property
     def status(self):
-        return self._status
+        return self.__status
 
     @status.setter
     def status(self, value):
         from .plugin import socketio_emit
-        self._status = value
+        self.__status = value
         socketio_emit('status', self)
 
 
 class MyLogger(object):
     def debug(self, msg):
-        Youtube_dl._last_msg = msg
+        MyYoutubeDL._last_msg = msg
         if msg.find('') != -1 or msg.find('{') != -1:
             return  # 과도한 로그 방지
         logger.debug(msg)

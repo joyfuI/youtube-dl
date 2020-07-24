@@ -3,13 +3,14 @@
 # python
 import os
 import sys
+import platform
 import subprocess
 import traceback
 
 # third-party
 
 # sjva 공용
-from framework import db, path_data
+from framework import db, path_app_root, path_data
 from framework.util import Util
 
 # 패키지
@@ -20,6 +21,7 @@ from .model import ModelSetting
 class Logic(object):
     db_default = {
         'db_version': '1',
+        'ffmpeg_path': 'ffmpeg' if platform.system() != 'Windows' else os.path.join(path_app_root, 'bin', 'Windows', 'ffmpeg.exe'),
         'temp_path': os.path.join(path_data, 'download_tmp'),
         'save_path': os.path.join(path_data, 'download'),
         'default_filename': '%(title)s-%(id)s.%(ext)s',
@@ -45,16 +47,15 @@ class Logic(object):
             logger.debug('%s plugin_load', package_name)
             Logic.db_init()
 
+            # 모듈 설치
             try:
                 import glob2
             except ImportError:
-                # glob2 설치
                 logger.debug('glob2 install')
                 logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
             try:
                 import flask_cors
             except ImportError:
-                # flask-cors 설치
                 logger.debug('flask-cors install')
                 logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'], universal_newlines=True))
 

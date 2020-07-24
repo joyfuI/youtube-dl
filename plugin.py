@@ -3,6 +3,7 @@
 # python
 import os
 import traceback
+import subprocess
 
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
@@ -18,7 +19,6 @@ logger = get_logger(package_name)
 from .logic import Logic
 from .logic_normal import LogicNormal
 from .model import ModelSetting
-from .my_youtube_dl import Youtube_dl
 
 #########################################################
 # 플러그인 공용
@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.3',
+    'version': '1.6.4',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -67,7 +67,7 @@ def first_menu(sub):
 
         if sub == 'setting':
             arg.update(ModelSetting.to_dict())
-            arg['youtube_dl_version'] = Youtube_dl.get_version()
+            arg['youtube_dl_version'] = LogicNormal.get_youtube_dl_version()
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
         elif sub == 'download':
@@ -100,33 +100,33 @@ def ajax(sub):
             return jsonify(ret)
 
         # UI 요청
+        elif sub == 'ffmpeg_version':
+            path = request.form['path']
+            ret = subprocess.check_output([path, '-version']).replace('\n', '<br>')
+            return jsonify(ret)
+
         elif sub == 'download':
-            url = request.form['url']
-            filename = request.form['filename']
-            temp_path = ModelSetting.get('temp_path')
-            save_path = ModelSetting.get('save_path')
-            format_code = request.form['format']
             postprocessor = request.form['postprocessor']
-            proxy = ModelSetting.get('proxy')
-            opts = {}
-            if format_code:
-                opts['format'] = format_code
             video_convertor, extract_audio = LogicNormal.get_postprocessor()
+            preferedformat = None
+            preferredcodec = None
+            preferredquality = None
             if postprocessor in video_convertor:
-                opts['postprocessors'] = [{
-                    'key': 'FFmpegVideoConvertor',
-                    'preferedformat': postprocessor
-                }]
+                preferedformat = postprocessor
             elif postprocessor in extract_audio:
-                opts['postprocessors'] = [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': postprocessor,
-                    'preferredquality': '192'
-                }]
-            if proxy:
-                opts['proxy'] = proxy
-            youtube_dl = Youtube_dl(package_name, url, filename, temp_path, save_path, opts)
-            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+                preferredcodec = postprocessor
+                preferredquality = 192
+            youtube_dl = LogicNormal.download(plugin=package_name,
+                                              url=request.form['url'],
+                                              filename=request.form['filename'],
+                                              temp_path=ModelSetting.get('temp_path'),
+                                              save_path=ModelSetting.get('save_path'),
+                                              format=request.form['format'],
+                                              preferedformat=preferedformat,
+                                              preferredcodec=preferredcodec,
+                                              preferredquality=preferredquality,
+                                              proxy=ModelSetting.get('proxy'),
+                                              ffmpeg_path=ModelSetting.get('ffmpeg_path'))
             youtube_dl.start()
             socketio_emit('add', youtube_dl)
             return jsonify([])
@@ -154,75 +154,63 @@ def ajax(sub):
 @blueprint.route('/api/<sub>', methods=['GET', 'POST'])
 @check_api
 def api(sub):
-    plugin = request.form.get('plugin')
+    plugin = request.values.get('plugin')
     logger.debug('API %s %s: %s', package_name, sub, plugin)
     if not plugin:  # 요청한 플러그인명이 빈문자열이거나 None면
         abort(403)  # 403 에러(거부)
     try:
         # 동영상 정보를 반환하는 API
         if sub == 'info_dict':
-            url = request.form.get('url')
+            url = request.values.get('url')
             ret = {
                 'errorCode': 0,
                 'info_dict': None
             }
             if None in (url,):
-                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
             if not url.startswith('http'):
-                return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
-            info_dict = Youtube_dl.get_info_dict(url, ModelSetting.get('proxy'))
+                return LogicNormal.abort(ret, 2)    # 잘못된 동영상 주소
+            info_dict = LogicNormal.get_info_dict(url, ModelSetting.get('proxy'))
             if info_dict is None:
-                return LogicNormal.abort(ret, 10)  # 실패
+                return LogicNormal.abort(ret, 10)   # 실패
             ret['info_dict'] = info_dict
             return jsonify(ret)
 
         # 다운로드 준비를 요청하는 API
         elif sub == 'download':
-            key = request.form.get('key')
-            url = request.form.get('url')
-            filename = request.form.get('filename', ModelSetting.get('default_filename'))
-            save_path = request.form.get('save_path', ModelSetting.get('save_path'))
-            format_code = request.form.get('format', None)
-            preferedformat = request.form.get('preferedformat', None)
-            preferredcodec = request.form.get('preferredcodec', None)
-            preferredquality = request.form.get('preferredquality', 192)
-            archive = request.form.get('archive', None)
-            start = request.form.get('start', False)
+            key = request.values.get('key')
+            url = request.values.get('url')
+            filename = request.values.get('filename', ModelSetting.get('default_filename'))
+            save_path = request.values.get('save_path', ModelSetting.get('save_path'))
+            format_code = request.values.get('format', None)
+            preferedformat = request.values.get('preferedformat', None)
+            preferredcodec = request.values.get('preferredcodec', None)
+            preferredquality = request.values.get('preferredquality', 192)
+            archive = request.values.get('archive', None)
+            start = request.values.get('start', False)
             ret = {
                 'errorCode': 0,
                 'index': None
             }
             if None in (key, url):
-                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
             if not url.startswith('http'):
-                return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
-            opts = {}
-            if format_code is not None:
-                opts['format'] = format_code
-            postprocessor = []
-            if preferedformat is not None:
-                postprocessor.append({
-                    'key': 'FFmpegVideoConvertor',
-                    'preferedformat': preferedformat
-                })
-            if preferredcodec is not None:
-                if preferredcodec not in ('best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
-                    return LogicNormal.abort(ret, 5)  # 허용되지 않은 값이 있음
-                postprocessor.append({
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': preferredcodec,
-                    'preferredquality': str(preferredquality)
-                })
-            if postprocessor:
-                opts['postprocessors'] = postprocessor
-            proxy = ModelSetting.get('proxy')
-            if proxy:
-                opts['proxy'] = proxy
-            if archive is not None:
-                opts['download_archive'] = archive
-            youtube_dl = Youtube_dl(plugin, url, filename, ModelSetting.get('temp_path'), save_path, opts)
-            youtube_dl.key = key
-            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+                return LogicNormal.abort(ret, 2)    # 잘못된 동영상 주소
+            if preferredcodec not in (None, 'best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
+                return LogicNormal.abort(ret, 5)    # 허용되지 않은 값이 있음
+            youtube_dl = LogicNormal.download(plugin=plugin,
+                                              url=url,
+                                              filename=filename,
+                                              temp_path=ModelSetting.get('temp_path'),
+                                              save_path=save_path,
+                                              format=format_code,
+                                              preferedformat=preferedformat,
+                                              preferredcodec=preferredcodec,
+                                              preferredquality=preferredquality,
+                                              archive=archive,
+                                              proxy=ModelSetting.get('proxy'),
+                                              ffmpeg_path=ModelSetting.get('ffmpeg_path'),
+                                              key=key)
             ret['index'] = youtube_dl.index
             if start:
                 youtube_dl.start()
@@ -231,50 +219,50 @@ def api(sub):
 
         # 다운로드 시작을 요청하는 API
         elif sub == 'start':
-            index = request.form.get('index')
-            key = request.form.get('key')
+            index = request.values.get('index')
+            key = request.values.get('key')
             ret = {
                 'errorCode': 0,
                 'status': None
             }
             if None in (index, key):
-                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
             index = int(index)
             if not (0 <= index < len(LogicNormal.youtube_dl_list)):
-                return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
+                return LogicNormal.abort(ret, 3)    # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
-                return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
+                return LogicNormal.abort(ret, 4)    # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
             if not youtube_dl.start():
-                return LogicNormal.abort(ret, 10)  # 실패
+                return LogicNormal.abort(ret, 10)   # 실패
             return jsonify(ret)
 
         # 다운로드 중지를 요청하는 API
         elif sub == 'stop':
-            index = request.form.get('index')
-            key = request.form.get('key')
+            index = request.values.get('index')
+            key = request.values.get('key')
             ret = {
                 'errorCode': 0,
                 'status': None
             }
             if None in (index, key):
-                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
             index = int(index)
             if not (0 <= index < len(LogicNormal.youtube_dl_list)):
-                return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
+                return LogicNormal.abort(ret, 3)    # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
-                return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
+                return LogicNormal.abort(ret, 4)    # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
             if not youtube_dl.stop():
-                return LogicNormal.abort(ret, 10)  # 실패
+                return LogicNormal.abort(ret, 10)   # 실패
             return jsonify(ret)
 
         # 현재 상태를 반환하는 API
         elif sub == 'status':
-            index = request.form.get('index')
-            key = request.form.get('key')
+            index = request.values.get('index')
+            key = request.values.get('key')
             ret = {
                 'errorCode': 0,
                 'status': None,
@@ -284,13 +272,13 @@ def api(sub):
                 'save_path': None
             }
             if None in (index, key):
-                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
             index = int(index)
             if not (0 <= index < len(LogicNormal.youtube_dl_list)):
-                return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
+                return LogicNormal.abort(ret, 3)    # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
-                return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
+                return LogicNormal.abort(ret, 4)    # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
             ret['start_time'] = youtube_dl.start_time.strftime('%Y-%m-%dT%H:%M:%S') if youtube_dl.start_time is not None else None
             ret['end_time'] = youtube_dl.end_time.strftime('%Y-%m-%dT%H:%M:%S') if youtube_dl.end_time is not None else None
@@ -301,7 +289,7 @@ def api(sub):
         logger.error('Exception:%s', e)
         logger.error(traceback.format_exc())
         abort(500)  # 500 에러(서버 오류)
-    abort(404)  # 404 에러(페이지 없음)
+    abort(404)      # 404 에러(페이지 없음)
 
 #########################################################
 # socketio

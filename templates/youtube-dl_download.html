@@ -57,7 +57,7 @@
 
         // 후처리 변경
         $('#postprocessor').change(function () {
-            if ($(this).find($('option[value="' + $(this).val() + '"]')).parent().attr('label') === '오디오 추출') {
+            if ($(this).find($(`option[value="${$(this).val()}"]`)).parent().attr('label') === '오디오 추출') {
                 $('#preset').val('bestaudio/best').change();
             }
         });
@@ -72,7 +72,7 @@
                 return;
             }
             $.ajax({
-                url: '/' + package_name + '/ajax/download',
+                url: `/${package_name}/ajax/download`,
                 type: 'POST',
                 cache: false,
                 data: {
@@ -81,12 +81,15 @@
                     format: $('#format').val(),
                     postprocessor: $('#postprocessor').val()
                 },
-                dataType: 'json',
-                success: function () {
-                    $.notify('<strong>분석중..</strong>', {
-                        type: 'info'
-                    });
-                }
+                dataType: 'json'
+            }).done(function () {
+                $.notify('<strong>분석중..</strong>', {
+                    type: 'info'
+                });
+            }).fail(function () {
+                $.notify('<strong>다운로드 요청 실패</strong>', {
+                    type: 'danger'
+                });
             });
             return false;
         });
