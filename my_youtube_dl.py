@@ -63,24 +63,26 @@ class MyYoutubeDL(object):
         self.__status = Status.READY
         self.__thread = None
         self.key = None
-        self.start_time = None  # 시작 시간
-        self.end_time = None  # 종료 시간
-        self.info_dict = {  # info_dict에서 얻는 정보
-            'extractor': None,  # 타입
-            'title': None,  # 제목
-            'uploader': None,  # 업로더
-            'uploader_url': None  # 업로더 주소
+        self.start_time = None      # 시작 시간
+        self.end_time = None        # 종료 시간
+        # info_dict에서 얻는 정보
+        self.info_dict = {
+            'extractor': None,      # 타입
+            'title': None,          # 제목
+            'uploader': None,       # 업로더
+            'uploader_url': None    # 업로더 주소
         }
         # info_dict에서 얻는 정보(entries)
         # self.info_dict['playlist_index'] = None
-        # self.info_dict['duration'] = None	# 길이
-        # self.info_dict['format'] = None	# 포맷
-        # self.info_dict['thumbnail'] = None	# 썸네일
-        self.progress_hooks = {  # progress_hooks에서 얻는 정보
-            'downloaded_bytes': None,  # 다운로드한 크기
-            'total_bytes': None,  # 전체 크기
-            'eta': None,  # 예상 시간(s)
-            'speed': None  # 다운로드 속도(bytes/s)
+        # self.info_dict['duration'] = None           # 길이
+        # self.info_dict['format'] = None             # 포맷
+        # self.info_dict['thumbnail'] = None          # 썸네일
+        # progress_hooks에서 얻는 정보
+        self.progress_hooks = {
+            'downloaded_bytes': None,   # 다운로드한 크기
+            'total_bytes': None,        # 전체 크기
+            'eta': None,                # 예상 시간(s)
+            'speed': None               # 다운로드 속도(bytes/s)
         }
 
     def start(self):
@@ -96,8 +98,9 @@ class MyYoutubeDL(object):
         try:
             self.start_time = datetime.now()
             self.status = Status.START
-            info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'))  # 동영상 정보 가져오기
-            if info_dict is None:  # 가져오기 실패
+            # 동영상 정보 가져오기
+            info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'))
+            if info_dict is None:
                 self.status = Status.ERROR
                 return
             self.info_dict['extractor'] = info_dict['extractor']
@@ -122,14 +125,15 @@ class MyYoutubeDL(object):
                         if not os.path.isdir(path):
                             os.mkdir(path)
                         continue
-                    celery_shutil.move(i, path)  # 파일 이동
+                    celery_shutil.move(i, path)
                 self.status = Status.COMPLETED
         except Exception as e:
             self.status = Status.ERROR
             logger.error('Exception:%s', e)
             logger.error(traceback.format_exc())
         finally:
-            celery_shutil.rmtree(self.temp_path)  # 임시폴더 삭제
+            # 임시폴더 삭제
+            celery_shutil.rmtree(self.temp_path)
             if self.status != Status.STOP:
                 self.end_time = datetime.now()
 
@@ -170,7 +174,7 @@ class MyYoutubeDL(object):
             self.status = {
                 'downloading': Status.DOWNLOADING,
                 'error': Status.ERROR,
-                'finished': Status.FINISHED  # 다운로드 완료. 변환 시작
+                'finished': Status.FINISHED     # 다운로드 완료. 변환 시작
             }[d['status']]
         if d['status'] != 'error':
             self.filename = os.path.basename(d.get('filename'))
@@ -201,7 +205,8 @@ class MyLogger(object):
     def debug(self, msg):
         MyYoutubeDL._last_msg = msg
         if msg.find('') != -1 or msg.find('{') != -1:
-            return  # 과도한 로그 방지
+            # 과도한 로그 방지
+            return
         logger.debug(msg)
 
     def warning(self, msg):
