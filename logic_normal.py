@@ -147,7 +147,7 @@ class LogicNormal(object):
 
     @staticmethod
     def get_info_dict(url, proxy):
-        MyYoutubeDL.get_info_dict(url, proxy)
+        return MyYoutubeDL.get_info_dict(url, proxy)
 
     @staticmethod
     def human_readable_size(size, suffix=''):
