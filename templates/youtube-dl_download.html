@@ -69,7 +69,7 @@
                 $.notify('<strong>URL을 입력하세요.</strong>', {
                     type: 'warning'
                 });
-                return;
+                return false;
             }
             $.ajax({
                 url: `/${package_name}/ajax/download`,
