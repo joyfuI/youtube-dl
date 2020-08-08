@@ -40,6 +40,8 @@ class Status(Enum):
 
 
 class MyYoutubeDL(object):
+    DEFAULT_FILENAME = '%(title)s-%(id)s.%(ext)s'
+
     __index = 0
     _last_msg = ''
 

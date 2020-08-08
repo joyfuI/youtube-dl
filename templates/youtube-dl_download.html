@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% macro setting_select2(id, title, options, col='9', desc=None, value=None) %}
     {{ macros.setting_top(title) }}
     <div class="input-group col-sm-{{ col }}">
@@ -27,7 +29,6 @@
     {{ macros.setting_bottom(desc) }}
 {% endmacro %}
 
-{% extends "base.html" %}
 {% block content %}
 
 <div>
