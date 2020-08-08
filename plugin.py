@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.5',
+    'version': '1.6.6',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -68,10 +68,12 @@ def first_menu(sub):
         if sub == 'setting':
             arg.update(ModelSetting.to_dict())
             arg['youtube_dl_version'] = LogicNormal.get_youtube_dl_version()
+            arg['DEFAULT_FILENAME'] = LogicNormal.get_default_filename()
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
         elif sub == 'download':
-            arg['file_name'] = ModelSetting.get('default_filename')
+            default_filename = ModelSetting.get('default_filename')
+            arg['file_name'] = default_filename if default_filename else LogicNormal.get_default_filename()
             arg['preset_list'] = LogicNormal.get_preset_list()
             arg['postprocessor_list'] = LogicNormal.get_postprocessor_list()
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
@@ -97,6 +99,8 @@ def ajax(sub):
         # 공통 요청
         if sub == 'setting_save':
             ret = ModelSetting.setting_save(request)
+            if request.form['ffmpeg_path'] == 'ffmpeg':
+                ModelSetting.set('ffmpeg_path', '')
             return jsonify(ret)
 
         # UI 요청
@@ -198,6 +202,8 @@ def api(sub):
                 return LogicNormal.abort(ret, 2)    # 잘못된 동영상 주소
             if preferredcodec not in (None, 'best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
                 return LogicNormal.abort(ret, 5)    # 허용되지 않은 값이 있음
+            if filename:
+                filename = LogicNormal.get_default_filename()
             youtube_dl = LogicNormal.download(plugin=plugin,
                                               url=url,
                                               filename=filename,

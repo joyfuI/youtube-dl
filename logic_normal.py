@@ -20,6 +20,10 @@ class LogicNormal(object):
         return MyYoutubeDL.get_version()
 
     @staticmethod
+    def get_default_filename():
+        return MyYoutubeDL.DEFAULT_FILENAME
+
+    @staticmethod
     def get_preset_list():
         return [
             ['bestvideo+bestaudio/best', '최고 화질'],
