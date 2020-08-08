@@ -21,10 +21,10 @@ from .model import ModelSetting
 class Logic(object):
     db_default = {
         'db_version': '1',
-        'ffmpeg_path': 'ffmpeg' if platform.system() != 'Windows' else os.path.join(path_app_root, 'bin', 'Windows', 'ffmpeg.exe'),
+        'ffmpeg_path': '' if platform.system() != 'Windows' else os.path.join(path_app_root, 'bin', 'Windows', 'ffmpeg.exe'),
         'temp_path': os.path.join(path_data, 'download_tmp'),
         'save_path': os.path.join(path_data, 'download'),
-        'default_filename': '%(title)s-%(id)s.%(ext)s',
+        'default_filename': '',
         'proxy': '',
         'activate_cors': False
     }

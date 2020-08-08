@@ -7,7 +7,7 @@
         {{ macros.setting_input_text_and_buttons('ffmpeg_path', 'FFmpeg 경로', [['ffmpeg_version', '버전확인']], value=arg['ffmpeg_path'], placeholder='ffmpeg', desc='SJVA에 내장된 버전 말고 원하는 버전을 사용할 수 있습니다.') }}
         {{ macros.setting_input_text('temp_path', '임시 폴더', value=arg['temp_path'], desc='다운로드 파일이 임시로 저장될 폴더입니다.') }}
         {{ macros.setting_input_text('save_path', '저장 폴더', value=arg['save_path'], desc='정상적으로 완료된 파일이 이동할 폴더입니다.') }}
-        {{ macros.setting_input_text('default_filename', '기본 파일명', value=arg['default_filename'], desc=['템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고', '기본값은 "%(title)s-%(id)s.%(ext)s"입니다.']) }}
+        {{ macros.setting_input_text('default_filename', '기본 파일명', value=arg['default_filename'], placeholder='%(title)s-%(id)s.%(ext)s', desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고') }}
         {{ macros.setting_input_text('proxy', '프록시', value=arg['proxy'], desc=['HTTP/HTTPS/SOCKS를 지원합니다. 예) socks5://127.0.0.1:1080/', '빈칸으로 두면 프록시를 사용하지 않습니다.']) }}
         {{ macros.setting_checkbox('activate_cors', 'CORS 허용', value=arg['activate_cors'], desc='API로의 크로스 도메인 요청을 허용합니다. 설정 저장 후 재시작이 필요합니다.') }}
         {{ macros.setting_button([['global_setting_save_btn', '저장']]) }}
@@ -23,13 +23,16 @@
 
         // FFmpeg 버전확인
         $('#ffmpeg_version').click(function () {
-            let ffmpeg_path = $('#ffmpeg_path').val()
+            let ffmpeg_path = $('#ffmpeg_path').val();
+            if (ffmpeg_path.length === 0) {
+                ffmpeg_path = 'ffmpeg';
+            }
             $.ajax({
                 url: `/${package_name}/ajax/ffmpeg_version`,
                 type: 'POST',
                 cache: false,
                 data: {
-                    path: ffmpeg_path.length === 0 ? 'ffmpeg' : ffmpeg_path
+                    path: ffmpeg_path
                 },
                 dataType: 'json'
             }).done(function (data) {
@@ -37,7 +40,7 @@
                 $('#modal_body').html(data);
                 $('#large_modal').modal();
             }).fail(function () {
-                $.notify('<strong>버전확인 실패</strong>', {
+                $.notify(`<strong>버전확인 실패</strong><br>${ffmpeg_path} -version`, {
                     type: 'danger'
                 });
             });
