@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.5',
+    'version': '1.6.6',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -71,7 +71,8 @@ def first_menu(sub):
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
         elif sub == 'download':
-            arg['file_name'] = ModelSetting.get('default_filename')
+            default_filename = ModelSetting.get('default_filename')
+            arg['file_name'] = default_filename if default_filename else '%(title)s-%(id)s.%(ext)s'
             arg['preset_list'] = LogicNormal.get_preset_list()
             arg['postprocessor_list'] = LogicNormal.get_postprocessor_list()
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
@@ -97,6 +98,8 @@ def ajax(sub):
         # 공통 요청
         if sub == 'setting_save':
             ret = ModelSetting.setting_save(request)
+            if request.form['ffmpeg_path'] == 'ffmpeg':
+                ModelSetting.set('ffmpeg_path', '')
             return jsonify(ret)
 
         # UI 요청
