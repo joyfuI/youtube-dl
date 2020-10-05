@@ -31,70 +31,70 @@
 
 {% block content %}
 
-<div>
-    {{ macros.setting_input_text('url', 'URL', placeholder='http:// 주소', desc='유튜브, 네이버TV 등 동영상 주소') }}
-    {{ macros.setting_input_text('filename', '파일명', value=arg['file_name'], desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고') }}
-    {{ macros.setting_select('preset', '동영상 포맷 프리셋', arg['preset_list'], col='3') }}
-    {{ macros.setting_input_text('format', '동영상 포맷', desc=['포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고', '빈칸으로 두면 최고 화질로 다운로드합니다.']) }}
-    {{ setting_select2('postprocessor', '후처리', arg['postprocessor_list'], col='3', desc='다운로드 후 FFmpeg로 후처리합니다.') }}
-    {{ macros.setting_button([['download_start', '다운로드']]) }}
-</div>
+    <div>
+        {{ macros.setting_input_text('url', 'URL', placeholder='http:// 주소', desc='유튜브, 네이버TV 등 동영상 주소') }}
+        {{ macros.setting_input_text('filename', '파일명', value=arg['file_name'], desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고') }}
+        {{ macros.setting_select('preset', '동영상 포맷 프리셋', arg['preset_list'], col='3') }}
+        {{ macros.setting_input_text('format', '동영상 포맷', desc=['포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고', '빈칸으로 두면 최고 화질로 다운로드합니다.']) }}
+        {{ setting_select2('postprocessor', '후처리', arg['postprocessor_list'], col='3', desc='다운로드 후 FFmpeg로 후처리합니다.') }}
+        {{ macros.setting_button([['download_start', '다운로드']]) }}
+    </div>
 
-<script>
-    "use strict";
-    const package_name = '{{ arg["package_name"] }}';
+    <script>
+        "use strict";
+        const package_name = '{{ arg["package_name"] }}';
 
-    $(function () {
-        // 프리셋 변경
-        $('#preset').change(function () {
-            if ($(this).val() === '_custom') {
-                return;
-            }
-            $('#format').val($(this).val());
-        });
-        $('#format').change(function () {
-            $('#preset').val('_custom');
-        });
+        $(function () {
+            // 프리셋 변경
+            $('#preset').change(function () {
+                if ($(this).val() === '_custom') {
+                    return;
+                }
+                $('#format').val($(this).val());
+            });
+            $('#format').change(function () {
+                $('#preset').val('_custom');
+            });
 
-        // 후처리 변경
-        $('#postprocessor').change(function () {
-            if ($(this).find($(`option[value="${$(this).val()}"]`)).parent().attr('label') === '오디오 추출') {
-                $('#preset').val('bestaudio/best').change();
-            }
-        });
+            // 후처리 변경
+            $('#postprocessor').change(function () {
+                if ($(this).find($(`option[value="${$(this).val()}"]`)).parent().attr('label') === '오디오 추출') {
+                    $('#preset').val('bestaudio/best').change();
+                }
+            });
 
-        // 다운로드
-        $('#download_start').click(function () {
-            let url = $('#url').val();
-            if (url.startsWith('http') === false) {
-                $.notify('<strong>URL을 입력하세요.</strong>', {
-                    type: 'warning'
+            // 다운로드
+            $('#download_start').click(function () {
+                let url = $('#url').val();
+                if (url.startsWith('http') === false) {
+                    $.notify('<strong>URL을 입력하세요.</strong>', {
+                        type: 'warning'
+                    });
+                    return false;
+                }
+                $.ajax({
+                    url: `/${package_name}/ajax/download`,
+                    type: 'POST',
+                    cache: false,
+                    data: {
+                        url: url,
+                        filename: $('#filename').val(),
+                        format: $('#format').val(),
+                        postprocessor: $('#postprocessor').val()
+                    },
+                    dataType: 'json'
+                }).done(function () {
+                    $.notify('<strong>분석중..</strong>', {
+                        type: 'info'
+                    });
+                }).fail(function () {
+                    $.notify('<strong>다운로드 요청 실패</strong>', {
+                        type: 'danger'
+                    });
                 });
                 return false;
-            }
-            $.ajax({
-                url: `/${package_name}/ajax/download`,
-                type: 'POST',
-                cache: false,
-                data: {
-                    url: url,
-                    filename: $('#filename').val(),
-                    format: $('#format').val(),
-                    postprocessor: $('#postprocessor').val()
-                },
-                dataType: 'json'
-            }).done(function () {
-                $.notify('<strong>분석중..</strong>', {
-                    type: 'info'
-                });
-            }).fail(function () {
-                $.notify('<strong>다운로드 요청 실패</strong>', {
-                    type: 'danger'
-                });
             });
-            return false;
         });
-    });
-</script>
+    </script>
 
 {% endblock %}
