@@ -120,7 +120,7 @@ class MyYoutubeDL(object):
             ydl_opts.update(self.opts)
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([self.url])
-            if self.status == Status.FINISHED:  # 다운로드 성공
+            if self.status in (Status.START, Status.FINISHED):  # 다운로드 성공
                 for i in glob2.glob(self.temp_path + '/**/*'):
                     path = i.replace(self.temp_path, self.save_path, 1)
                     if os.path.isdir(i):
