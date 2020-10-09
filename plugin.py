@@ -73,7 +73,7 @@ def first_menu(sub):
 
         elif sub == 'download':
             default_filename = ModelSetting.get('default_filename')
-            arg['file_name'] = default_filename if default_filename else LogicNormal.get_default_filename()
+            arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
             arg['preset_list'] = LogicNormal.get_preset_list()
             arg['postprocessor_list'] = LogicNormal.get_postprocessor_list()
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
