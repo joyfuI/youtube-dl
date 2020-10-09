@@ -176,7 +176,7 @@ class MyYoutubeDL(object):
             self.status = {
                 'downloading': Status.DOWNLOADING,
                 'error': Status.ERROR,
-                'finished': Status.FINISHED     # 다운로드 완료. 변환 시작
+                'finished': Status.FINISHED  # 다운로드 완료. 변환 시작
             }[d['status']]
         if d['status'] != 'error':
             self.filename = os.path.basename(d.get('filename'))
