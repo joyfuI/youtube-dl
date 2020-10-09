@@ -34,7 +34,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.7',
+    'version': '1.6.8',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -202,7 +202,7 @@ def api(sub):
                 return LogicNormal.abort(ret, 2)    # 잘못된 동영상 주소
             if preferredcodec not in (None, 'best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
                 return LogicNormal.abort(ret, 5)    # 허용되지 않은 값이 있음
-            if filename:
+            if not filename:
                 filename = LogicNormal.get_default_filename()
             youtube_dl = LogicNormal.download(plugin=plugin,
                                               url=url,
