@@ -53,11 +53,6 @@ class Logic(object):
             except ImportError:
                 logger.debug('glob2 install')
                 logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
-            try:
-                import flask_cors
-            except ImportError:
-                logger.debug('flask-cors install')
-                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'], universal_newlines=True))
 
             # youtube-dl 업데이트
             logger.debug('youtube-dl upgrade')
