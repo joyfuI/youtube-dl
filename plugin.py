@@ -11,7 +11,7 @@ from flask_login import login_required
 
 # sjva 공용
 from framework.logger import get_logger
-from framework import db, check_api, socketio
+from framework import check_api, socketio
 
 # 패키지
 package_name = __name__.split('.')[0]
