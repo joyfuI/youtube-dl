@@ -107,8 +107,8 @@ class MyYoutubeDL(object):
                 return
             self.info_dict['extractor'] = info_dict['extractor']
             self.info_dict['title'] = info_dict['title']
-            self.info_dict['uploader'] = info_dict['uploader']
-            self.info_dict['uploader_url'] = info_dict['uploader_url']
+            self.info_dict['uploader'] = info_dict.get('uploader', '')
+            self.info_dict['uploader_url'] = info_dict.get('uploader_url', '')
             ydl_opts = {
                 'logger': MyLogger(),
                 'progress_hooks': [self.my_hook],
