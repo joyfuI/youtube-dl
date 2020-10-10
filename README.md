@@ -20,7 +20,7 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 
 ## API
 ### 공통사항
-모든 요청은 `POST`로만 받습니다. 그리고 응답은 `JSON` 형식입니다.  
+모든 요청은 `POST` 또는 `GET`만 받습니다. 그리고 응답은 `JSON` 형식입니다.  
 모든 요청엔 *플러그인 이름* 정보가 있어야 합니다. `plugin` 키에 담아서 보내면 됩니다. 만약 *플러그인 이름* 정보가 없으면 **403 에러**를 반환합니다.  
 요청을 처리하는 과정에서 예외가 발생하면 **500 에러**를 반환합니다. 이건 저한테 로그와 함께 알려주시면 됩니다.  
 모든 응답에는 `errorCode` 키가 있습니다. 코드의 의미는 아래 문단 참고
@@ -68,12 +68,12 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `key` | 임의의 키. 이후 다운로드를 제어할 때 이 키가 필요함 | O | String
 `url` | 동영상 주소 | O | String
 `filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고. 미지정 시 사용자 설정 | X | String
-`temp_path` | 임시 폴더 경로. 미지정 시 사용자 설정 | X | String
 `save_path` | 저장 폴더 경로. 미지정 시 사용자 설정 | X | String
-`format_code` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 미지정 시 최고 화질 | X | String
+`format` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 미지정 시 최고 화질 | X | String
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
+`archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있을 경우 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
 #### Response
 키 | 설명 | 타입
@@ -127,12 +127,59 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `temp_path` | 임시 폴더 경로 | String
 `save_path` | 저장 폴더 경로 | String
 
-`start_time` 키와 `end_time` 키에 들어있는 시간은 "년 월 일 시 분 초" 형식으로 공백으로 분리된 숫자들이 모여있는 문자열입니다.  
+`start_time` 키와 `end_time` 키에 들어있는 시간은 "YYYY-MM-DDThh:mm:ss" 형식의 문자열입니다.  
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.6.9
+* 일부 동영상 사이트에서 다운로드 실패하는 문제 수정
+
+v1.6.8
+* download API에서 filename 키가 적용되지 않는 문제 수정
+
+v1.6.7
+* 일부 상황에서 다운로드가 완료로 표시되지 않는 문제 수정
+
+v1.6.6
+
+v1.6.5
+* info_dict API가 동작하지 않는 문제 수정
+
+v1.6.4
+* FFmpeg 경로 설정 추가  
+  SJVA에 내장된 버전 말고 원하는 버전을 사용할 수 있습니다.
+* API에서 GET 요청 지원  
+  이제 GET 요청으로도 API를 사용할 수 있습니다.
+
+v1.6.3
+* 프록시 기능을 사용해도 국가차단 우회가 안 되는 문제 수정
+
+v1.6.2
+
+v1.6.1
+
+v1.6.0
+* API에 format_code를 format으로 변경
+* API에 temp_path 삭제
+
+v1.5.1
+
+v1.5.0
+* 프록시 설정 추가
+* API에 archive 추가  
+  download-archive 기능으로 다운로드한 동영상의 ID를 기록하여 이미 다운로드한 동영상은 다운로드 하지 않는 옵션입니다.
+* status API의 시간 형식 변경 (ISO 8601)
+
+v1.4.2
+* --rm-cache-dir 옵션 추가
+* 플러그인 최초 설치 시 작동 안 되는 문제 수정
+
+v1.4.1
+* CORS 허용 설정 추가  
+  Thanks to [dbswnschl](https://github.com/dbswnschl)
+
 v1.4.0
-* socketio 적용
+* socketio 적용  
   목록 페이지에서 목록이 실시간으로 업데이트됩니다.
 
 v1.3.5
