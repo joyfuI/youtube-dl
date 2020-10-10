@@ -25,8 +25,8 @@ from .model import ModelSetting
 # 플러그인 공용
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
-# if ModelSetting.get_bool('activate_cors') == True:
-#     flask_cors.CORS(blueprint)
+if ModelSetting.get_bool('activate_cors') == True:
+    flask_cors.CORS(blueprint)
 menu = {
     'main': [package_name, 'youtube-dl'],
     'sub': [
@@ -46,9 +46,6 @@ plugin_info = {
 }
 
 def plugin_load():
-    if ModelSetting.get_bool('activate_cors'):
-        import flask_cors
-        flask_cors.CORS(blueprint)
     Logic.plugin_load()
 
 def plugin_unload():
