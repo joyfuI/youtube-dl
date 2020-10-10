@@ -8,7 +8,6 @@ import subprocess
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
 from flask_login import login_required
-import flask_cors
 
 # sjva 공용
 from framework.logger import get_logger
@@ -26,6 +25,7 @@ from .model import ModelSetting
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 if ModelSetting.get_bool('activate_cors') == True:
+    import flask_cors
     flask_cors.CORS(blueprint)
 menu = {
     'main': [package_name, 'youtube-dl'],
