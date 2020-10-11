@@ -43,7 +43,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.10',
+    'version': '1.6.11',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -148,6 +148,11 @@ def ajax(sub):
                 if data is not None:
                     ret.append(data)
             return jsonify(ret)
+
+        elif sub == 'all_stop':
+            for i in LogicNormal.youtube_dl_list:
+                i.stop()
+            return jsonify([])
 
         elif sub == 'stop':
             index = int(request.form['index'])

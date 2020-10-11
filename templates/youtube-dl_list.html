@@ -21,6 +21,11 @@
         }
     </style>
 
+    {{ macros.m_row_start() }}
+    {{ macros.m_button('all_stop_btn', '전체 중지') }}
+    {{ macros.m_row_end() }}
+    <div class="d-inline-block"></div>
+
     <table id="result_table" class="table table-sm tableRowHover">
         <thead>
         <tr>
@@ -67,6 +72,21 @@
                 $('#list').html(str);
             });
 
+            // 전체 중지
+            $('#all_stop_btn').click(function () {
+                $.ajax({
+                    url: `/${package_name}/ajax/all_stop`,
+                    type: 'POST',
+                    cache: false,
+                    data: {},
+                    dataType: 'json'
+                }).done(function () {
+                    location.reload();
+                });
+                return false;
+            });
+
+            // 중지
             $('#list').on('click', '.youtube-dl_stop', function () {
                 let index = $(this).data('index');
                 $.ajax({
