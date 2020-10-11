@@ -7,13 +7,13 @@ import os
 # third-party
 
 # sjva 공용
-from framework import app, db, path_app_root
+from framework import app, db, path_data
 from framework.util import Util
 
 # 패키지
 from .plugin import logger, package_name
 
-app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % (os.path.join(path_app_root, 'data', 'db', '%s.db' % package_name))
+app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % (os.path.join(path_data, 'db', '%s.db' % package_name))
 #########################################################
 
 class ModelSetting(db.Model):

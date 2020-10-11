@@ -2,6 +2,7 @@
 #########################################################
 # python
 import os
+import sys
 import traceback
 import subprocess
 
@@ -11,7 +12,7 @@ from flask_login import login_required
 
 # sjva 공용
 from framework.logger import get_logger
-from framework import db, check_api, socketio
+from framework import check_api, socketio
 
 # 패키지
 package_name = __name__.split('.')[0]
@@ -24,9 +25,16 @@ from .model import ModelSetting
 # 플러그인 공용
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
-if ModelSetting.get_bool('activate_cors') == True:
-    import flask_cors
-    flask_cors.CORS(blueprint)
+
+if ModelSetting.get_bool('activate_cors'):
+    try:
+        from flask_cors import CORS
+    except ImportError:
+        logger.debug('flask-cors install')
+        logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'], universal_newlines=True))
+        from flask_cors import CORS
+    CORS(blueprint, resources={r"/youtube-dl/api/*": {"origins": "*"}})
+
 menu = {
     'main': [package_name, 'youtube-dl'],
     'sub': [
@@ -36,7 +44,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.9',
+    'version': '1.6.11',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -141,6 +149,11 @@ def ajax(sub):
                 if data is not None:
                     ret.append(data)
             return jsonify(ret)
+
+        elif sub == 'all_stop':
+            for i in LogicNormal.youtube_dl_list:
+                i.stop()
+            return jsonify([])
 
         elif sub == 'stop':
             index = int(request.form['index'])
