@@ -131,6 +131,9 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.6.11
+* 목록 메뉴에 전체 중지 버튼 추가
+
 v1.6.10
 * CORS 허용 설정이 작동하지 않는 문제 수정  
   Thanks to [dbswnschl](https://github.com/dbswnschl)
