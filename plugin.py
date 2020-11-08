@@ -43,7 +43,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.11',
+    'version': '1.7.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -112,7 +112,8 @@ def ajax(sub):
         # UI 요청
         elif sub == 'ffmpeg_version':
             path = request.form['path']
-            ret = subprocess.check_output([path, '-version']).replace('\n', '<br>')
+            ret = subprocess.check_output([path, '-version'])
+            ret = ret.decode().replace('\n', '<br>')
             return jsonify(ret)
 
         elif sub == 'download':
@@ -201,6 +202,7 @@ def api(sub):
             preferedformat = request.values.get('preferedformat', None)
             preferredcodec = request.values.get('preferredcodec', None)
             preferredquality = request.values.get('preferredquality', 192)
+            dateafter = request.values.get('dateafter', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             ret = {
@@ -224,10 +226,13 @@ def api(sub):
                                               preferedformat=preferedformat,
                                               preferredcodec=preferredcodec,
                                               preferredquality=preferredquality,
+                                              dateafter=dateafter,
                                               archive=archive,
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
                                               key=key)
+            if youtube_dl is None:
+                return LogicNormal.abort(ret, 10)   # 실패
             ret['index'] = youtube_dl.index
             if start:
                 youtube_dl.start()

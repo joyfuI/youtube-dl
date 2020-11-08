@@ -73,8 +73,12 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
+`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
 `archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있을 경우 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
+
+`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+
 #### Response
 키 | 설명 | 타입
 --- | --- | ---
@@ -131,6 +135,12 @@ API에선 직접 비트레이트를 설정할 수 있습니다.
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v1.7.0
+* Python 3 지원  
+  Python 2를 유지한 채로 Python 3 지원을 추가했습니다.
+* download API에 dateafter 추가  
+  지정한 날짜 이후에 업로드된 동영상만 다운로드하는 옵션입니다. 플레이리스트 다운로드 시에 유용하게 사용할 수 있습니다.
+
 v1.6.11
 * 목록 메뉴에 전체 중지 버튼 추가
 

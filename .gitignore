@@ -1,3 +1,5 @@
 .idea/
-venv/
+.venv/
 *.pyo
+__pycache__/
+test/

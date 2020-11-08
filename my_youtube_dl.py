@@ -45,7 +45,9 @@ class MyYoutubeDL(object):
     __index = 0
     _last_msg = ''
 
-    def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None):
+    def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None, dateafter=None, datebefore=None):
+        from youtube_dl.utils import DateRange
+
         if save_path is None:
             save_path = temp_path
         if opts is None:
@@ -60,6 +62,8 @@ class MyYoutubeDL(object):
             os.makedirs(save_path)
         self.save_path = save_path
         self.opts = opts
+        if dateafter or datebefore:
+            self.opts['daterange'] = DateRange(start=dateafter, end=datebefore)
         self.index = MyYoutubeDL.__index
         MyYoutubeDL.__index += 1
         self.__status = Status.READY
@@ -97,6 +101,7 @@ class MyYoutubeDL(object):
     def run(self):
         import youtube_dl
         import glob2
+
         try:
             self.start_time = datetime.now()
             self.status = Status.START
@@ -148,12 +153,14 @@ class MyYoutubeDL(object):
 
     @staticmethod
     def get_version():
-        import youtube_dl
-        return youtube_dl.version.__version__
+        from youtube_dl.version import __version__
+
+        return __version__
 
     @staticmethod
     def get_info_dict(url, proxy=None):
         import youtube_dl
+
         try:
             ydl_opts = {
                 'simulate': True,
@@ -199,6 +206,7 @@ class MyYoutubeDL(object):
     @status.setter
     def status(self, value):
         from .plugin import socketio_emit
+
         self.__status = value
         socketio_emit('status', self)
 

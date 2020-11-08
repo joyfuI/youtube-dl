@@ -72,39 +72,45 @@ class LogicNormal(object):
 
     @staticmethod
     def download(**kwagrs):
-        logger.debug(kwagrs)
-        plugin = kwagrs['plugin']
-        url = kwagrs['url']
-        filename = kwagrs['filename']
-        temp_path = kwagrs['temp_path']
-        save_path = kwagrs['save_path']
-        opts = {}
-        if 'format' in kwagrs and kwagrs['format']:
-            opts['format'] = kwagrs['format']
-        postprocessor = []
-        if 'preferedformat' in kwagrs and kwagrs['preferedformat']:
-            postprocessor.append({
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': kwagrs['preferedformat']
-            })
-        if 'preferredcodec' in kwagrs and kwagrs['preferredcodec']:
-            postprocessor.append({
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': kwagrs['preferredcodec'],
-                'preferredquality': str(kwagrs['preferredquality'])
-            })
-        if postprocessor:
-            opts['postprocessors'] = postprocessor
-        if 'archive' in kwagrs and kwagrs['archive']:
-            opts['download_archive'] = kwagrs['archive']
-        if 'proxy' in kwagrs and kwagrs['proxy']:
-            opts['proxy'] = kwagrs['proxy']
-        if 'ffmpeg_path' in kwagrs and kwagrs['ffmpeg_path']:
-            opts['ffmpeg_location'] = kwagrs['ffmpeg_path']
-        youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts)
-        youtube_dl.key = kwagrs.get('key')
-        LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
-        return youtube_dl
+        try:
+            logger.debug(kwagrs)
+            plugin = kwagrs['plugin']
+            url = kwagrs['url']
+            filename = kwagrs['filename']
+            temp_path = kwagrs['temp_path']
+            save_path = kwagrs['save_path']
+            opts = {}
+            if 'format' in kwagrs and kwagrs['format']:
+                opts['format'] = kwagrs['format']
+            postprocessor = []
+            if 'preferedformat' in kwagrs and kwagrs['preferedformat']:
+                postprocessor.append({
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': kwagrs['preferedformat']
+                })
+            if 'preferredcodec' in kwagrs and kwagrs['preferredcodec']:
+                postprocessor.append({
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': kwagrs['preferredcodec'],
+                    'preferredquality': str(kwagrs['preferredquality'])
+                })
+            if postprocessor:
+                opts['postprocessors'] = postprocessor
+            if 'archive' in kwagrs and kwagrs['archive']:
+                opts['download_archive'] = kwagrs['archive']
+            if 'proxy' in kwagrs and kwagrs['proxy']:
+                opts['proxy'] = kwagrs['proxy']
+            if 'ffmpeg_path' in kwagrs and kwagrs['ffmpeg_path']:
+                opts['ffmpeg_location'] = kwagrs['ffmpeg_path']
+            dateafter = kwagrs.get('dateafter')
+            youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts, dateafter)
+            youtube_dl.key = kwagrs.get('key')
+            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+            return youtube_dl
+        except Exception as e:
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+            return None
 
     @staticmethod
     def get_data(youtube_dl):

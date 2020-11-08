@@ -59,7 +59,7 @@ class Logic(object):
             logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', '--upgrade', 'youtube-dl'], universal_newlines=True))
 
             # 편의를 위해 json 파일 생성
-            from plugin import plugin_info
+            from .plugin import plugin_info
             Util.save_from_dict_to_json(plugin_info, os.path.join(os.path.dirname(__file__), 'info.json'))
         except Exception as e:
             logger.error('Exception:%s', e)
