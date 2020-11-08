@@ -112,7 +112,8 @@ def ajax(sub):
         # UI 요청
         elif sub == 'ffmpeg_version':
             path = request.form['path']
-            ret = subprocess.check_output([path, '-version']).replace('\n', '<br>')
+            ret = subprocess.check_output([path, '-version'])
+            ret = ret.decode().replace('\n', '<br>')
             return jsonify(ret)
 
         elif sub == 'download':
