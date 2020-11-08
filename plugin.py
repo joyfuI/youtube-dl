@@ -43,7 +43,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '1.6.11',
+    'version': '1.7.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -202,6 +202,7 @@ def api(sub):
             preferedformat = request.values.get('preferedformat', None)
             preferredcodec = request.values.get('preferredcodec', None)
             preferredquality = request.values.get('preferredquality', 192)
+            dateafter = request.values.get('dateafter', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             ret = {
@@ -225,10 +226,13 @@ def api(sub):
                                               preferedformat=preferedformat,
                                               preferredcodec=preferredcodec,
                                               preferredquality=preferredquality,
+                                              dateafter=dateafter,
                                               archive=archive,
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
                                               key=key)
+            if youtube_dl is None:
+                return LogicNormal.abort(ret, 10)   # 실패
             ret['index'] = youtube_dl.index
             if start:
                 youtube_dl.start()
