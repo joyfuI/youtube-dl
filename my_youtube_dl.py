@@ -46,7 +46,9 @@ class MyYoutubeDL(object):
     _last_msg = ''
 
     def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None, dateafter=None, datebefore=None):
-        from youtube_dl.utils import DateRange
+        # from youtube_dl.utils import DateRange
+        from .plugin import YOUTUBE_DL_PACKAGE
+        DateRange = __import__('%s.utils' % YOUTUBE_DL_PACKAGE, fromlist=['DateRange']).DateRange
 
         if save_path is None:
             save_path = temp_path
@@ -99,7 +101,9 @@ class MyYoutubeDL(object):
         return True
 
     def run(self):
-        import youtube_dl
+        # import youtube_dl
+        from .plugin import YOUTUBE_DL_PACKAGE
+        youtube_dl = __import__('%s' % YOUTUBE_DL_PACKAGE)
         import glob2
 
         try:
@@ -153,13 +157,17 @@ class MyYoutubeDL(object):
 
     @staticmethod
     def get_version():
-        from youtube_dl.version import __version__
+        # from youtube_dl.version import __version__
+        from .plugin import YOUTUBE_DL_PACKAGE
+        __version__ = __import__('%s.version' % YOUTUBE_DL_PACKAGE, fromlist=['__version__']).__version__
 
         return __version__
 
     @staticmethod
     def get_info_dict(url, proxy=None):
-        import youtube_dl
+        # import youtube_dl
+        from .plugin import YOUTUBE_DL_PACKAGE
+        youtube_dl = __import__('%s' % YOUTUBE_DL_PACKAGE)
 
         try:
             ydl_opts = {

@@ -16,6 +16,14 @@ class LogicNormal(object):
     youtube_dl_list = []
 
     @staticmethod
+    def get_youtube_dl_package(index=None):
+        packages = ['youtube-dl', 'youtube-dlc']
+        if index is None:
+            return packages
+        else:
+            return packages[int(index)].replace('-', '_')
+
+    @staticmethod
     def get_youtube_dl_version():
         return MyYoutubeDL.get_version()
 
