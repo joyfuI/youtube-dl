@@ -111,7 +111,9 @@ class LogicNormal(object):
             if 'ffmpeg_path' in kwagrs and kwagrs['ffmpeg_path']:
                 opts['ffmpeg_location'] = kwagrs['ffmpeg_path']
             dateafter = kwagrs.get('dateafter')
-            youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts, dateafter)
+            # 2020-12-06 by soju6jan. api로 headers, cookiefile 전달
+            youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts, dateafter, headers=kwagrs['headers'], cookiefile=kwagrs['cookiefile'])
+            # by soju6jan
             youtube_dl.key = kwagrs.get('key')
             LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl

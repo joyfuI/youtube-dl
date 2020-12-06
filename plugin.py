@@ -209,6 +209,14 @@ def api(sub):
             dateafter = request.values.get('dateafter', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
+            # 2020-12-06 by soju6jan. api로 headers, cookiefile 전달
+            headers = None
+            tmp_headers = request.values.get('headers', None)
+            if tmp_headers is not None:
+                import json
+                headers = json.loads(tmp_headers) # header는 json.dumps로 넘어오는 것으로 함. unqoute 등을 해야하는지 고려해야함.
+            cookiefile = request.values.get('cookiefile', None)
+            # by soju6jan
             ret = {
                 'errorCode': 0,
                 'index': None
@@ -234,7 +242,10 @@ def api(sub):
                                               archive=archive,
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
-                                              key=key)
+                                              key=key,
+                                              # 2020-12-06 by soju6jan.
+                                              headers=headers, 
+                                              cookiefile=cookiefile)
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)   # 실패
             ret['index'] = youtube_dl.index
