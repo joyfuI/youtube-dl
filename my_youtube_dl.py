@@ -115,10 +115,7 @@ class MyYoutubeDL(object):
             # 2020-12-06 by soju6jan. api로 headers, cookiefile 전달
             # headers는 전역으로 계속 사용하기 때문에 매번 세팅.
             youtube_dl_utils = __import__('%s.utils' % YOUTUBE_DL_PACKAGE)
-            if self.headers is not None:
-                youtube_dl_utils.std_headers = self.headers
-            else:
-                youtube_dl_utils.std_headers = {}
+            youtube_dl_utils.std_headers = {} if self.headers is None else self.headers
             # 동영상 정보 가져오기
             info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'), cookiefile=self.cookiefile)
             if info_dict is None:
