@@ -14,7 +14,7 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 과연 이걸로 뭔가를 만드실 분이 계실지...
 
 [youtube-dl](https://github.com/ytdl-org/youtube-dl)의 DMCA 테이크다운 이후, 업데이트 속도가 느려진 것 같아서 youtube-dl의 포크 프로젝트인 [youtube-dlc](https://github.com/blackjack4494/yt-dlc)를 추가했습니다.  
-설정에서 취향껏 설정해서 사용하시면 됩니다.
+설정에서 취향껏 골라서 사용하시면 됩니다.
 
 ## API
 ### 공통사항
@@ -53,7 +53,7 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `errorCode` | 에러 코드 | Integer
 `info_dict` | 동영상 정보 | Object
 
-동영상 정보(`info_dict` 키)에는 youtube-dl에서 생성한 info_dict 정보가 그대로 들어있습니다. 따라서 이 부분은 직접 주소를 넣어가며 반환되는 정보를 확인해보는게 좋습니다.  
+동영상 정보(`info_dict` 키)에는 youtube-dl에서 생성한 info_dict 정보가 그대로 들어있습니다. 따라서 이 부분은 직접 주소를 넣어가며 반환되는 정보를 확인해보는 게 좋습니다.  
 간단한 예로 `thumbnail` 키엔 썸네일 주소, `uploader` 키엔 업로더 이름, `title` 키엔 동영상 제목, `duration` 키엔 동영상 길이 등이 들어 있습니다.  
 그리고 만약 주소가 플레이리스트라면 `_type` 키에 `"playlist"`라는 값이 들어 있습니다. 이때는 `entries` 키에 리스트가 들어있어 동영상들의 제목과 ID를 확인할 수 있습니다.
 
@@ -65,17 +65,20 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `plugin` | 플러그인 이름 | O | String
 `key` | 임의의 키. 이후 다운로드를 제어할 때 이 키가 필요함 | O | String
 `url` | 동영상 주소 | O | String
-`filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#output-template 참고. 미지정 시 사용자 설정 | X | String
+`filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template 참고. 미지정 시 사용자 설정 | X | String
 `save_path` | 저장 폴더 경로. 미지정 시 사용자 설정 | X | String
-`format` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/blob/master/README.md#format-selection 참고. 미지정 시 최고 화질 | X | String
+`format` | 동영상 포맷. 포맷 지정은 https://github.com/ytdl-org/youtube-dl/#format-selection 참고. 미지정 시 최고 화질 | X | String
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
 `dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
-`archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있을 경우 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
+`archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
+`cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
+`headers` | 다운로드 시 사용할 헤더. 기본값: `{}` | X | String
 
-`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.  
+`headers` 키에 넣는 값은 `json` 형식의 문자열입니다.
 #### Response
 키 | 설명 | 타입
 --- | --- | ---
@@ -132,6 +135,11 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v2.1.0
+* download API에 cookiefile, headers 키 추가  
+  카카오TV 동영상 다운로드에 활용할 수 있습니다. 잘하면 로봇 체크 패스에도 사용이 가능한 듯 싶습니다.  
+  Thanks to [soju6jan](https://github.com/soju6jan)
+
 v2.0.0
 * youtube-dlc 추가  
   사용할 youtube-dl 패키지를 선택할 수 있습니다. 설정 변경 후 재시작해야 적용됩니다.
@@ -218,7 +226,7 @@ v1.3.1
 v1.3.0
 * 후처리 기능 추가  
   이제 비디오 변환이나 오디오 추출이 가능합니다.  
-  오디오 추출의 경우 비트레이트는 192kbps로 설정되어 있습니다.
+  오디오 추출의 비트레이트는 192kbps로 설정되어 있습니다.
 
 v1.2.5
 * 기본 파일명 설정 추가
