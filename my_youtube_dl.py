@@ -45,7 +45,7 @@ class MyYoutubeDL(object):
     __index = 0
     _last_msg = ''
 
-    def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None, dateafter=None, datebefore=None, headers=None, cookiefile=None):
+    def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None, dateafter=None, datebefore=None, headers={}):
         # from youtube_dl.utils import DateRange
         from .plugin import YOUTUBE_DL_PACKAGE
         DateRange = __import__('%s.utils' % YOUTUBE_DL_PACKAGE, fromlist=['DateRange']).DateRange
@@ -66,6 +66,7 @@ class MyYoutubeDL(object):
         self.opts = opts
         if dateafter or datebefore:
             self.opts['daterange'] = DateRange(start=dateafter, end=datebefore)
+        self.headers = headers
         self.index = MyYoutubeDL.__index
         MyYoutubeDL.__index += 1
         self.__status = Status.READY
@@ -92,9 +93,6 @@ class MyYoutubeDL(object):
             'eta': None,                # 예상 시간(s)
             'speed': None               # 다운로드 속도(bytes/s)
         }
-        # 2020-12-06 by soju6jan. api로 headers, cookiefile 전달
-        self.headers = headers
-        self.cookiefile = cookiefile
 
     def start(self):
         if self.status != Status.READY:
@@ -112,12 +110,10 @@ class MyYoutubeDL(object):
         try:
             self.start_time = datetime.now()
             self.status = Status.START
-            # 2020-12-06 by soju6jan. api로 headers, cookiefile 전달
-            # headers는 전역으로 계속 사용하기 때문에 매번 세팅.
-            youtube_dl_utils = __import__('%s.utils' % YOUTUBE_DL_PACKAGE)
-            youtube_dl_utils.std_headers = {} if self.headers is None else self.headers
+            # headers는 전역으로 계속 사용하기 때문에 매번 세팅
+            youtube_dl.utils.std_headers = self.headers
             # 동영상 정보 가져오기
-            info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'), cookiefile=self.cookiefile)
+            info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'), self.opts.get('cookiefile'))
             if info_dict is None:
                 self.status = Status.ERROR
                 return
@@ -133,8 +129,6 @@ class MyYoutubeDL(object):
                 'ignoreerrors': True,
                 'cachedir': False
             }
-            if self.cookiefile:
-                ydl_opts['cookiefile'] = self.cookiefile
             ydl_opts.update(self.opts)
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([self.url])

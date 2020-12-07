@@ -74,8 +74,11 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
 `archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
+`cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
+`headers` | 다운로드 시 사용할 헤더. 기본값: `{}` | X | String
 
-`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.  
+`headers` 키에 넣는 값은 `json` 형식의 문자열입니다.
 #### Response
 키 | 설명 | 타입
 --- | --- | ---
@@ -132,6 +135,11 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v2.1.0
+* download API에 cookiefile, headers 키 추가  
+  카카오TV 동영상 다운로드에 활용할 수 있습니다. 잘하면 로봇 체크 패스에도 사용이 가능한 듯 싶습니다.  
+  Thanks to [soju6jan](https://github.com/soju6jan)
+
 v2.0.0
 * youtube-dlc 추가  
   사용할 youtube-dl 패키지를 선택할 수 있습니다. 설정 변경 후 재시작해야 적용됩니다.

@@ -5,6 +5,7 @@ import os
 import sys
 import traceback
 import subprocess
+import json
 
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
@@ -44,7 +45,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '2.0.0',
+    'version': '2.1.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -209,14 +210,8 @@ def api(sub):
             dateafter = request.values.get('dateafter', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
-            # 2020-12-06 by soju6jan. api로 headers, cookiefile 전달
-            headers = None
-            tmp_headers = request.values.get('headers', None)
-            if tmp_headers is not None:
-                import json
-                headers = json.loads(tmp_headers) # header는 json.dumps로 넘어오는 것으로 함. unqoute 등을 해야하는지 고려해야함.
             cookiefile = request.values.get('cookiefile', None)
-            # by soju6jan
+            headers = request.values.get('headers', '{}')
             ret = {
                 'errorCode': 0,
                 'index': None
@@ -243,9 +238,9 @@ def api(sub):
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
                                               key=key,
-                                              # 2020-12-06 by soju6jan.
-                                              headers=headers, 
-                                              cookiefile=cookiefile)
+                                              cookiefile=cookiefile,
+                                              # header는 json.dumps로 넘어오는 것으로 함. unqoute 등을 해야하는지 고려해야 함
+                                              headers=json.loads(headers))
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)   # 실패
             ret['index'] = youtube_dl.index
