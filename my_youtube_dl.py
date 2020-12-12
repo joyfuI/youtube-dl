@@ -118,7 +118,7 @@ class MyYoutubeDL(object):
                 self.status = Status.ERROR
                 return
             self.info_dict['extractor'] = info_dict['extractor']
-            self.info_dict['title'] = info_dict['title']
+            self.info_dict['title'] = info_dict.get('title', info_dict['id'])
             self.info_dict['uploader'] = info_dict.get('uploader', '')
             self.info_dict['uploader_url'] = info_dict.get('uploader_url', '')
             ydl_opts = {

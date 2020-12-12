@@ -45,7 +45,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '2.1.1',
+    'version': '2.1.2',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
