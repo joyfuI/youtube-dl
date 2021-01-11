@@ -113,8 +113,7 @@ class LogicNormal(object):
             if 'cookiefile' in kwagrs and kwagrs['cookiefile']:
                 opts['cookiefile'] = kwagrs['cookiefile']
             dateafter = kwagrs.get('dateafter')
-            headers = kwagrs.get('headers', {})
-            youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts, dateafter, headers=headers)
+            youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts, dateafter)
             youtube_dl.key = kwagrs.get('key')
             LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl

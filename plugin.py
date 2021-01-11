@@ -45,7 +45,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '2.1.2',
+    'version': '2.2.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -211,7 +211,6 @@ def api(sub):
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             cookiefile = request.values.get('cookiefile', None)
-            headers = request.values.get('headers', '{}')
             ret = {
                 'errorCode': 0,
                 'index': None
@@ -238,9 +237,7 @@ def api(sub):
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
                                               key=key,
-                                              cookiefile=cookiefile,
-                                              # header는 json.dumps로 넘어오는 것으로 함. unqoute 등을 해야하는지 고려해야 함
-                                              headers=json.loads(headers))
+                                              cookiefile=cookiefile)
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)   # 실패
             ret['index'] = youtube_dl.index
