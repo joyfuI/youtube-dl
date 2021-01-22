@@ -6,6 +6,7 @@ import sys
 import platform
 import subprocess
 import traceback
+import sqlite3
 
 # third-party
 
@@ -21,7 +22,7 @@ from .model import ModelSetting
 
 class Logic(object):
     db_default = {
-        'db_version': '1',
+        'db_version': '2',
         'youtube_dl_package': '0',
         'ffmpeg_path': '' if platform.system() != 'Windows' else os.path.join(path_app_root, 'bin', 'Windows', 'ffmpeg.exe'),
         'temp_path': os.path.join(path_data, 'download_tmp'),
@@ -38,7 +39,7 @@ class Logic(object):
                 if db.session.query(ModelSetting).filter_by(key=key).count() == 0:
                     db.session.add(ModelSetting(key, value))
             db.session.commit()
-            # Logic.migration()
+            Logic.migration()
         except Exception as e:
             logger.error('Exception:%s', e)
             logger.error(traceback.format_exc())
@@ -72,6 +73,24 @@ class Logic(object):
     def plugin_unload():
         try:
             logger.debug('%s plugin_unload', package_name)
+        except Exception as e:
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+
+    @staticmethod
+    def migration():
+        try:
+            db_version = ModelSetting.get_int('db_version')
+            connect = sqlite3.connect(os.path.join(path_data, 'db', '%s.db' % package_name))
+
+            if db_version < 2:
+                logger.debug('youtube-dlc uninstall')
+                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'uninstall', '-y', 'youtube-dlc'], universal_newlines=True))
+
+            connect.commit()
+            connect.close()
+            ModelSetting.set('db_version', Logic.db_default['db_version'])
+            db.session.flush()
         except Exception as e:
             logger.error('Exception:%s', e)
             logger.error(traceback.format_exc())

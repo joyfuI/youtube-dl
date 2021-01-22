@@ -13,8 +13,8 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 다른 플러그인이 멋대로 다운로드를 중지할 수 없도록 다운로드를 요청할 때 임의의 키를 넘겨받습니다. 이 중지 요청 시 키가 일치해야 요청이 실행됩니다.  
 과연 이걸로 뭔가를 만드실 분이 계실지...
 
-[youtube-dl](https://github.com/ytdl-org/youtube-dl)의 DMCA 테이크다운 이후, 업데이트 속도가 느려진 것 같아서 youtube-dl의 포크 프로젝트인 [youtube-dlc](https://github.com/blackjack4494/yt-dlc)를 추가했습니다.  
-설정에서 취향껏 골라서 사용하시면 됩니다.
+[youtube-dl](https://github.com/ytdl-org/youtube-dl)의 DMCA 테이크다운 사태 이후, 비슷한 상황을 대비하기 위해 youtube-dl의 포크 프로젝트 [youtube-dlc](https://github.com/blackjack4494/yt-dlc)의 포크 프로젝트(...)인 [yt-dlp](https://github.com/pukkandan/yt-dlp)를 추가했습니다.  
+설정에서 취향껏 골라서 사용하시면 되며 youtube-dl 외에는 곁다리 지원이라 작동하지 않거나 우선순위에서 밀릴 수 있습니다.
 
 ## API
 ### 공통사항
@@ -133,6 +133,11 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v2.3.0
+* youtube-dlc를 yt-dlp로 변경  
+  youtube-dlc가 2개월 넘게 커밋이 없어서 youtube-dlc의 포크 프로젝트인 yt-dlp로 변경했습니다.  
+  기존에 youtube-dlc로 사용하던 분들은 yt-dlp로 변경됩니다.
+
 v2.2.0
 * download API의 headers 키 제거
 

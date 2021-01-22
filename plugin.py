@@ -20,7 +20,7 @@ package_name = __name__.split('.')[0]
 logger = get_logger(package_name)
 from .logic import Logic
 from .logic_normal import LogicNormal
-YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(Logic.db_default['youtube_dl_package'])
+YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(Logic.db_default['youtube_dl_package'], import_pkg=True)
 from .model import ModelSetting
 
 #########################################################
@@ -45,7 +45,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '2.2.0',
+    'version': '2.3.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -57,7 +57,7 @@ plugin_info = {
 def plugin_load():
     Logic.plugin_load()
     global YOUTUBE_DL_PACKAGE
-    YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(ModelSetting.get('youtube_dl_package'))
+    YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(ModelSetting.get('youtube_dl_package'), import_pkg=True)
 
 def plugin_unload():
     Logic.plugin_unload()
