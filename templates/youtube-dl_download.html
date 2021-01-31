@@ -70,17 +70,12 @@
         const download_button = document.getElementById('download_button');
         download_button.addEventListener('click', (event) => {
             event.preventDefault();
-            const url_text = document.getElementById('url_text');
-            const url = url_text.value;
+            const url = document.getElementById('url_text').value;
             if (url.startsWith('http') === false) {
-                $.notify('<strong>URL을 입력하세요.</strong>', {
-                    type: 'warning'
-                });
+                notify('URL을 입력하세요.', 'warning');
                 return;
             }
 
-            const filename_text = document.getElementById('filename_text');
-            const format_text = document.getElementById('format_text');
             fetch(`/${package_name}/ajax/download`, {
                 method: 'POST',
                 cache: 'no-cache',
@@ -89,18 +84,14 @@
                 },
                 body: new URLSearchParams({
                     url: url,
-                    filename: filename_text.value,
-                    format: format_text.value,
+                    filename: document.getElementById('filename_text').value,
+                    format: document.getElementById('format_text').value,
                     postprocessor: postprocessor_select.value
                 })
             }).then(response => response.json()).then(() => {
-                $.notify('<strong>분석중..</strong>', {
-                    type: 'info'
-                });
+                notify('분석중..', 'info');
             }).catch(() => {
-                $.notify('<strong>다운로드 요청 실패</strong>', {
-                    type: 'danger'
-                });
+                notify('다운로드 요청 실패', 'danger');
             });
         });
     </script>

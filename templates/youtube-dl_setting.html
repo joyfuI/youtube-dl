@@ -23,8 +23,7 @@
         const ffmpeg_version_button = document.getElementById('ffmpeg_version_button');
         ffmpeg_version_button.addEventListener('click', (event) => {
             event.preventDefault();
-            const ffmpeg_path_text = document.getElementById('ffmpeg_path_text');
-            let ffmpeg_path = ffmpeg_path_text.value;
+            let ffmpeg_path = document.getElementById('ffmpeg_path_text').value;
             if (ffmpeg_path.length === 0) {
                 ffmpeg_path = 'ffmpeg';
             }
@@ -39,15 +38,11 @@
                     path: ffmpeg_path
                 })
             }).then(response => response.json()).then((data) => {
-                const modal_title = document.getElementById('modal_title');
-                modal_title.innerHTML = `${ffmpeg_path} -version`;
-                const modal_body = document.getElementById('modal_body');
-                modal_body.innerHTML = data;
+                document.getElementById('modal_title').innerHTML = `${ffmpeg_path} -version`;
+                document.getElementById('modal_body').innerHTML = data;
                 $('#large_modal').modal();
             }).catch(() => {
-                $.notify(`<strong>버전확인 실패</strong><br>${ffmpeg_path} -version`, {
-                    type: 'danger'
-                });
+                notify('버전확인 실패', 'danger');
             });
         });
     </script>
