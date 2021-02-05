@@ -19,6 +19,15 @@
         .row > div:nth-child(even) {
             text-align: left;
         }
+
+        .cursor-pointer {
+            cursor: pointer
+        }
+
+        .info-padding {
+            padding-left: 10px;
+            padding-top: 3px;
+        }
     </style>
 
     {{ macros.m_row_start() }}
@@ -26,7 +35,7 @@
     {{ macros.m_row_end() }}
     <div class="d-inline-block"></div>
 
-    <table id="result_table" class="table table-sm tableRowHover">
+    <table id="list_table" class="table table-sm tableRowHover">
         <thead>
         <tr>
             <th style="width: 5%">IDX</th>
@@ -40,75 +49,80 @@
             <th style="width: 8%">Action</th>
         </tr>
         </thead>
-        <tbody id="list"></tbody>
+        <tbody id="list_tbody"></tbody>
     </table>
 
     <script>
         "use strict";
         const package_name = '{{ arg["package_name"] }}';
 
-        $(function () {
-            let socket = io.connect(`${location.origin}/${package_name}`);
+        // 소켓
+        const socket = io.connect(`${location.origin}/${package_name}`);
+        const list_tbody = document.getElementById('list_tbody');
+        socket.on('add', (data) => {
+            list_tbody.innerHTML += make_item(data);
+        });
+        socket.on('status', (data) => {
+            status_html(data);
+        });
 
-            socket.on('add', function (data) {
-                $('#list').append(make_item(data));
-            });
+        // 목록 불러오기
+        fetch(`/${package_name}/ajax/list`, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            }
+        }).then(response => response.json()).then((data) => {
+            let str = '';
+            for (const item of data) {
+                str += make_item(item);
+            }
+            list_tbody.innerHTML = str;
+        });
 
-            socket.on('status', function (data) {
-                status_html(data);
-            });
-
-            $.ajax({
-                url: `/${package_name}/ajax/list`,
-                type: 'POST',
-                cache: false,
-                data: {},
-                dataType: 'json'
-            }).done(function (data) {
-                let str = '';
-                for (let item of data) {
-                    str += make_item(item);
+        // 전체 중지
+        const all_stop_btn = document.getElementById('all_stop_btn');
+        all_stop_btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            fetch(`/${package_name}/ajax/all_stop`, {
+                method: 'POST',
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                 }
-                $('#list').html(str);
+            }).then(response => response.json()).then(() => {
+                location.reload();
             });
+        });
 
-            // 전체 중지
-            $('#all_stop_btn').click(function () {
-                $.ajax({
-                    url: `/${package_name}/ajax/all_stop`,
-                    type: 'POST',
-                    cache: false,
-                    data: {},
-                    dataType: 'json'
-                }).done(function () {
-                    location.reload();
-                });
-                return false;
-            });
-
-            // 중지
-            $('#list').on('click', '.youtube-dl_stop', function () {
-                let index = $(this).data('index');
-                $.ajax({
-                    url: `/${package_name}/ajax/stop`,
-                    type: 'POST',
-                    cache: false,
-                    data: {
-                        index: index
-                    },
-                    dataType: 'json'
-                }).done(function () {
-                    location.reload();
-                });
-                return false;
+        // 중지
+        const list_table = document.getElementById('list_table');
+        list_table.addEventListener('click', (event) => {
+            event.preventDefault();
+            const target = event.target;
+            if (!target.classList.contains('youtubeDl-stop')) {
+                return;
+            }
+            fetch(`/${package_name}/ajax/stop`, {
+                method: 'POST',
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: new URLSearchParams({
+                    index: target.dataset.index
+                })
+            }).then(response => response.json()).then(() => {
+                location.reload();
             });
         });
 
         function make_item(data) {
-            let str = `<tr id="item_${data.index}" aria-expanded="true" style="cursor: pointer" data-toggle="collapse" data-target="#collapse_${data.index}">`;
+            let str = `<tr id="item_${data.index}" class="cursor-pointer" aria-expanded="true" data-toggle="collapse" data-target="#collapse_${data.index}">`;
             str += get_item(data);
             str += '</tr>';
-            str += `<tr id="collapse_${data.index}" class="collapse tableRowHoverOff" style="cursor: pointer">`;
+            str += `<tr id="collapse_${data.index}" class="collapse tableRowHoverOff">`;
             str += '<td colspan="9">';
             str += `<div id="detail_${data.index}">`;
             str += get_detail(data);
@@ -133,7 +147,7 @@
             str += `<td>${data.download_time}</td>`;
             str += '<td class="tableRowHoverOff">';
             if (data.status_str === 'START' || data.status_str === 'DOWNLOADING' || data.status_str === 'FINISHED') {
-                str += `<button class="align-middle btn btn-outline-danger btn-sm youtube-dl_stop" data-index="${data.index}">중지</button>`;
+                str += `<button class="align-middle btn btn-outline-danger btn-sm youtubeDl-stop" data-index="${data.index}">중지</button>`;
             }
             str += '</td>';
             return str;
@@ -157,13 +171,13 @@
 
         function info_html(left, right, option) {
             let str = '<div class="row">';
-            let link = (left === 'URL' || left === '업로더');
+            const link = (left === 'URL' || left === '업로더');
             str += '<div class="col-sm-2">';
             str += `<b>${left}</b>`;
             str += '</div>';
             str += '<div class="col-sm-10">';
             str += '<div class="input-group col-sm-9">';
-            str += '<span class="text-left" style="padding-left: 10px; padding-top: 3px">';
+            str += '<span class="text-left info-padding">';
             if (link) {
                 str += `<a href="${option}" target="_blank">`;
             }
@@ -176,8 +190,8 @@
         }
 
         function status_html(data) {
-            $(`#item_${data.index}`).html(get_item(data));
-            $(`#detail_${data.index}`).html(get_detail(data));
+            document.getElementById(`item_${data.index}`).innerHTML = get_item(data);
+            document.getElementById(`detail_${data.index}`).innerHTML = get_detail(data);
         }
     </script>
 
