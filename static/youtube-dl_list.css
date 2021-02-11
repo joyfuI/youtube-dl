@@ -1,0 +1,26 @@
+.row > div {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.row {
+    align-items: center;
+    word-break: break-all;
+}
+
+.row > div:nth-child(odd) {
+    text-align: right;
+}
+
+.row > div:nth-child(even) {
+    text-align: left;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.info-padding {
+    padding-left: 10px;
+    padding-top: 3px;
+}

@@ -43,52 +43,7 @@
     <script>
         "use strict";
         const package_name = '{{ arg["package_name"] }}';
-
-        // 프리셋 변경
-        const preset = document.getElementById('preset');
-        const format = document.getElementById('format');
-        preset.addEventListener('change', () => {
-            if (preset.value !== '_custom') {
-                format.value = preset.value;
-            }
-        });
-        format.addEventListener('input', () => {
-            preset.value = '_custom';
-        });
-
-        // 후처리 변경
-        const postprocessor = document.getElementById('postprocessor');
-        postprocessor.addEventListener('change', () => {
-            const select = postprocessor.selectedOptions[0];
-            if (select.parentElement.label === '오디오 추출') {
-                preset.value = 'bestaudio/best';
-                format.value = preset.value;
-            }
-        });
-
-        // 다운로드
-        const download_btn = document.getElementById('download_btn');
-        download_btn.addEventListener('click', (event) => {
-            event.preventDefault();
-            const url = document.getElementById('url').value;
-            if (!url.startsWith('http')) {
-                notify('URL을 입력하세요.', 'warning');
-                return;
-            }
-
-            fetch(`/${package_name}/ajax/download`, {
-                method: 'POST',
-                cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                body: get_formdata('#download')
-            }).then(response => response.json()).then(() => {
-                notify('분석중..', 'info');
-            }).catch(() => {
-                notify('다운로드 요청 실패', 'danger');
-            });
-        });
     </script>
+    <script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}"></script>
 
 {% endblock %}

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#########################################################
 # python
 import os
 import sys
@@ -18,13 +17,14 @@ from framework.util import Util
 from .plugin import logger, package_name
 from .logic_normal import LogicNormal
 from .model import ModelSetting
-#########################################################
+
 
 class Logic(object):
     db_default = {
         'db_version': '2',
         'youtube_dl_package': '0',
-        'ffmpeg_path': '' if platform.system() != 'Windows' else os.path.join(path_app_root, 'bin', 'Windows', 'ffmpeg.exe'),
+        'ffmpeg_path': '' if platform.system() != 'Windows' else os.path.join(path_app_root, 'bin', 'Windows',
+                                                                              'ffmpeg.exe'),
         'temp_path': os.path.join(path_data, 'download_tmp'),
         'save_path': os.path.join(path_data, 'download'),
         'default_filename': '',
@@ -55,12 +55,14 @@ class Logic(object):
                 import glob2
             except ImportError:
                 logger.debug('glob2 install')
-                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'], universal_newlines=True))
+                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'],
+                                                     universal_newlines=True))
 
             # youtube-dl 업데이트
             youtube_dl = LogicNormal.get_youtube_dl_package(ModelSetting.get('youtube_dl_package'))
             logger.debug('%s upgrade' % youtube_dl)
-            logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', '--upgrade', youtube_dl], universal_newlines=True))
+            logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', '--upgrade', youtube_dl],
+                                                 universal_newlines=True))
 
             # 편의를 위해 json 파일 생성
             from .plugin import plugin_info
@@ -85,7 +87,8 @@ class Logic(object):
 
             if db_version < 2:
                 logger.debug('youtube-dlc uninstall')
-                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'uninstall', '-y', 'youtube-dlc'], universal_newlines=True))
+                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'uninstall', '-y', 'youtube-dlc'],
+                                                     universal_newlines=True))
 
             connect.commit()
             connect.close()

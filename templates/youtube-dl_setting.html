@@ -16,33 +16,7 @@
     <script>
         "use strict";
         const package_name = '{{ arg["package_name"] }}';
-
-        // FFmpeg 버전확인
-        const ffmpeg_version_btn = document.getElementById('ffmpeg_version_btn');
-        ffmpeg_version_btn.addEventListener('click', (event) => {
-            event.preventDefault();
-            let ffmpeg_path = document.getElementById('ffmpeg_path').value;
-            if (ffmpeg_path.length === 0) {
-                ffmpeg_path = 'ffmpeg';
-            }
-
-            fetch(`/${package_name}/ajax/ffmpeg_version`, {
-                method: 'POST',
-                cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                body: new URLSearchParams({
-                    path: ffmpeg_path
-                })
-            }).then(response => response.json()).then((data) => {
-                document.getElementById('modal_title').innerHTML = `${ffmpeg_path} -version`;
-                document.getElementById('modal_body').innerHTML = data;
-                $('#large_modal').modal();
-            }).catch(() => {
-                notify('버전확인 실패', 'danger');
-            });
-        });
     </script>
+    <script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}"></script>
 
 {% endblock %}

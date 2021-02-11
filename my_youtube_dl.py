@@ -10,8 +10,6 @@ import json
 from datetime import datetime
 from enum import Enum
 
-# third-party
-
 # sjva 공용, 패키지
 import framework.common.celery as celery_shutil
 from .plugin import logger
@@ -71,26 +69,26 @@ class MyYoutubeDL(object):
         self.__status = Status.READY
         self.__thread = None
         self.key = None
-        self.start_time = None      # 시작 시간
-        self.end_time = None        # 종료 시간
+        self.start_time = None  # 시작 시간
+        self.end_time = None  # 종료 시간
         # info_dict에서 얻는 정보
         self.info_dict = {
-            'extractor': None,      # 타입
-            'title': None,          # 제목
-            'uploader': None,       # 업로더
-            'uploader_url': None    # 업로더 주소
+            'extractor': None,  # 타입
+            'title': None,  # 제목
+            'uploader': None,  # 업로더
+            'uploader_url': None  # 업로더 주소
         }
         # info_dict에서 얻는 정보(entries)
         # self.info_dict['playlist_index'] = None
-        # self.info_dict['duration'] = None           # 길이
-        # self.info_dict['format'] = None             # 포맷
-        # self.info_dict['thumbnail'] = None          # 썸네일
+        # self.info_dict['duration'] = None  # 길이
+        # self.info_dict['format'] = None  # 포맷
+        # self.info_dict['thumbnail'] = None  # 썸네일
         # progress_hooks에서 얻는 정보
         self.progress_hooks = {
-            'downloaded_bytes': None,   # 다운로드한 크기
-            'total_bytes': None,        # 전체 크기
-            'eta': None,                # 예상 시간(s)
-            'speed': None               # 다운로드 속도(bytes/s)
+            'downloaded_bytes': None,  # 다운로드한 크기
+            'total_bytes': None,  # 전체 크기
+            'eta': None,  # 예상 시간(s)
+            'speed': None  # 다운로드 속도(bytes/s)
         }
 
     def start(self):

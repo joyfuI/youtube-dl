@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-#########################################################
 # python
 import os
 import sys
 import traceback
 import subprocess
-import json
 
 # third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
@@ -20,19 +18,23 @@ package_name = __name__.split('.')[0]
 logger = get_logger(package_name)
 from .logic import Logic
 from .logic_normal import LogicNormal
-YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(Logic.db_default['youtube_dl_package'], import_pkg=True)
 from .model import ModelSetting
+
+YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(Logic.db_default['youtube_dl_package'], import_pkg=True)
 
 #########################################################
 # 플러그인 공용
 #########################################################
-blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
+blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
+                      template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+                      static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 if ModelSetting.get_bool('activate_cors'):
     try:
         from flask_cors import CORS
     except ImportError:
         logger.debug('flask-cors install')
-        logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'], universal_newlines=True))
+        logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'],
+                                             universal_newlines=True))
         from flask_cors import CORS
     CORS(blueprint, resources={r"/youtube-dl/api/*": {"origins": "*"}})
 
@@ -54,13 +56,16 @@ plugin_info = {
     'more': ''
 }
 
+
 def plugin_load():
     Logic.plugin_load()
     global YOUTUBE_DL_PACKAGE
     YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(ModelSetting.get('youtube_dl_package'), import_pkg=True)
 
+
 def plugin_unload():
     Logic.plugin_unload()
+
 
 #########################################################
 # WEB Menu
@@ -69,11 +74,15 @@ def plugin_unload():
 def home():
     return redirect('/%s/list' % package_name)
 
+
 @blueprint.route('/<sub>')
 @login_required
 def first_menu(sub):
     try:
-        arg = {'package_name': package_name}
+        arg = {
+            'package_name': package_name,
+            'template_name': '%s_%s' % (package_name, sub)
+        }
 
         if sub == 'setting':
             arg.update(ModelSetting.to_dict())
@@ -98,6 +107,7 @@ def first_menu(sub):
         logger.error('Exception:%s', e)
         logger.error(traceback.format_exc())
     return render_template('sample.html', title='%s - %s' % (package_name, sub))
+
 
 #########################################################
 # For UI
@@ -168,6 +178,7 @@ def ajax(sub):
         logger.error('Exception:%s', e)
         logger.error(traceback.format_exc())
 
+
 #########################################################
 # API
 #########################################################
@@ -188,12 +199,12 @@ def api(sub):
                 'info_dict': None
             }
             if None in (url,):
-                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             if not url.startswith('http'):
-                return LogicNormal.abort(ret, 2)    # 잘못된 동영상 주소
+                return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
             info_dict = LogicNormal.get_info_dict(url, ModelSetting.get('proxy'))
             if info_dict is None:
-                return LogicNormal.abort(ret, 10)   # 실패
+                return LogicNormal.abort(ret, 10)  # 실패
             ret['info_dict'] = info_dict
             return jsonify(ret)
 
@@ -216,11 +227,11 @@ def api(sub):
                 'index': None
             }
             if None in (key, url):
-                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             if not url.startswith('http'):
-                return LogicNormal.abort(ret, 2)    # 잘못된 동영상 주소
+                return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
             if preferredcodec not in (None, 'best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
-                return LogicNormal.abort(ret, 5)    # 허용되지 않은 값이 있음
+                return LogicNormal.abort(ret, 5)  # 허용되지 않은 값이 있음
             if not filename:
                 filename = LogicNormal.get_default_filename()
             youtube_dl = LogicNormal.download(plugin=plugin,
@@ -239,7 +250,7 @@ def api(sub):
                                               key=key,
                                               cookiefile=cookiefile)
             if youtube_dl is None:
-                return LogicNormal.abort(ret, 10)   # 실패
+                return LogicNormal.abort(ret, 10)  # 실패
             ret['index'] = youtube_dl.index
             if start:
                 youtube_dl.start()
@@ -255,16 +266,16 @@ def api(sub):
                 'status': None
             }
             if None in (index, key):
-                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             index = int(index)
             if not (0 <= index < len(LogicNormal.youtube_dl_list)):
-                return LogicNormal.abort(ret, 3)    # 인덱스 범위를 벗어남
+                return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
-                return LogicNormal.abort(ret, 4)    # 키가 일치하지 않음
+                return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
             if not youtube_dl.start():
-                return LogicNormal.abort(ret, 10)   # 실패
+                return LogicNormal.abort(ret, 10)  # 실패
             return jsonify(ret)
 
         # 다운로드 중지를 요청하는 API
@@ -276,16 +287,16 @@ def api(sub):
                 'status': None
             }
             if None in (index, key):
-                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             index = int(index)
             if not (0 <= index < len(LogicNormal.youtube_dl_list)):
-                return LogicNormal.abort(ret, 3)    # 인덱스 범위를 벗어남
+                return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
-                return LogicNormal.abort(ret, 4)    # 키가 일치하지 않음
+                return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
             if not youtube_dl.stop():
-                return LogicNormal.abort(ret, 10)   # 실패
+                return LogicNormal.abort(ret, 10)  # 실패
             return jsonify(ret)
 
         # 현재 상태를 반환하는 API
@@ -301,16 +312,18 @@ def api(sub):
                 'save_path': None
             }
             if None in (index, key):
-                return LogicNormal.abort(ret, 1)    # 필수 요청 변수가 없음
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             index = int(index)
             if not (0 <= index < len(LogicNormal.youtube_dl_list)):
-                return LogicNormal.abort(ret, 3)    # 인덱스 범위를 벗어남
+                return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
-                return LogicNormal.abort(ret, 4)    # 키가 일치하지 않음
+                return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
-            ret['start_time'] = youtube_dl.start_time.strftime('%Y-%m-%dT%H:%M:%S') if youtube_dl.start_time is not None else None
-            ret['end_time'] = youtube_dl.end_time.strftime('%Y-%m-%dT%H:%M:%S') if youtube_dl.end_time is not None else None
+            ret['start_time'] = youtube_dl.start_time.strftime('%Y-%m-%dT%H:%M:%S') if \
+                youtube_dl.start_time is not None else None
+            ret['end_time'] = youtube_dl.end_time.strftime('%Y-%m-%dT%H:%M:%S') if \
+                youtube_dl.end_time is not None else None
             ret['temp_path'] = youtube_dl.temp_path
             ret['save_path'] = youtube_dl.save_path
             return jsonify(ret)
@@ -318,7 +331,8 @@ def api(sub):
         logger.error('Exception:%s', e)
         logger.error(traceback.format_exc())
         abort(500)  # 500 에러(서버 오류)
-    abort(404)      # 404 에러(페이지 없음)
+    abort(404)  # 404 에러(페이지 없음)
+
 
 #########################################################
 # socketio

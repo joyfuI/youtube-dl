@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#########################################################
 # python
 import traceback
 import os
@@ -14,7 +13,7 @@ from framework.util import Util
 from .plugin import logger, package_name
 
 app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % (os.path.join(path_data, 'db', '%s.db' % package_name))
-#########################################################
+
 
 class ModelSetting(db.Model):
     __tablename__ = '%s_setting' % package_name
