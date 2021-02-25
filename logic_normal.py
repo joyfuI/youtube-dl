@@ -17,7 +17,7 @@ class LogicNormal(object):
     @staticmethod
     def get_youtube_dl_package(index=None, import_pkg=False):
         packages = ['youtube-dl', 'yt-dlp']
-        import_name = ['youtube_dl', 'youtube_dlc']
+        import_name = ['youtube_dl', 'yt_dlp']
         if import_pkg:
             return import_name if index is None else import_name[int(index)]
         else:
@@ -25,7 +25,12 @@ class LogicNormal(object):
 
     @staticmethod
     def get_youtube_dl_version():
-        return MyYoutubeDL.get_version()
+        try:
+            return MyYoutubeDL.get_version()
+        except Exception as e:
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+            return '패키지 임포트 실패'
 
     @staticmethod
     def get_default_filename():

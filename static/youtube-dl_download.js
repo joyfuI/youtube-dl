@@ -1,6 +1,6 @@
 "use strict";
 
-const url = document.getElementById('url').value;
+const url = document.getElementById('url');
 const preset = document.getElementById('preset');
 const format = document.getElementById('format');
 const postprocessor = document.getElementById('postprocessor');
