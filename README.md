@@ -133,6 +133,9 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
+v2.3.1
+* yt-dlp 패키지명 변경 대응
+
 v2.3.0
 * youtube-dlc를 yt-dlp로 변경  
   youtube-dlc가 2개월 넘게 커밋이 없어서 youtube-dlc의 포크 프로젝트인 yt-dlp로 변경했습니다.  
