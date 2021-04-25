@@ -58,7 +58,7 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 그리고 만약 주소가 플레이리스트라면 `_type` 키에 `"playlist"`라는 값이 들어 있습니다. 이때는 `entries` 키에 리스트가 들어있어 동영상들의 제목과 ID를 확인할 수 있습니다.
 
 ### /youtube-dl/api/download
-다운로드 준비를 요청하는 API
+비디오 다운로드 준비를 요청하는 API
 #### Request
 키 | 설명 | 필수 | 타입
 --- | --- | --- | ---
@@ -71,6 +71,29 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
+`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
+`archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
+`start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
+`cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
+
+`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+#### Response
+키 | 설명 | 타입
+--- | --- | ---
+`errorCode` | 에러 코드 | Integer
+`index` | 동영상 인덱스. 이후 다운로드를 제어할 때 이 값이 필요함 | Integer
+
+### /youtube-dl/api/thumbnail
+썸네일 다운로드 준비를 요청하는 API
+#### Request
+키 | 설명 | 필수 | 타입
+--- | --- | --- | ---
+`plugin` | 플러그인 이름 | O | String
+`key` | 임의의 키. 이후 다운로드를 제어할 때 이 키가 필요함 | O | String
+`url` | 동영상 주소 | O | String
+`filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template 참고. 미지정 시 사용자 설정 | X | String
+`save_path` | 저장 폴더 경로. 미지정 시 사용자 설정 | X | String
+`all_thumbnails` | 모든 썸네일 다운로드 여부. `false`는 대표 썸네일 하나만 다운로드. 기본값: `false` | X | Boolean
 `dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
 `archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
@@ -124,16 +147,19 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 --- | --- | ---
 `errorCode` | 에러 코드 | Integer
 `status` | 요청을 받았을 당시의 상태 | Status
+`type` | 다운로드 타입. `"video" "thumbnail"` | String
 `start_time` | 다운로드 시작 시간 | String
 `end_time` | 다운로드 종료 시간 | String
 `temp_path` | 임시 폴더 경로 | String
 `save_path` | 저장 폴더 경로 | String
 
-`start_time` 키와 `end_time` 키에 들어있는 시간은 "YYYY-MM-DDThh:mm:ss" 형식의 문자열입니다.  
+`start_time` 키와 `end_time` 키에 들어있는 시간은 `YYYY-MM-DDThh:mm:ss` 형식의 문자열입니다.  
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
 v2.4.0
+* 썸네일 다운로드 기능 추가
+* thumbnail API 추가
 * 설정에 경로 선택 버튼 추가
 
 v2.3.1

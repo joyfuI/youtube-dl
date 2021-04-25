@@ -118,7 +118,42 @@ class LogicNormal(object):
             if 'cookiefile' in kwagrs and kwagrs['cookiefile']:
                 opts['cookiefile'] = kwagrs['cookiefile']
             dateafter = kwagrs.get('dateafter')
-            youtube_dl = MyYoutubeDL(plugin, url, filename, temp_path, save_path, opts, dateafter)
+            youtube_dl = MyYoutubeDL(plugin, 'video', url, filename, temp_path, save_path, opts, dateafter)
+            youtube_dl.key = kwagrs.get('key')
+            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+            return youtube_dl
+        except Exception as e:
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+            return None
+
+    @staticmethod
+    def thumbnail(**kwagrs):
+        try:
+            logger.debug(kwagrs)
+            plugin = kwagrs['plugin']
+            url = kwagrs['url']
+            filename = kwagrs['filename']
+            temp_path = kwagrs['temp_path']
+            save_path = kwagrs['save_path']
+            opts = {
+                'skip_download': True
+            }
+            if 'all_thumbnails' in kwagrs and str(kwagrs['all_thumbnails']).lower() != 'false':
+                opts['write_all_thumbnails'] = True
+            else:
+                opts['writethumbnail'] = True
+
+            if 'archive' in kwagrs and kwagrs['archive']:
+                opts['download_archive'] = kwagrs['archive']
+            if 'proxy' in kwagrs and kwagrs['proxy']:
+                opts['proxy'] = kwagrs['proxy']
+            if 'ffmpeg_path' in kwagrs and kwagrs['ffmpeg_path']:
+                opts['ffmpeg_location'] = kwagrs['ffmpeg_path']
+            if 'cookiefile' in kwagrs and kwagrs['cookiefile']:
+                opts['cookiefile'] = kwagrs['cookiefile']
+            dateafter = kwagrs.get('dateafter')
+            youtube_dl = MyYoutubeDL(plugin, 'thumbnail', url, filename, temp_path, save_path, opts, dateafter)
             youtube_dl.key = kwagrs.get('key')
             LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
@@ -140,8 +175,8 @@ class LogicNormal(object):
             data['status_str'] = youtube_dl.status.name
             data['status_ko'] = str(youtube_dl.status)
             data['end_time'] = ''
-            data['extractor'] = youtube_dl.info_dict['extractor'] if \
-                youtube_dl.info_dict['extractor'] is not None else ''
+            data['extractor'] = youtube_dl.type + (
+                ' - ' + youtube_dl.info_dict['extractor'] if youtube_dl.info_dict['extractor'] is not None else '')
             data['title'] = youtube_dl.info_dict['title'] if \
                 youtube_dl.info_dict['title'] is not None else youtube_dl.url
             data['uploader'] = youtube_dl.info_dict['uploader'] if youtube_dl.info_dict['uploader'] is not None else ''
