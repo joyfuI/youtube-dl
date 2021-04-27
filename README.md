@@ -106,6 +106,31 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `errorCode` | 에러 코드 | Integer
 `index` | 동영상 인덱스. 이후 다운로드를 제어할 때 이 값이 필요함 | Integer
 
+### /youtube-dl/api/sub
+자막 다운로드 준비를 요청하는 API
+#### Request
+키 | 설명 | 필수 | 타입
+--- | --- | --- | ---
+`plugin` | 플러그인 이름 | O | String
+`key` | 임의의 키. 이후 다운로드를 제어할 때 이 키가 필요함 | O | String
+`url` | 동영상 주소 | O | String
+`filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template 참고. 미지정 시 사용자 설정 | X | String
+`save_path` | 저장 폴더 경로. 미지정 시 사용자 설정 | X | String
+`all_subs` | 모든 자막 다운로드 여부. 기본값: `false` | X | Boolean
+`sub_lang` | 자막 언어. 두 자리 국가 코드. 콤마(,)를 구분자로 여러 개 지정 가능. `all_subs` 키가 `false`일 때만 유효. 기본값: `"ko"` | X | String
+`auto_sub` | 자동생성 자막 다운로드 여부. 유튜브 전용. 기본값: `false` | X | Boolean
+`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
+`archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
+`start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
+`cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
+
+`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+#### Response
+키 | 설명 | 타입
+--- | --- | ---
+`errorCode` | 에러 코드 | Integer
+`index` | 동영상 인덱스. 이후 다운로드를 제어할 때 이 값이 필요함 | Integer
+
 ### /youtube-dl/api/start
 다운로드 시작을 요청하는 API
 #### Request
@@ -147,7 +172,7 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 --- | --- | ---
 `errorCode` | 에러 코드 | Integer
 `status` | 요청을 받았을 당시의 상태 | Status
-`type` | 다운로드 타입. `"video" "thumbnail"` | String
+`type` | 다운로드 타입. `"video" "thumbnail" "subtitle"` | String
 `start_time` | 다운로드 시작 시간 | String
 `end_time` | 다운로드 종료 시간 | String
 `temp_path` | 임시 폴더 경로 | String
@@ -160,6 +185,8 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 v2.4.0
 * 썸네일 다운로드 기능 추가
 * thumbnail API 추가
+* 자막 다운로드 기능 추가
+* sub API 추가
 * 설정에 경로 선택 버튼 추가
 
 v2.3.1

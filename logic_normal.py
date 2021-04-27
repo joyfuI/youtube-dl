@@ -163,6 +163,46 @@ class LogicNormal(object):
             return None
 
     @staticmethod
+    def sub(**kwagrs):
+        try:
+            logger.debug(kwagrs)
+            plugin = kwagrs['plugin']
+            url = kwagrs['url']
+            filename = kwagrs['filename']
+            temp_path = kwagrs['temp_path']
+            save_path = kwagrs['save_path']
+            opts = {
+                'skip_download': True
+            }
+            sub_lang = map(lambda x: x.strip(), kwagrs['sub_lang'].split(','))  # 문자열을 리스트로 변환
+            if 'all_subs' in kwagrs and str(kwagrs['all_subs']).lower() != 'false':
+                opts['allsubtitles'] = True
+            else:
+                opts['subtitleslangs'] = sub_lang
+            if 'auto_sub' in kwagrs and str(kwagrs['auto_sub']).lower() != 'false':
+                opts['writeautomaticsub'] = True
+            else:
+                opts['writesubtitles'] = True
+
+            if 'archive' in kwagrs and kwagrs['archive']:
+                opts['download_archive'] = kwagrs['archive']
+            if 'proxy' in kwagrs and kwagrs['proxy']:
+                opts['proxy'] = kwagrs['proxy']
+            if 'ffmpeg_path' in kwagrs and kwagrs['ffmpeg_path']:
+                opts['ffmpeg_location'] = kwagrs['ffmpeg_path']
+            if 'cookiefile' in kwagrs and kwagrs['cookiefile']:
+                opts['cookiefile'] = kwagrs['cookiefile']
+            dateafter = kwagrs.get('dateafter')
+            youtube_dl = MyYoutubeDL(plugin, 'subtitle', url, filename, temp_path, save_path, opts, dateafter)
+            youtube_dl.key = kwagrs.get('key')
+            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+            return youtube_dl
+        except Exception as e:
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+            return None
+
+    @staticmethod
     def get_data(youtube_dl):
         try:
             data = {}
