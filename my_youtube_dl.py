@@ -43,7 +43,8 @@ class MyYoutubeDL(object):
     __index = 0
     _last_msg = ''
 
-    def __init__(self, plugin, url, filename, temp_path, save_path=None, opts=None, dateafter=None, datebefore=None):
+    def __init__(self, plugin, type_name, url, filename, temp_path, save_path=None, opts=None, dateafter=None,
+                 datebefore=None):
         # from youtube_dl.utils import DateRange
         from .plugin import YOUTUBE_DL_PACKAGE
         DateRange = __import__('%s.utils' % YOUTUBE_DL_PACKAGE, fromlist=['DateRange']).DateRange
@@ -53,6 +54,7 @@ class MyYoutubeDL(object):
         if opts is None:
             opts = {}
         self.plugin = plugin
+        self.type = type_name
         self.url = url
         self.filename = filename
         if not os.path.isdir(temp_path):
@@ -166,6 +168,7 @@ class MyYoutubeDL(object):
         # import youtube_dl
         from .plugin import YOUTUBE_DL_PACKAGE
         youtube_dl = __import__('%s' % YOUTUBE_DL_PACKAGE)
+
         try:
             ydl_opts = {
                 'simulate': True,

@@ -41,13 +41,14 @@ if ModelSetting.get_bool('activate_cors'):
 menu = {
     'main': [package_name, 'youtube-dl'],
     'sub': [
-        ['setting', '설정'], ['download', '다운로드'], ['list', '목록'], ['log', '로그']
+        ['setting', '설정'], ['download', '다운로드'], ['thumbnail', '썸네일 다운로드'], ['sub', '자막 다운로드'], ['list', '목록'],
+        ['log', '로그']
     ],
     'category': 'vod'
 }
 
 plugin_info = {
-    'version': '2.3.1',
+    'version': '2.4.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -96,6 +97,16 @@ def first_menu(sub):
             arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
             arg['preset_list'] = LogicNormal.get_preset_list()
             arg['postprocessor_list'] = LogicNormal.get_postprocessor_list()
+            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+
+        elif sub == 'thumbnail':
+            default_filename = ModelSetting.get('default_filename')
+            arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
+            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+
+        elif sub == 'sub':
+            default_filename = ModelSetting.get('default_filename')
+            arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
             return render_template('%s_%s.html' % (package_name, sub), arg=arg)
 
         elif sub == 'list':
@@ -157,6 +168,34 @@ def ajax(sub):
             socketio_emit('add', youtube_dl)
             return jsonify([])
 
+        elif sub == 'thumbnail':
+            youtube_dl = LogicNormal.thumbnail(plugin=package_name,
+                                               url=request.form['url'],
+                                               filename=request.form['filename'],
+                                               temp_path=ModelSetting.get('temp_path'),
+                                               save_path=ModelSetting.get('save_path'),
+                                               all_thumbnails=request.form['all_thumbnails'],
+                                               proxy=ModelSetting.get('proxy'),
+                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'))
+            youtube_dl.start()
+            socketio_emit('add', youtube_dl)
+            return jsonify([])
+
+        elif sub == 'sub':
+            youtube_dl = LogicNormal.sub(plugin=package_name,
+                                         url=request.form['url'],
+                                         filename=request.form['filename'],
+                                         temp_path=ModelSetting.get('temp_path'),
+                                         save_path=ModelSetting.get('save_path'),
+                                         all_subs=request.form['all_subs'],
+                                         sub_lang=request.form['sub_lang'],
+                                         auto_sub=request.form['auto_sub'],
+                                         proxy=ModelSetting.get('proxy'),
+                                         ffmpeg_path=ModelSetting.get('ffmpeg_path'))
+            youtube_dl.start()
+            socketio_emit('add', youtube_dl)
+            return jsonify([])
+
         elif sub == 'list':
             ret = []
             for i in LogicNormal.youtube_dl_list:
@@ -208,7 +247,7 @@ def api(sub):
             ret['info_dict'] = info_dict
             return jsonify(ret)
 
-        # 다운로드 준비를 요청하는 API
+        # 비디오 다운로드 준비를 요청하는 API
         elif sub == 'download':
             key = request.values.get('key')
             url = request.values.get('url')
@@ -219,6 +258,7 @@ def api(sub):
             preferredcodec = request.values.get('preferredcodec', None)
             preferredquality = request.values.get('preferredquality', 192)
             dateafter = request.values.get('dateafter', None)
+            playlist = request.values.get('playlist', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             cookiefile = request.values.get('cookiefile', None)
@@ -244,11 +284,102 @@ def api(sub):
                                               preferredcodec=preferredcodec,
                                               preferredquality=preferredquality,
                                               dateafter=dateafter,
+                                              playlist=playlist,
                                               archive=archive,
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
                                               key=key,
                                               cookiefile=cookiefile)
+            if youtube_dl is None:
+                return LogicNormal.abort(ret, 10)  # 실패
+            ret['index'] = youtube_dl.index
+            if start:
+                youtube_dl.start()
+            socketio_emit('add', youtube_dl)
+            return jsonify(ret)
+
+        # 썸네일 다운로드 준비를 요청하는 API
+        elif sub == 'thumbnail':
+            key = request.values.get('key')
+            url = request.values.get('url')
+            filename = request.values.get('filename', ModelSetting.get('default_filename'))
+            save_path = request.values.get('save_path', ModelSetting.get('save_path'))
+            all_thumbnails = request.values.get('all_thumbnails', False)
+            dateafter = request.values.get('dateafter', None)
+            playlist = request.values.get('playlist', None)
+            archive = request.values.get('archive', None)
+            start = request.values.get('start', False)
+            cookiefile = request.values.get('cookiefile', None)
+            ret = {
+                'errorCode': 0,
+                'index': None
+            }
+            if None in (key, url):
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+            if not url.startswith('http'):
+                return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
+            if not filename:
+                filename = LogicNormal.get_default_filename()
+            youtube_dl = LogicNormal.thumbnail(plugin=plugin,
+                                               url=url,
+                                               filename=filename,
+                                               temp_path=ModelSetting.get('temp_path'),
+                                               save_path=save_path,
+                                               all_thumbnails=all_thumbnails,
+                                               dateafter=dateafter,
+                                               playlist=playlist,
+                                               archive=archive,
+                                               proxy=ModelSetting.get('proxy'),
+                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
+                                               key=key,
+                                               cookiefile=cookiefile)
+            if youtube_dl is None:
+                return LogicNormal.abort(ret, 10)  # 실패
+            ret['index'] = youtube_dl.index
+            if start:
+                youtube_dl.start()
+            socketio_emit('add', youtube_dl)
+            return jsonify(ret)
+
+        # 자막 다운로드 준비를 요청하는 API
+        elif sub == 'sub':
+            key = request.values.get('key')
+            url = request.values.get('url')
+            filename = request.values.get('filename', ModelSetting.get('default_filename'))
+            save_path = request.values.get('save_path', ModelSetting.get('save_path'))
+            all_subs = request.values.get('all_subs', False)
+            sub_lang = request.values.get('sub_lang', 'ko')
+            auto_sub = request.values.get('all_subs', False)
+            dateafter = request.values.get('dateafter', None)
+            playlist = request.values.get('playlist', None)
+            archive = request.values.get('archive', None)
+            start = request.values.get('start', False)
+            cookiefile = request.values.get('cookiefile', None)
+            ret = {
+                'errorCode': 0,
+                'index': None
+            }
+            if None in (key, url):
+                return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
+            if not url.startswith('http'):
+                return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
+            if not filename:
+                filename = LogicNormal.get_default_filename()
+            youtube_dl = LogicNormal.sub(plugin=plugin,
+                                         url=url,
+                                         filename=filename,
+                                         temp_path=ModelSetting.get('temp_path'),
+                                         save_path=save_path,
+                                         all_subs=all_subs,
+                                         sub_lang=sub_lang,
+                                         auto_sub=auto_sub,
+                                         dateafter=dateafter,
+                                         playlist=playlist,
+                                         archive=archive,
+                                         proxy=ModelSetting.get('proxy'),
+                                         ffmpeg_path=ModelSetting.get('ffmpeg_path'),
+                                         key=key,
+                                         cookiefile=cookiefile)
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)  # 실패
             ret['index'] = youtube_dl.index
@@ -306,6 +437,7 @@ def api(sub):
             ret = {
                 'errorCode': 0,
                 'status': None,
+                'type': None,
                 'start_time': None,
                 'end_time': None,
                 'temp_path': None,
@@ -320,6 +452,7 @@ def api(sub):
             if youtube_dl.key != key:
                 return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
             ret['status'] = youtube_dl.status.name
+            ret['type'] = youtube_dl.type
             ret['start_time'] = youtube_dl.start_time.strftime('%Y-%m-%dT%H:%M:%S') if \
                 youtube_dl.start_time is not None else None
             ret['end_time'] = youtube_dl.end_time.strftime('%Y-%m-%dT%H:%M:%S') if \

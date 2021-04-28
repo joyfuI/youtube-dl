@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <form id="download">
+        {{ macros.setting_input_text('url', 'URL', placeholder='http:// 주소', desc='유튜브, 네이버TV 등 동영상 주소') }}
+        {{ macros.setting_input_text('filename', '파일명', value=arg['filename'], desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template 참고') }}
+        {{ macros.setting_checkbox('all_subs', '모든 자막 다운로드', value='False') }}
+        <div id="all_subs_div" class="collapse show">
+            {{ macros.setting_input_text('sub_lang', '자막 언어', value='ko', desc=['두 자리 국가 코드', '콤마(,)를 구분자로 여러 개 지정 가능']) }}
+        </div>
+        {{ macros.setting_checkbox('auto_sub', '자동생성 자막 다운로드', value='False', desc='유튜브 전용') }}
+        {{ macros.setting_button([['download_btn', '다운로드']]) }}
+    </form>
+
+    <script>
+        "use strict";
+        const package_name = '{{ arg["package_name"] }}';
+    </script>
+    <script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}"></script>
+
+{% endblock %}
