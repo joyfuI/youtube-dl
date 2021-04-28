@@ -10,11 +10,10 @@ SJVA에서 "시스템 → 플러그인 → 플러그인 수동 설치" 칸에 �
 시놀로지 docker 환경에서 테스트했습니다.
 
 API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로드를 요청할 수 있습니다.  
-다른 플러그인이 멋대로 다운로드를 중지할 수 없도록 다운로드를 요청할 때 임의의 키를 넘겨받습니다. 이 중지 요청 시 키가 일치해야 요청이 실행됩니다.  
-과연 이걸로 뭔가를 만드실 분이 계실지...
+다른 플러그인이 멋대로 다운로드를 중지할 수 없도록 다운로드를 요청할 때 임의의 키를 넘겨받습니다. 중지 요청 시 키가 일치해야 요청이 실행됩니다.  
 
 [youtube-dl](https://github.com/ytdl-org/youtube-dl)의 DMCA 테이크다운 사태 이후, 비슷한 상황을 대비하기 위해 youtube-dl의 포크 프로젝트 [youtube-dlc](https://github.com/blackjack4494/yt-dlc)의 포크 프로젝트(...)인 [yt-dlp](https://github.com/pukkandan/yt-dlp)를 추가했습니다.  
-설정에서 취향껏 골라서 사용하시면 되며 youtube-dl 외에는 곁다리 지원이라 작동하지 않거나 우선순위에서 밀릴 수 있습니다.
+설정에서 취향껏 골라서 사용하시면 되며 youtube-dl가 우선 지원됩니다.
 
 ## API
 ### 공통사항
@@ -71,12 +70,18 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `preferedformat` | 변환할 비디오 포맷. 가능한 포맷은 https://ffmpeg.org/general.html#File-Formats 참고. 미지정 시 변환하지 않음 | X | String
 `preferredcodec` | 추출할 오디오 코덱. 가능한 값은 `"best"`, `"mp3"`, `"aac"`, `"flac"`, `"m4a"`, `"opus"`, `"vorbis"`, `"wav"`. 미지정 시 추출하지 않음 | X | String
 `preferredquality` | 추출한 오디오의 비트레이트. 0 ~ 9 사이의 VBR 퀄리티 값(0에 가까울수록 좋음) 혹은 특정 비트레이트 값. `preferredcodec` 키가 있을 때만 유효. 기본값: `192` | X | Integer
-`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
+`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모두 다운로드 | X | String
+`playlist` | 플레이리스트를 다운로드할 때 범위나 순서 지정. 미지정 시 모두 순서대로 다운로드 | X | String
 `archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
 `cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
 
-`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.
+
+`playlist` 키에 넣을 수 있는 값은 `"1-3,7,10-13"` 형식의 범위 또는 `"reverse"`, `"random"`입니다.  
+범위를 넣으면 플레이리스트에서 선택한 것만 다운로드합니다.  
+`"reverse"`를 넣으면 전체 플레이리스트를 역순으로 다운로드합니다.  
+`"random"`을 넣으면 전체 플레이리스트를 랜덤 순서로 다운로드합니다.
 #### Response
 키 | 설명 | 타입
 --- | --- | ---
@@ -94,12 +99,18 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `filename` | 파일명. 템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template 참고. 미지정 시 사용자 설정 | X | String
 `save_path` | 저장 폴더 경로. 미지정 시 사용자 설정 | X | String
 `all_thumbnails` | 모든 썸네일 다운로드 여부. `false`는 대표 썸네일 하나만 다운로드. 기본값: `false` | X | Boolean
-`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
+`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모두 다운로드 | X | String
+`playlist` | 플레이리스트를 다운로드할 때 범위나 순서 지정. 미지정 시 모두 순서대로 다운로드 | X | String
 `archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
 `cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
 
-`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.
+
+`playlist` 키에 넣을 수 있는 값은 `"1-3,7,10-13"` 형식의 범위 또는 `"reverse"`, `"random"`입니다.  
+범위를 넣으면 플레이리스트에서 선택한 것만 다운로드합니다.  
+`"reverse"`를 넣으면 전체 플레이리스트를 역순으로 다운로드합니다.  
+`"random"`을 넣으면 전체 플레이리스트를 랜덤 순서로 다운로드합니다.
 #### Response
 키 | 설명 | 타입
 --- | --- | ---
@@ -119,12 +130,18 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `all_subs` | 모든 자막 다운로드 여부. 기본값: `false` | X | Boolean
 `sub_lang` | 자막 언어. 두 자리 국가 코드. 콤마(,)를 구분자로 여러 개 지정 가능. `all_subs` 키가 `false`일 때만 유효. 기본값: `"ko"` | X | String
 `auto_sub` | 자동생성 자막 다운로드 여부. 유튜브 전용. 기본값: `false` | X | Boolean
-`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모든 동영상 다운로드 | X | String
+`dateafter` | 지정한 날짜 이후에 업로드된 동영상만 다운로드. 미지정 시 모두 다운로드 | X | String
+`playlist` | 플레이리스트를 다운로드할 때 범위나 순서 지정. 미지정 시 모두 순서대로 다운로드 | X | String
 `archive` | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X | String
 `start` | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false` | X | Boolean
 `cookiefile` | 다운로드 시 필요한 쿠키 파일 경로 | X | String
 
-`dateafter` 키에 넣을 수 있는 날짜는 `YYYYMMDD` 또는 `(now|today)[+-][0-9](day|week|month|year)(s)?` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.
+
+`playlist` 키에 넣을 수 있는 값은 `"1-3,7,10-13"` 형식의 범위 또는 `"reverse"`, `"random"`입니다.  
+범위를 넣으면 플레이리스트에서 선택한 것만 다운로드합니다.  
+`"reverse"`를 넣으면 전체 플레이리스트를 역순으로 다운로드합니다.  
+`"random"`을 넣으면 전체 플레이리스트를 랜덤 순서로 다운로드합니다.
 #### Response
 키 | 설명 | 타입
 --- | --- | ---
@@ -178,11 +195,13 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 `temp_path` | 임시 폴더 경로 | String
 `save_path` | 저장 폴더 경로 | String
 
-`start_time` 키와 `end_time` 키에 들어있는 시간은 `YYYY-MM-DDThh:mm:ss` 형식의 문자열입니다.  
+`start_time` 키와 `end_time` 키에 들어있는 시간은 `"YYYY-MM-DDThh:mm:ss"` 형식의 문자열입니다.  
 물론 해당 정보가 없으면 null입니다.
 
 ## Changelog
 v2.4.0
+* API에 playlist 키 추가  
+  플레이리스트 다운로드 시 범위나 순서를 지정할 수 있습니다.
 * 썸네일 다운로드 기능 추가
 * thumbnail API 추가
 * 자막 다운로드 기능 추가

@@ -258,6 +258,7 @@ def api(sub):
             preferredcodec = request.values.get('preferredcodec', None)
             preferredquality = request.values.get('preferredquality', 192)
             dateafter = request.values.get('dateafter', None)
+            playlist = request.values.get('playlist', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             cookiefile = request.values.get('cookiefile', None)
@@ -283,6 +284,7 @@ def api(sub):
                                               preferredcodec=preferredcodec,
                                               preferredquality=preferredquality,
                                               dateafter=dateafter,
+                                              playlist=playlist,
                                               archive=archive,
                                               proxy=ModelSetting.get('proxy'),
                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
@@ -304,6 +306,7 @@ def api(sub):
             save_path = request.values.get('save_path', ModelSetting.get('save_path'))
             all_thumbnails = request.values.get('all_thumbnails', False)
             dateafter = request.values.get('dateafter', None)
+            playlist = request.values.get('playlist', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             cookiefile = request.values.get('cookiefile', None)
@@ -324,6 +327,7 @@ def api(sub):
                                                save_path=save_path,
                                                all_thumbnails=all_thumbnails,
                                                dateafter=dateafter,
+                                               playlist=playlist,
                                                archive=archive,
                                                proxy=ModelSetting.get('proxy'),
                                                ffmpeg_path=ModelSetting.get('ffmpeg_path'),
@@ -347,6 +351,7 @@ def api(sub):
             sub_lang = request.values.get('sub_lang', 'ko')
             auto_sub = request.values.get('all_subs', False)
             dateafter = request.values.get('dateafter', None)
+            playlist = request.values.get('playlist', None)
             archive = request.values.get('archive', None)
             start = request.values.get('start', False)
             cookiefile = request.values.get('cookiefile', None)
@@ -369,6 +374,7 @@ def api(sub):
                                          sub_lang=sub_lang,
                                          auto_sub=auto_sub,
                                          dateafter=dateafter,
+                                         playlist=playlist,
                                          archive=archive,
                                          proxy=ModelSetting.get('proxy'),
                                          ffmpeg_path=ModelSetting.get('ffmpeg_path'),

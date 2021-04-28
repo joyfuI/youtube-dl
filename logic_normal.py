@@ -109,6 +109,13 @@ class LogicNormal(object):
                 })
             if postprocessor:
                 opts['postprocessors'] = postprocessor
+            if 'playlist' in kwagrs and kwagrs['playlist']:
+                if kwagrs['playlist'] == 'reverse':
+                    opts['playlistreverse'] = True
+                elif kwagrs['playlist'] == 'random':
+                    opts['playlistrandom'] = True
+                else:
+                    opts['playlist_items'] = kwagrs['playlist']
             if 'archive' in kwagrs and kwagrs['archive']:
                 opts['download_archive'] = kwagrs['archive']
             if 'proxy' in kwagrs and kwagrs['proxy']:
@@ -143,7 +150,13 @@ class LogicNormal(object):
                 opts['write_all_thumbnails'] = True
             else:
                 opts['writethumbnail'] = True
-
+            if 'playlist' in kwagrs and kwagrs['playlist']:
+                if kwagrs['playlist'] == 'reverse':
+                    opts['playlistreverse'] = True
+                elif kwagrs['playlist'] == 'random':
+                    opts['playlistrandom'] = True
+                else:
+                    opts['playlist_items'] = kwagrs['playlist']
             if 'archive' in kwagrs and kwagrs['archive']:
                 opts['download_archive'] = kwagrs['archive']
             if 'proxy' in kwagrs and kwagrs['proxy']:
@@ -183,7 +196,13 @@ class LogicNormal(object):
                 opts['writeautomaticsub'] = True
             else:
                 opts['writesubtitles'] = True
-
+            if 'playlist' in kwagrs and kwagrs['playlist']:
+                if kwagrs['playlist'] == 'reverse':
+                    opts['playlistreverse'] = True
+                elif kwagrs['playlist'] == 'random':
+                    opts['playlistrandom'] = True
+                else:
+                    opts['playlist_items'] = kwagrs['playlist']
             if 'archive' in kwagrs and kwagrs['archive']:
                 opts['download_archive'] = kwagrs['archive']
             if 'proxy' in kwagrs and kwagrs['proxy']:
