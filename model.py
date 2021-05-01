@@ -1,17 +1,12 @@
-# -*- coding: utf-8 -*-
-# python
-import traceback
 import os
+import traceback
 
-# third-party
-
-# sjva 공용
 from framework import app, db, path_data
+from framework.logger import get_logger
 from framework.util import Util
 
-# 패키지
-from .plugin import logger, package_name
-
+package_name = __name__.split('.')[0]
+logger = get_logger(package_name)
 app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % (os.path.join(path_data, 'db', '%s.db' % package_name))
 
 

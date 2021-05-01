@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
-# python
 import traceback
 from datetime import datetime
 
-# third-party
 from flask import jsonify
 
-# 패키지
-from .plugin import logger
+from framework.logger import get_logger
+
 from .my_youtube_dl import MyYoutubeDL, Status
+
+package_name = __name__.split('.')[0]
+logger = get_logger(package_name)
 
 
 class LogicNormal(object):

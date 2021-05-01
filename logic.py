@@ -1,22 +1,19 @@
-# -*- coding: utf-8 -*-
-# python
 import os
 import sys
 import platform
-import subprocess
 import traceback
+import subprocess
 import sqlite3
 
-# third-party
-
-# sjva 공용
 from framework import db, path_app_root, path_data
+from framework.logger import get_logger
 from framework.util import Util
 
-# 패키지
-from .plugin import logger, package_name
 from .logic_normal import LogicNormal
 from .model import ModelSetting
+
+package_name = __name__.split('.')[0]
+logger = get_logger(package_name)
 
 
 class Logic(object):
@@ -28,8 +25,7 @@ class Logic(object):
         'temp_path': os.path.join(path_data, 'download_tmp'),
         'save_path': os.path.join(path_data, 'download'),
         'default_filename': '',
-        'proxy': '',
-        'activate_cors': False
+        'proxy': ''
     }
 
     @staticmethod
@@ -49,14 +45,6 @@ class Logic(object):
         try:
             logger.debug('%s plugin_load', package_name)
             Logic.db_init()
-
-            # 모듈 설치
-            try:
-                import glob2
-            except ImportError:
-                logger.debug('glob2 install')
-                logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'glob2'],
-                                                     universal_newlines=True))
 
             # youtube-dl 업데이트
             youtube_dl = LogicNormal.get_youtube_dl_package(ModelSetting.get('youtube_dl_package'))

@@ -1,26 +1,23 @@
-# -*- coding: utf-8 -*-
-# python
 import os
-import sys
 import traceback
 import subprocess
 
-# third-party
 from flask import Blueprint, request, render_template, redirect, jsonify, abort
 from flask_login import login_required
+from flask_cors import cross_origin
 
-# sjva 공용
-from framework.logger import get_logger
 from framework import check_api, socketio
+from framework.logger import get_logger
 
-# 패키지
-package_name = __name__.split('.')[0]
-logger = get_logger(package_name)
 from .logic import Logic
 from .logic_normal import LogicNormal
 from .model import ModelSetting
 
-YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(Logic.db_default['youtube_dl_package'], import_pkg=True)
+package_name = __name__.split('.')[0]
+logger = get_logger(package_name)
+youtube_dl_package = LogicNormal.get_youtube_dl_package(
+    ModelSetting.get('youtube_dl_package') if ModelSetting.get('youtube_dl_package') else Logic.db_default[
+        'youtube_dl_package'], import_pkg=True)
 
 #########################################################
 # 플러그인 공용
@@ -28,15 +25,6 @@ YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(Logic.db_default['youtub
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
                       template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
                       static_folder=os.path.join(os.path.dirname(__file__), 'static'))
-if ModelSetting.get_bool('activate_cors'):
-    try:
-        from flask_cors import CORS
-    except ImportError:
-        logger.debug('flask-cors install')
-        logger.debug(subprocess.check_output([sys.executable, '-m', 'pip', 'install', 'flask-cors'],
-                                             universal_newlines=True))
-        from flask_cors import CORS
-    CORS(blueprint, resources={r"/youtube-dl/api/*": {"origins": "*"}})
 
 menu = {
     'main': [package_name, 'youtube-dl'],
@@ -48,7 +36,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '2.4.0',
+    'version': '3.0.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -60,8 +48,6 @@ plugin_info = {
 
 def plugin_load():
     Logic.plugin_load()
-    global YOUTUBE_DL_PACKAGE
-    YOUTUBE_DL_PACKAGE = LogicNormal.get_youtube_dl_package(ModelSetting.get('youtube_dl_package'), import_pkg=True)
 
 
 def plugin_unload():
@@ -223,6 +209,7 @@ def ajax(sub):
 #########################################################
 # API 명세는 https://github.com/joyfuI/youtube-dl#api
 @blueprint.route('/api/<sub>', methods=['GET', 'POST'])
+@cross_origin()
 @check_api
 def api(sub):
     plugin = request.values.get('plugin')

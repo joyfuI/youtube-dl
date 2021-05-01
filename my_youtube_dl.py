@@ -1,18 +1,19 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# python
 import os
+import glob
 import traceback
 import tempfile
-from threading import Thread
 import json
 from datetime import datetime
+from threading import Thread
 from enum import Enum
 
-# sjva 공용, 패키지
+from framework.logger import get_logger
 import framework.common.celery as celery_shutil
-from .plugin import logger
+
+package_name = __name__.split('.')[0]
+logger = get_logger(package_name)
 
 
 class Status(Enum):
@@ -46,8 +47,8 @@ class MyYoutubeDL(object):
     def __init__(self, plugin, type_name, url, filename, temp_path, save_path=None, opts=None, dateafter=None,
                  datebefore=None):
         # from youtube_dl.utils import DateRange
-        from .plugin import YOUTUBE_DL_PACKAGE
-        DateRange = __import__('%s.utils' % YOUTUBE_DL_PACKAGE, fromlist=['DateRange']).DateRange
+        from .plugin import youtube_dl_package
+        DateRange = __import__('%s.utils' % youtube_dl_package, fromlist=['DateRange']).DateRange
 
         if save_path is None:
             save_path = temp_path
@@ -102,9 +103,8 @@ class MyYoutubeDL(object):
 
     def run(self):
         # import youtube_dl
-        from .plugin import YOUTUBE_DL_PACKAGE
-        youtube_dl = __import__('%s' % YOUTUBE_DL_PACKAGE)
-        import glob2
+        from .plugin import youtube_dl_package
+        youtube_dl = __import__('%s' % youtube_dl_package)
 
         try:
             self.start_time = datetime.now()
@@ -130,7 +130,7 @@ class MyYoutubeDL(object):
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([self.url])
             if self.status in (Status.START, Status.FINISHED):  # 다운로드 성공
-                for i in glob2.glob(self.temp_path + '/**/*'):
+                for i in glob.glob(self.temp_path + '/**/*'):
                     path = i.replace(self.temp_path, self.save_path, 1)
                     if os.path.isdir(i):
                         if not os.path.isdir(path):
@@ -158,16 +158,16 @@ class MyYoutubeDL(object):
     @staticmethod
     def get_version():
         # from youtube_dl.version import __version__
-        from .plugin import YOUTUBE_DL_PACKAGE
-        __version__ = __import__('%s.version' % YOUTUBE_DL_PACKAGE, fromlist=['__version__']).__version__
+        from .plugin import youtube_dl_package
+        __version__ = __import__('%s.version' % youtube_dl_package, fromlist=['__version__']).__version__
 
         return __version__
 
     @staticmethod
     def get_info_dict(url, proxy=None, cookiefile=None):
         # import youtube_dl
-        from .plugin import YOUTUBE_DL_PACKAGE
-        youtube_dl = __import__('%s' % YOUTUBE_DL_PACKAGE)
+        from .plugin import youtube_dl_package
+        youtube_dl = __import__('%s' % youtube_dl_package)
 
         try:
             ydl_opts = {
