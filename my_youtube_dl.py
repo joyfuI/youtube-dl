@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
 
 import os
-import glob
 import traceback
 import tempfile
 import json
+from glob import glob
 from datetime import datetime
 from threading import Thread
 from enum import Enum
@@ -130,7 +130,7 @@ class MyYoutubeDL(object):
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([self.url])
             if self.status in (Status.START, Status.FINISHED):  # 다운로드 성공
-                for i in glob.glob(self.temp_path + '/**/*'):
+                for i in glob(self.temp_path + '/**/*', recursive=True):
                     path = i.replace(self.temp_path, self.save_path, 1)
                     if os.path.isdir(i):
                         if not os.path.isdir(path):
