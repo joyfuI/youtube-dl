@@ -36,7 +36,7 @@ menu = {
 }
 
 plugin_info = {
-    'version': '3.0.0',
+    'version': '3.0.1',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
