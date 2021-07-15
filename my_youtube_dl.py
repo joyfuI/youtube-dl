@@ -41,7 +41,7 @@ class Status(Enum):
 class MyYoutubeDL(object):
     DEFAULT_FILENAME = '%(title)s-%(id)s.%(ext)s'
 
-    __index = 0
+    _index = 0
     _last_msg = ''
 
     def __init__(self, plugin, type_name, url, filename, temp_path, save_path=None, opts=None, dateafter=None,
@@ -67,10 +67,10 @@ class MyYoutubeDL(object):
         self.opts = opts
         if dateafter or datebefore:
             self.opts['daterange'] = DateRange(start=dateafter, end=datebefore)
-        self.index = MyYoutubeDL.__index
-        MyYoutubeDL.__index += 1
-        self.__status = Status.READY
-        self.__thread = None
+        self.index = MyYoutubeDL._index
+        MyYoutubeDL._index += 1
+        self._status = Status.READY
+        self._thread = None
         self.key = None
         self.start_time = None  # 시작 시간
         self.end_time = None  # 종료 시간
@@ -97,8 +97,8 @@ class MyYoutubeDL(object):
     def start(self):
         if self.status != Status.READY:
             return False
-        self.__thread = Thread(target=self.run)
-        self.__thread.start()
+        self._thread = Thread(target=self.run)
+        self._thread.start()
         return True
 
     def run(self):
@@ -211,13 +211,13 @@ class MyYoutubeDL(object):
 
     @property
     def status(self):
-        return self.__status
+        return self._status
 
     @status.setter
     def status(self, value):
         from .plugin import socketio_emit
 
-        self.__status = value
+        self._status = value
         socketio_emit('status', self)
 
 
