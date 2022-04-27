@@ -48,7 +48,8 @@ class MyYoutubeDL(object):
                  datebefore=None):
         # from youtube_dl.utils import DateRange
         from .plugin import youtube_dl_package
-        DateRange = __import__('%s.utils' % youtube_dl_package, fromlist=['DateRange']).DateRange
+        DateRange = __import__('%s.utils' % youtube_dl_package, fromlist=[
+                               'DateRange']).DateRange
 
         if save_path is None:
             save_path = temp_path
@@ -110,7 +111,8 @@ class MyYoutubeDL(object):
             self.start_time = datetime.now()
             self.status = Status.START
             # 동영상 정보 가져오기
-            info_dict = MyYoutubeDL.get_info_dict(self.url, self.opts.get('proxy'), self.opts.get('cookiefile'))
+            info_dict = MyYoutubeDL.get_info_dict(
+                self.url, self.opts.get('proxy'), self.opts.get('cookiefile'))
             if info_dict is None:
                 self.status = Status.ERROR
                 return
@@ -159,7 +161,8 @@ class MyYoutubeDL(object):
     def get_version():
         # from youtube_dl.version import __version__
         from .plugin import youtube_dl_package
-        __version__ = __import__('%s.version' % youtube_dl_package, fromlist=['__version__']).__version__
+        __version__ = __import__('%s.version' % youtube_dl_package, fromlist=[
+                                 '__version__']).__version__
 
         return __version__
 
@@ -171,8 +174,6 @@ class MyYoutubeDL(object):
 
         try:
             ydl_opts = {
-                'simulate': True,
-                'dump_single_json': True,
                 'extract_flat': 'in_playlist',
                 'logger': MyLogger()
             }
@@ -181,12 +182,12 @@ class MyYoutubeDL(object):
             if cookiefile:
                 ydl_opts['cookiefile'] = cookiefile
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
+                info = ydl.extract_info(url, download=False)
         except Exception as e:
             logger.error('Exception:%s', e)
             logger.error(traceback.format_exc())
             return None
-        return json.loads(MyYoutubeDL._last_msg)
+        return info
 
     def my_hook(self, d):
         if self.status != Status.STOP:

@@ -23,20 +23,22 @@ youtube_dl_package = LogicNormal.get_youtube_dl_package(
 # 플러그인 공용
 #########################################################
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
-                      template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+                      template_folder=os.path.join(
+                          os.path.dirname(__file__), 'templates'),
                       static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
 menu = {
     'main': [package_name, 'youtube-dl'],
     'sub': [
-        ['setting', '설정'], ['download', '다운로드'], ['thumbnail', '썸네일 다운로드'], ['sub', '자막 다운로드'], ['list', '목록'],
+        ['setting', '설정'], ['download', '다운로드'], ['thumbnail',
+                                                  '썸네일 다운로드'], ['sub', '자막 다운로드'], ['list', '목록'],
         ['log', '로그']
     ],
     'category': 'vod'
 }
 
 plugin_info = {
-    'version': '3.0.1',
+    'version': '3.1.0',
     'name': 'youtube-dl',
     'category_name': 'vod',
     'developer': 'joyfuI',
@@ -142,8 +144,10 @@ def ajax(sub):
             youtube_dl = LogicNormal.download(plugin=package_name,
                                               url=request.form['url'],
                                               filename=request.form['filename'],
-                                              temp_path=ModelSetting.get('temp_path'),
-                                              save_path=ModelSetting.get('save_path'),
+                                              temp_path=ModelSetting.get(
+                                                  'temp_path'),
+                                              save_path=ModelSetting.get(
+                                                  'save_path'),
                                               format=request.form['format'],
                                               preferedformat=preferedformat,
                                               preferredcodec=preferredcodec,
@@ -158,8 +162,10 @@ def ajax(sub):
             youtube_dl = LogicNormal.thumbnail(plugin=package_name,
                                                url=request.form['url'],
                                                filename=request.form['filename'],
-                                               temp_path=ModelSetting.get('temp_path'),
-                                               save_path=ModelSetting.get('save_path'),
+                                               temp_path=ModelSetting.get(
+                                                   'temp_path'),
+                                               save_path=ModelSetting.get(
+                                                   'save_path'),
                                                all_thumbnails=request.form['all_thumbnails'],
                                                proxy=ModelSetting.get('proxy'),
                                                ffmpeg_path=ModelSetting.get('ffmpeg_path'))
@@ -171,8 +177,10 @@ def ajax(sub):
             youtube_dl = LogicNormal.sub(plugin=package_name,
                                          url=request.form['url'],
                                          filename=request.form['filename'],
-                                         temp_path=ModelSetting.get('temp_path'),
-                                         save_path=ModelSetting.get('save_path'),
+                                         temp_path=ModelSetting.get(
+                                             'temp_path'),
+                                         save_path=ModelSetting.get(
+                                             'save_path'),
                                          all_subs=request.form['all_subs'],
                                          sub_lang=request.form['sub_lang'],
                                          auto_sub=request.form['auto_sub'],
@@ -228,7 +236,8 @@ def api(sub):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             if not url.startswith('http'):
                 return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
-            info_dict = LogicNormal.get_info_dict(url, ModelSetting.get('proxy'))
+            info_dict = LogicNormal.get_info_dict(
+                url, ModelSetting.get('proxy'))
             if info_dict is None:
                 return LogicNormal.abort(ret, 10)  # 실패
             ret['info_dict'] = info_dict
@@ -238,8 +247,10 @@ def api(sub):
         elif sub == 'download':
             key = request.values.get('key')
             url = request.values.get('url')
-            filename = request.values.get('filename', ModelSetting.get('default_filename'))
-            save_path = request.values.get('save_path', ModelSetting.get('save_path'))
+            filename = request.values.get(
+                'filename', ModelSetting.get('default_filename'))
+            save_path = request.values.get(
+                'save_path', ModelSetting.get('save_path'))
             format_code = request.values.get('format', None)
             preferedformat = request.values.get('preferedformat', None)
             preferredcodec = request.values.get('preferredcodec', None)
@@ -264,7 +275,8 @@ def api(sub):
             youtube_dl = LogicNormal.download(plugin=plugin,
                                               url=url,
                                               filename=filename,
-                                              temp_path=ModelSetting.get('temp_path'),
+                                              temp_path=ModelSetting.get(
+                                                  'temp_path'),
                                               save_path=save_path,
                                               format=format_code,
                                               preferedformat=preferedformat,
@@ -274,7 +286,8 @@ def api(sub):
                                               playlist=playlist,
                                               archive=archive,
                                               proxy=ModelSetting.get('proxy'),
-                                              ffmpeg_path=ModelSetting.get('ffmpeg_path'),
+                                              ffmpeg_path=ModelSetting.get(
+                                                  'ffmpeg_path'),
                                               key=key,
                                               cookiefile=cookiefile)
             if youtube_dl is None:
@@ -289,8 +302,10 @@ def api(sub):
         elif sub == 'thumbnail':
             key = request.values.get('key')
             url = request.values.get('url')
-            filename = request.values.get('filename', ModelSetting.get('default_filename'))
-            save_path = request.values.get('save_path', ModelSetting.get('save_path'))
+            filename = request.values.get(
+                'filename', ModelSetting.get('default_filename'))
+            save_path = request.values.get(
+                'save_path', ModelSetting.get('save_path'))
             all_thumbnails = request.values.get('all_thumbnails', False)
             dateafter = request.values.get('dateafter', None)
             playlist = request.values.get('playlist', None)
@@ -310,14 +325,16 @@ def api(sub):
             youtube_dl = LogicNormal.thumbnail(plugin=plugin,
                                                url=url,
                                                filename=filename,
-                                               temp_path=ModelSetting.get('temp_path'),
+                                               temp_path=ModelSetting.get(
+                                                   'temp_path'),
                                                save_path=save_path,
                                                all_thumbnails=all_thumbnails,
                                                dateafter=dateafter,
                                                playlist=playlist,
                                                archive=archive,
                                                proxy=ModelSetting.get('proxy'),
-                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'),
+                                               ffmpeg_path=ModelSetting.get(
+                                                   'ffmpeg_path'),
                                                key=key,
                                                cookiefile=cookiefile)
             if youtube_dl is None:
@@ -332,8 +349,10 @@ def api(sub):
         elif sub == 'sub':
             key = request.values.get('key')
             url = request.values.get('url')
-            filename = request.values.get('filename', ModelSetting.get('default_filename'))
-            save_path = request.values.get('save_path', ModelSetting.get('save_path'))
+            filename = request.values.get(
+                'filename', ModelSetting.get('default_filename'))
+            save_path = request.values.get(
+                'save_path', ModelSetting.get('save_path'))
             all_subs = request.values.get('all_subs', False)
             sub_lang = request.values.get('sub_lang', 'ko')
             auto_sub = request.values.get('all_subs', False)
@@ -355,7 +374,8 @@ def api(sub):
             youtube_dl = LogicNormal.sub(plugin=plugin,
                                          url=url,
                                          filename=filename,
-                                         temp_path=ModelSetting.get('temp_path'),
+                                         temp_path=ModelSetting.get(
+                                             'temp_path'),
                                          save_path=save_path,
                                          all_subs=all_subs,
                                          sub_lang=sub_lang,
@@ -364,7 +384,8 @@ def api(sub):
                                          playlist=playlist,
                                          archive=archive,
                                          proxy=ModelSetting.get('proxy'),
-                                         ffmpeg_path=ModelSetting.get('ffmpeg_path'),
+                                         ffmpeg_path=ModelSetting.get(
+                                             'ffmpeg_path'),
                                          key=key,
                                          cookiefile=cookiefile)
             if youtube_dl is None:
@@ -458,4 +479,5 @@ def api(sub):
 # socketio
 #########################################################
 def socketio_emit(cmd, data):
-    socketio.emit(cmd, LogicNormal.get_data(data), namespace='/%s' % package_name, broadcast=True)
+    socketio.emit(cmd, LogicNormal.get_data(data), namespace='/%s' %
+                  package_name, broadcast=True)
