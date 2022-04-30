@@ -1,34 +1,35 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
-    <link rel="stylesheet" href="{{ url_for('.static', filename='%s.css' % arg['template_name']) }}">
+<link
+  rel="stylesheet"
+  href="{{ url_for('.static', filename='%s.css' % arg['template_name']) }}"
+/>
 
-    {{ macros.m_row_start() }}
-    {{ macros.m_button('all_stop_btn', '전체 중지') }}
-    {{ macros.m_row_end() }}
-    <div class="d-inline-block"></div>
+{{ macros.m_row_start() }} {{ macros.m_button('all_stop_btn', '전체 중지') }} {{
+macros.m_row_end() }}
+<div class="d-inline-block"></div>
 
-    <table class="table table-sm tableRowHover">
-        <thead>
-            <tr>
-                <th style="width: 4%">IDX</th>
-                <th style="width: 8%">Plugin</th>
-                <th style="width: 10%">시작시간</th>
-                <th style="width: 14%">타입</th>
-                <th style="width: 29%">제목</th>
-                <th style="width: 8%">상태</th>
-                <th style="width: 11%">진행률</th>
-                <th style="width: 8%">진행시간</th>
-                <th style="width: 8%">Action</th>
-            </tr>
-        </thead>
-        <tbody id="list_tbody"></tbody>
-    </table>
+<table class="table table-sm tableRowHover">
+  <thead>
+    <tr>
+      <th style="width: 4%">IDX</th>
+      <th style="width: 8%">Plugin</th>
+      <th style="width: 10%">시작시간</th>
+      <th style="width: 14%">타입</th>
+      <th style="width: 29%">제목</th>
+      <th style="width: 8%">상태</th>
+      <th style="width: 11%">진행률</th>
+      <th style="width: 8%">진행시간</th>
+      <th style="width: 8%">Action</th>
+    </tr>
+  </thead>
+  <tbody id="list_tbody"></tbody>
+</table>
 
-    <script>
-        "use strict";
-        const package_name = '{{ arg["package_name"] }}';
-    </script>
-    <script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}"></script>
+<script>
+  'use strict';
+  const package_name = '{{ arg["package_name"] }}';
+</script>
+<script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}"></script>
 
 {% endblock %}

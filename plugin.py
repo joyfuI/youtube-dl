@@ -13,38 +13,47 @@ from .logic import Logic
 from .logic_normal import LogicNormal
 from .model import ModelSetting
 
-package_name = __name__.split('.')[0]
+package_name = __name__.split(".", maxsplit=1)[0]
 logger = get_logger(package_name)
 youtube_dl_package = LogicNormal.get_youtube_dl_package(
-    ModelSetting.get('youtube_dl_package') if ModelSetting.get('youtube_dl_package') else Logic.db_default[
-        'youtube_dl_package'], import_pkg=True)
+    ModelSetting.get("youtube_dl_package")
+    if ModelSetting.get("youtube_dl_package")
+    else Logic.db_default["youtube_dl_package"],
+    import_pkg=True,
+)
 
 #########################################################
 # 플러그인 공용
 #########################################################
-blueprint = Blueprint(package_name, package_name, url_prefix='/%s' % package_name,
-                      template_folder=os.path.join(
-                          os.path.dirname(__file__), 'templates'),
-                      static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+blueprint = Blueprint(
+    package_name,
+    package_name,
+    url_prefix=f"/{package_name}",
+    template_folder=os.path.join(os.path.dirname(__file__), "templates"),
+    static_folder=os.path.join(os.path.dirname(__file__), "static"),
+)
 
 menu = {
-    'main': [package_name, 'youtube-dl'],
-    'sub': [
-        ['setting', '설정'], ['download', '다운로드'], ['thumbnail',
-                                                  '썸네일 다운로드'], ['sub', '자막 다운로드'], ['list', '목록'],
-        ['log', '로그']
+    "main": [package_name, "youtube-dl"],
+    "sub": [
+        ["setting", "설정"],
+        ["download", "다운로드"],
+        ["thumbnail", "썸네일 다운로드"],
+        ["sub", "자막 다운로드"],
+        ["list", "목록"],
+        ["log", "로그"],
     ],
-    'category': 'vod'
+    "category": "vod",
 }
 
 plugin_info = {
-    'version': '3.1.0',
-    'name': 'youtube-dl',
-    'category_name': 'vod',
-    'developer': 'joyfuI',
-    'description': '유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드',
-    'home': 'https://github.com/joyfuI/youtube-dl',
-    'more': ''
+    "version": "3.1.0",
+    "name": "youtube-dl",
+    "category_name": "vod",
+    "developer": "joyfuI",
+    "description": "유튜브, 네이버TV 등 동영상 사이트에서 동영상 다운로드",
+    "home": "https://github.com/joyfuI/youtube-dl",
+    "more": "",
 }
 
 
@@ -59,79 +68,91 @@ def plugin_unload():
 #########################################################
 # WEB Menu
 #########################################################
-@blueprint.route('/')
+@blueprint.route("/")
 def home():
-    return redirect('/%s/list' % package_name)
+    return redirect(f"/{package_name}/list")
 
 
-@blueprint.route('/<sub>')
+@blueprint.route("/<sub>")
 @login_required
 def first_menu(sub):
     try:
         arg = {
-            'package_name': package_name,
-            'template_name': '%s_%s' % (package_name, sub)
+            "package_name": package_name,
+            "template_name": f"{package_name}_{sub}",
         }
 
-        if sub == 'setting':
+        if sub == "setting":
             arg.update(ModelSetting.to_dict())
-            arg['package_list'] = LogicNormal.get_youtube_dl_package()
-            arg['youtube_dl_version'] = LogicNormal.get_youtube_dl_version()
-            arg['DEFAULT_FILENAME'] = LogicNormal.get_default_filename()
-            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+            arg["package_list"] = LogicNormal.get_youtube_dl_package()
+            arg["youtube_dl_version"] = LogicNormal.get_youtube_dl_version()
+            arg["DEFAULT_FILENAME"] = LogicNormal.get_default_filename()
+            return render_template(f"{package_name}_{sub}.html", arg=arg)
 
-        elif sub == 'download':
-            default_filename = ModelSetting.get('default_filename')
-            arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
-            arg['preset_list'] = LogicNormal.get_preset_list()
-            arg['postprocessor_list'] = LogicNormal.get_postprocessor_list()
-            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+        elif sub == "download":
+            default_filename = ModelSetting.get("default_filename")
+            arg["filename"] = (
+                default_filename
+                if default_filename
+                else LogicNormal.get_default_filename()
+            )
+            arg["preset_list"] = LogicNormal.get_preset_list()
+            arg["postprocessor_list"] = LogicNormal.get_postprocessor_list()
+            return render_template(f"{package_name}_{sub}.html", arg=arg)
 
-        elif sub == 'thumbnail':
-            default_filename = ModelSetting.get('default_filename')
-            arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
-            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+        elif sub == "thumbnail":
+            default_filename = ModelSetting.get("default_filename")
+            arg["filename"] = (
+                default_filename
+                if default_filename
+                else LogicNormal.get_default_filename()
+            )
+            return render_template(f"{package_name}_{sub}.html", arg=arg)
 
-        elif sub == 'sub':
-            default_filename = ModelSetting.get('default_filename')
-            arg['filename'] = default_filename if default_filename else LogicNormal.get_default_filename()
-            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+        elif sub == "sub":
+            default_filename = ModelSetting.get("default_filename")
+            arg["filename"] = (
+                default_filename
+                if default_filename
+                else LogicNormal.get_default_filename()
+            )
+            return render_template(f"{package_name}_{sub}.html", arg=arg)
 
-        elif sub == 'list':
-            return render_template('%s_%s.html' % (package_name, sub), arg=arg)
+        elif sub == "list":
+            return render_template(f"{package_name}_{sub}.html", arg=arg)
 
-        elif sub == 'log':
-            return render_template('log.html', package=package_name)
+        elif sub == "log":
+            return render_template("log.html", package=package_name)
     except Exception as e:
-        logger.error('Exception:%s', e)
+        logger.error("Exception:%s", e)
         logger.error(traceback.format_exc())
-    return render_template('sample.html', title='%s - %s' % (package_name, sub))
+    return render_template("sample.html", title=f"{package_name} - {sub}")
 
 
 #########################################################
 # For UI
 #########################################################
-@blueprint.route('/ajax/<sub>', methods=['POST'])
+@blueprint.route("/ajax/<sub>", methods=["POST"])
 @login_required
 def ajax(sub):
-    logger.debug('AJAX %s %s', package_name, sub)
+    logger.debug("AJAX %s %s", package_name, sub)
     try:
         # 공통 요청
-        if sub == 'setting_save':
+        if sub == "setting_save":
             ret = ModelSetting.setting_save(request)
-            if request.form['ffmpeg_path'] == 'ffmpeg':
-                ModelSetting.set('ffmpeg_path', '')
+            if request.form["ffmpeg_path"] == "ffmpeg":
+                ModelSetting.set("ffmpeg_path", "")
             return jsonify(ret)
 
         # UI 요청
-        elif sub == 'ffmpeg_version':
-            path = request.form['path']
-            ret = subprocess.check_output([path, '-version'])
-            ret = ret.decode().replace('\n', '<br>')
+        elif sub == "ffmpeg_version":
+            path = request.form["path"]
+            ret = subprocess.check_output([path, "-version"])
+            ret = ret.decode().replace("\n", "<br>")
             return jsonify(ret)
 
-        elif sub == 'download':
-            postprocessor = request.form['postprocessor']
+        elif sub == "download":
+            postprocessor = request.form["postprocessor"]
             video_convertor, extract_audio = LogicNormal.get_postprocessor()
             preferedformat = None
             preferredcodec = None
@@ -141,56 +162,56 @@ def ajax(sub):
             elif postprocessor in extract_audio:
                 preferredcodec = postprocessor
                 preferredquality = 192
-            youtube_dl = LogicNormal.download(plugin=package_name,
-                                              url=request.form['url'],
-                                              filename=request.form['filename'],
-                                              temp_path=ModelSetting.get(
-                                                  'temp_path'),
-                                              save_path=ModelSetting.get(
-                                                  'save_path'),
-                                              format=request.form['format'],
-                                              preferedformat=preferedformat,
-                                              preferredcodec=preferredcodec,
-                                              preferredquality=preferredquality,
-                                              proxy=ModelSetting.get('proxy'),
-                                              ffmpeg_path=ModelSetting.get('ffmpeg_path'))
+            youtube_dl = LogicNormal.download(
+                plugin=package_name,
+                url=request.form["url"],
+                filename=request.form["filename"],
+                temp_path=ModelSetting.get("temp_path"),
+                save_path=ModelSetting.get("save_path"),
+                format=request.form["format"],
+                preferedformat=preferedformat,
+                preferredcodec=preferredcodec,
+                preferredquality=preferredquality,
+                proxy=ModelSetting.get("proxy"),
+                ffmpeg_path=ModelSetting.get("ffmpeg_path"),
+            )
             youtube_dl.start()
-            socketio_emit('add', youtube_dl)
+            socketio_emit("add", youtube_dl)
             return jsonify([])
 
-        elif sub == 'thumbnail':
-            youtube_dl = LogicNormal.thumbnail(plugin=package_name,
-                                               url=request.form['url'],
-                                               filename=request.form['filename'],
-                                               temp_path=ModelSetting.get(
-                                                   'temp_path'),
-                                               save_path=ModelSetting.get(
-                                                   'save_path'),
-                                               all_thumbnails=request.form['all_thumbnails'],
-                                               proxy=ModelSetting.get('proxy'),
-                                               ffmpeg_path=ModelSetting.get('ffmpeg_path'))
+        elif sub == "thumbnail":
+            youtube_dl = LogicNormal.thumbnail(
+                plugin=package_name,
+                url=request.form["url"],
+                filename=request.form["filename"],
+                temp_path=ModelSetting.get("temp_path"),
+                save_path=ModelSetting.get("save_path"),
+                all_thumbnails=request.form["all_thumbnails"],
+                proxy=ModelSetting.get("proxy"),
+                ffmpeg_path=ModelSetting.get("ffmpeg_path"),
+            )
             youtube_dl.start()
-            socketio_emit('add', youtube_dl)
+            socketio_emit("add", youtube_dl)
             return jsonify([])
 
-        elif sub == 'sub':
-            youtube_dl = LogicNormal.sub(plugin=package_name,
-                                         url=request.form['url'],
-                                         filename=request.form['filename'],
-                                         temp_path=ModelSetting.get(
-                                             'temp_path'),
-                                         save_path=ModelSetting.get(
-                                             'save_path'),
-                                         all_subs=request.form['all_subs'],
-                                         sub_lang=request.form['sub_lang'],
-                                         auto_sub=request.form['auto_sub'],
-                                         proxy=ModelSetting.get('proxy'),
-                                         ffmpeg_path=ModelSetting.get('ffmpeg_path'))
+        elif sub == "sub":
+            youtube_dl = LogicNormal.sub(
+                plugin=package_name,
+                url=request.form["url"],
+                filename=request.form["filename"],
+                temp_path=ModelSetting.get("temp_path"),
+                save_path=ModelSetting.get("save_path"),
+                all_subs=request.form["all_subs"],
+                sub_lang=request.form["sub_lang"],
+                auto_sub=request.form["auto_sub"],
+                proxy=ModelSetting.get("proxy"),
+                ffmpeg_path=ModelSetting.get("ffmpeg_path"),
+            )
             youtube_dl.start()
-            socketio_emit('add', youtube_dl)
+            socketio_emit("add", youtube_dl)
             return jsonify([])
 
-        elif sub == 'list':
+        elif sub == "list":
             ret = []
             for i in LogicNormal.youtube_dl_list:
                 data = LogicNormal.get_data(i)
@@ -198,17 +219,17 @@ def ajax(sub):
                     ret.append(data)
             return jsonify(ret)
 
-        elif sub == 'all_stop':
+        elif sub == "all_stop":
             for i in LogicNormal.youtube_dl_list:
                 i.stop()
             return jsonify([])
 
-        elif sub == 'stop':
-            index = int(request.form['index'])
+        elif sub == "stop":
+            index = int(request.form["index"])
             LogicNormal.youtube_dl_list[index].stop()
             return jsonify([])
     except Exception as e:
-        logger.error('Exception:%s', e)
+        logger.error("Exception:%s", e)
         logger.error(traceback.format_exc())
 
 
@@ -216,260 +237,257 @@ def ajax(sub):
 # API
 #########################################################
 # API 명세는 https://github.com/joyfuI/youtube-dl#api
-@blueprint.route('/api/<sub>', methods=['GET', 'POST'])
+@blueprint.route("/api/<sub>", methods=["GET", "POST"])
 @cross_origin()
 @check_api
 def api(sub):
-    plugin = request.values.get('plugin')
-    logger.debug('API %s %s: %s', package_name, sub, plugin)
+    plugin = request.values.get("plugin")
+    logger.debug("API %s %s: %s", package_name, sub, plugin)
     if not plugin:  # 요청한 플러그인명이 빈문자열이거나 None면
         abort(403)  # 403 에러(거부)
     try:
         # 동영상 정보를 반환하는 API
-        if sub == 'info_dict':
-            url = request.values.get('url')
-            ret = {
-                'errorCode': 0,
-                'info_dict': None
-            }
+        if sub == "info_dict":
+            url = request.values.get("url")
+            ret = {"errorCode": 0, "info_dict": None}
             if None in (url,):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
-            if not url.startswith('http'):
+            if not url.startswith("http"):
                 return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
-            info_dict = LogicNormal.get_info_dict(
-                url, ModelSetting.get('proxy'))
+            info_dict = LogicNormal.get_info_dict(url, ModelSetting.get("proxy"))
             if info_dict is None:
                 return LogicNormal.abort(ret, 10)  # 실패
-            ret['info_dict'] = info_dict
+            ret["info_dict"] = info_dict
             return jsonify(ret)
 
         # 비디오 다운로드 준비를 요청하는 API
-        elif sub == 'download':
-            key = request.values.get('key')
-            url = request.values.get('url')
+        elif sub == "download":
+            key = request.values.get("key")
+            url = request.values.get("url")
             filename = request.values.get(
-                'filename', ModelSetting.get('default_filename'))
-            save_path = request.values.get(
-                'save_path', ModelSetting.get('save_path'))
-            format_code = request.values.get('format', None)
-            preferedformat = request.values.get('preferedformat', None)
-            preferredcodec = request.values.get('preferredcodec', None)
-            preferredquality = request.values.get('preferredquality', 192)
-            dateafter = request.values.get('dateafter', None)
-            playlist = request.values.get('playlist', None)
-            archive = request.values.get('archive', None)
-            start = request.values.get('start', False)
-            cookiefile = request.values.get('cookiefile', None)
-            ret = {
-                'errorCode': 0,
-                'index': None
-            }
+                "filename", ModelSetting.get("default_filename")
+            )
+            save_path = request.values.get("save_path", ModelSetting.get("save_path"))
+            format_code = request.values.get("format", None)
+            preferedformat = request.values.get("preferedformat", None)
+            preferredcodec = request.values.get("preferredcodec", None)
+            preferredquality = request.values.get("preferredquality", 192)
+            dateafter = request.values.get("dateafter", None)
+            playlist = request.values.get("playlist", None)
+            archive = request.values.get("archive", None)
+            start = request.values.get("start", False)
+            cookiefile = request.values.get("cookiefile", None)
+            ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
-            if not url.startswith('http'):
+            if not url.startswith("http"):
                 return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
-            if preferredcodec not in (None, 'best', 'mp3', 'aac', 'flac', 'm4a', 'opus', 'vorbis', 'wav'):
+            if preferredcodec not in (
+                None,
+                "best",
+                "mp3",
+                "aac",
+                "flac",
+                "m4a",
+                "opus",
+                "vorbis",
+                "wav",
+            ):
                 return LogicNormal.abort(ret, 5)  # 허용되지 않은 값이 있음
             if not filename:
                 filename = LogicNormal.get_default_filename()
-            youtube_dl = LogicNormal.download(plugin=plugin,
-                                              url=url,
-                                              filename=filename,
-                                              temp_path=ModelSetting.get(
-                                                  'temp_path'),
-                                              save_path=save_path,
-                                              format=format_code,
-                                              preferedformat=preferedformat,
-                                              preferredcodec=preferredcodec,
-                                              preferredquality=preferredquality,
-                                              dateafter=dateafter,
-                                              playlist=playlist,
-                                              archive=archive,
-                                              proxy=ModelSetting.get('proxy'),
-                                              ffmpeg_path=ModelSetting.get(
-                                                  'ffmpeg_path'),
-                                              key=key,
-                                              cookiefile=cookiefile)
+            youtube_dl = LogicNormal.download(
+                plugin=plugin,
+                url=url,
+                filename=filename,
+                temp_path=ModelSetting.get("temp_path"),
+                save_path=save_path,
+                format=format_code,
+                preferedformat=preferedformat,
+                preferredcodec=preferredcodec,
+                preferredquality=preferredquality,
+                dateafter=dateafter,
+                playlist=playlist,
+                archive=archive,
+                proxy=ModelSetting.get("proxy"),
+                ffmpeg_path=ModelSetting.get("ffmpeg_path"),
+                key=key,
+                cookiefile=cookiefile,
+            )
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)  # 실패
-            ret['index'] = youtube_dl.index
+            ret["index"] = youtube_dl.index
             if start:
                 youtube_dl.start()
-            socketio_emit('add', youtube_dl)
+            socketio_emit("add", youtube_dl)
             return jsonify(ret)
 
         # 썸네일 다운로드 준비를 요청하는 API
-        elif sub == 'thumbnail':
-            key = request.values.get('key')
-            url = request.values.get('url')
+        elif sub == "thumbnail":
+            key = request.values.get("key")
+            url = request.values.get("url")
             filename = request.values.get(
-                'filename', ModelSetting.get('default_filename'))
-            save_path = request.values.get(
-                'save_path', ModelSetting.get('save_path'))
-            all_thumbnails = request.values.get('all_thumbnails', False)
-            dateafter = request.values.get('dateafter', None)
-            playlist = request.values.get('playlist', None)
-            archive = request.values.get('archive', None)
-            start = request.values.get('start', False)
-            cookiefile = request.values.get('cookiefile', None)
-            ret = {
-                'errorCode': 0,
-                'index': None
-            }
+                "filename", ModelSetting.get("default_filename")
+            )
+            save_path = request.values.get("save_path", ModelSetting.get("save_path"))
+            all_thumbnails = request.values.get("all_thumbnails", False)
+            dateafter = request.values.get("dateafter", None)
+            playlist = request.values.get("playlist", None)
+            archive = request.values.get("archive", None)
+            start = request.values.get("start", False)
+            cookiefile = request.values.get("cookiefile", None)
+            ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
-            if not url.startswith('http'):
+            if not url.startswith("http"):
                 return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
             if not filename:
                 filename = LogicNormal.get_default_filename()
-            youtube_dl = LogicNormal.thumbnail(plugin=plugin,
-                                               url=url,
-                                               filename=filename,
-                                               temp_path=ModelSetting.get(
-                                                   'temp_path'),
-                                               save_path=save_path,
-                                               all_thumbnails=all_thumbnails,
-                                               dateafter=dateafter,
-                                               playlist=playlist,
-                                               archive=archive,
-                                               proxy=ModelSetting.get('proxy'),
-                                               ffmpeg_path=ModelSetting.get(
-                                                   'ffmpeg_path'),
-                                               key=key,
-                                               cookiefile=cookiefile)
+            youtube_dl = LogicNormal.thumbnail(
+                plugin=plugin,
+                url=url,
+                filename=filename,
+                temp_path=ModelSetting.get("temp_path"),
+                save_path=save_path,
+                all_thumbnails=all_thumbnails,
+                dateafter=dateafter,
+                playlist=playlist,
+                archive=archive,
+                proxy=ModelSetting.get("proxy"),
+                ffmpeg_path=ModelSetting.get("ffmpeg_path"),
+                key=key,
+                cookiefile=cookiefile,
+            )
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)  # 실패
-            ret['index'] = youtube_dl.index
+            ret["index"] = youtube_dl.index
             if start:
                 youtube_dl.start()
-            socketio_emit('add', youtube_dl)
+            socketio_emit("add", youtube_dl)
             return jsonify(ret)
 
         # 자막 다운로드 준비를 요청하는 API
-        elif sub == 'sub':
-            key = request.values.get('key')
-            url = request.values.get('url')
+        elif sub == "sub":
+            key = request.values.get("key")
+            url = request.values.get("url")
             filename = request.values.get(
-                'filename', ModelSetting.get('default_filename'))
-            save_path = request.values.get(
-                'save_path', ModelSetting.get('save_path'))
-            all_subs = request.values.get('all_subs', False)
-            sub_lang = request.values.get('sub_lang', 'ko')
-            auto_sub = request.values.get('all_subs', False)
-            dateafter = request.values.get('dateafter', None)
-            playlist = request.values.get('playlist', None)
-            archive = request.values.get('archive', None)
-            start = request.values.get('start', False)
-            cookiefile = request.values.get('cookiefile', None)
-            ret = {
-                'errorCode': 0,
-                'index': None
-            }
+                "filename", ModelSetting.get("default_filename")
+            )
+            save_path = request.values.get("save_path", ModelSetting.get("save_path"))
+            all_subs = request.values.get("all_subs", False)
+            sub_lang = request.values.get("sub_lang", "ko")
+            auto_sub = request.values.get("all_subs", False)
+            dateafter = request.values.get("dateafter", None)
+            playlist = request.values.get("playlist", None)
+            archive = request.values.get("archive", None)
+            start = request.values.get("start", False)
+            cookiefile = request.values.get("cookiefile", None)
+            ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
-            if not url.startswith('http'):
+            if not url.startswith("http"):
                 return LogicNormal.abort(ret, 2)  # 잘못된 동영상 주소
             if not filename:
                 filename = LogicNormal.get_default_filename()
-            youtube_dl = LogicNormal.sub(plugin=plugin,
-                                         url=url,
-                                         filename=filename,
-                                         temp_path=ModelSetting.get(
-                                             'temp_path'),
-                                         save_path=save_path,
-                                         all_subs=all_subs,
-                                         sub_lang=sub_lang,
-                                         auto_sub=auto_sub,
-                                         dateafter=dateafter,
-                                         playlist=playlist,
-                                         archive=archive,
-                                         proxy=ModelSetting.get('proxy'),
-                                         ffmpeg_path=ModelSetting.get(
-                                             'ffmpeg_path'),
-                                         key=key,
-                                         cookiefile=cookiefile)
+            youtube_dl = LogicNormal.sub(
+                plugin=plugin,
+                url=url,
+                filename=filename,
+                temp_path=ModelSetting.get("temp_path"),
+                save_path=save_path,
+                all_subs=all_subs,
+                sub_lang=sub_lang,
+                auto_sub=auto_sub,
+                dateafter=dateafter,
+                playlist=playlist,
+                archive=archive,
+                proxy=ModelSetting.get("proxy"),
+                ffmpeg_path=ModelSetting.get("ffmpeg_path"),
+                key=key,
+                cookiefile=cookiefile,
+            )
             if youtube_dl is None:
                 return LogicNormal.abort(ret, 10)  # 실패
-            ret['index'] = youtube_dl.index
+            ret["index"] = youtube_dl.index
             if start:
                 youtube_dl.start()
-            socketio_emit('add', youtube_dl)
+            socketio_emit("add", youtube_dl)
             return jsonify(ret)
 
         # 다운로드 시작을 요청하는 API
-        elif sub == 'start':
-            index = request.values.get('index')
-            key = request.values.get('key')
-            ret = {
-                'errorCode': 0,
-                'status': None
-            }
+        elif sub == "start":
+            index = request.values.get("index")
+            key = request.values.get("key")
+            ret = {"errorCode": 0, "status": None}
             if None in (index, key):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             index = int(index)
-            if not (0 <= index < len(LogicNormal.youtube_dl_list)):
+            if not 0 <= index < len(LogicNormal.youtube_dl_list):
                 return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
                 return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
-            ret['status'] = youtube_dl.status.name
+            ret["status"] = youtube_dl.status.name
             if not youtube_dl.start():
                 return LogicNormal.abort(ret, 10)  # 실패
             return jsonify(ret)
 
         # 다운로드 중지를 요청하는 API
-        elif sub == 'stop':
-            index = request.values.get('index')
-            key = request.values.get('key')
-            ret = {
-                'errorCode': 0,
-                'status': None
-            }
+        elif sub == "stop":
+            index = request.values.get("index")
+            key = request.values.get("key")
+            ret = {"errorCode": 0, "status": None}
             if None in (index, key):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             index = int(index)
-            if not (0 <= index < len(LogicNormal.youtube_dl_list)):
+            if not 0 <= index < len(LogicNormal.youtube_dl_list):
                 return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
                 return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
-            ret['status'] = youtube_dl.status.name
+            ret["status"] = youtube_dl.status.name
             if not youtube_dl.stop():
                 return LogicNormal.abort(ret, 10)  # 실패
             return jsonify(ret)
 
         # 현재 상태를 반환하는 API
-        elif sub == 'status':
-            index = request.values.get('index')
-            key = request.values.get('key')
+        elif sub == "status":
+            index = request.values.get("index")
+            key = request.values.get("key")
             ret = {
-                'errorCode': 0,
-                'status': None,
-                'type': None,
-                'start_time': None,
-                'end_time': None,
-                'temp_path': None,
-                'save_path': None
+                "errorCode": 0,
+                "status": None,
+                "type": None,
+                "start_time": None,
+                "end_time": None,
+                "temp_path": None,
+                "save_path": None,
             }
             if None in (index, key):
                 return LogicNormal.abort(ret, 1)  # 필수 요청 변수가 없음
             index = int(index)
-            if not (0 <= index < len(LogicNormal.youtube_dl_list)):
+            if not 0 <= index < len(LogicNormal.youtube_dl_list):
                 return LogicNormal.abort(ret, 3)  # 인덱스 범위를 벗어남
             youtube_dl = LogicNormal.youtube_dl_list[index]
             if youtube_dl.key != key:
                 return LogicNormal.abort(ret, 4)  # 키가 일치하지 않음
-            ret['status'] = youtube_dl.status.name
-            ret['type'] = youtube_dl.type
-            ret['start_time'] = youtube_dl.start_time.strftime('%Y-%m-%dT%H:%M:%S') if \
-                youtube_dl.start_time is not None else None
-            ret['end_time'] = youtube_dl.end_time.strftime('%Y-%m-%dT%H:%M:%S') if \
-                youtube_dl.end_time is not None else None
-            ret['temp_path'] = youtube_dl.temp_path
-            ret['save_path'] = youtube_dl.save_path
+            ret["status"] = youtube_dl.status.name
+            ret["type"] = youtube_dl.type
+            ret["start_time"] = (
+                youtube_dl.start_time.strftime("%Y-%m-%dT%H:%M:%S")
+                if youtube_dl.start_time is not None
+                else None
+            )
+            ret["end_time"] = (
+                youtube_dl.end_time.strftime("%Y-%m-%dT%H:%M:%S")
+                if youtube_dl.end_time is not None
+                else None
+            )
+            ret["temp_path"] = youtube_dl.temp_path
+            ret["save_path"] = youtube_dl.save_path
             return jsonify(ret)
     except Exception as e:
-        logger.error('Exception:%s', e)
+        logger.error("Exception:%s", e)
         logger.error(traceback.format_exc())
         abort(500)  # 500 에러(서버 오류)
     abort(404)  # 404 에러(페이지 없음)
@@ -479,5 +497,6 @@ def api(sub):
 # socketio
 #########################################################
 def socketio_emit(cmd, data):
-    socketio.emit(cmd, LogicNormal.get_data(data), namespace='/%s' %
-                  package_name, broadcast=True)
+    socketio.emit(
+        cmd, LogicNormal.get_data(data), namespace=f"/{package_name}", broadcast=True
+    )
