@@ -311,11 +311,11 @@ class LogicNormal(object):
                     )
                     data[
                         "percent"
-                    ] = f"{float(youtube_dl.progress_hooks['downloaded_bytes']) / float(youtube_dl.progress_hooks['total_bytes']) * 100:.2f}"
+                    ] = f"{(float(youtube_dl.progress_hooks['downloaded_bytes']) / float(youtube_dl.progress_hooks['total_bytes']) * 100):.2f}"
                 data["start_time"] = youtube_dl.start_time.strftime("%m-%d %H:%M:%S")
                 data[
                     "download_time"
-                ] = f"{download_time.seconds / 60:02f}:{download_time.seconds % 60:02f}"
+                ] = f"{int(download_time.seconds / 60):02d}:{int(download_time.seconds % 60):02d}"
             return data
         except Exception as error:
             logger.error("Exception:%s", error)
