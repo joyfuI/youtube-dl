@@ -228,7 +228,7 @@ class MyYoutubeDL(object):
 
 class MyLogger(object):
     def debug(self, msg):
-        if msg.find("\x1B") != -1 or msg.find("{") != -1:
+        if msg.find(" ETA ") != -1:
             # 과도한 로그 방지
             return
         logger.debug(msg)
