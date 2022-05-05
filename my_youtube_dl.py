@@ -25,7 +25,7 @@ class Status(Enum):
     COMPLETED = 6
 
     def __str__(self):
-        str_list = ["??", "???", "?????", "??", "???", "??", "??"]
+        str_list = ["준비", "분석중", "다운로드중", "실패", "변환중", "중지", "완료"]
         return str_list[self.value]
 
 
@@ -79,10 +79,10 @@ class MyYoutubeDL(object):
         self.end_time = None  # 종료 시간
         # info_dict에서 얻는 정보
         self.info_dict = {
-            "extractor": None,  # ??
-            "title": None,  # ??
-            "uploader": None,  # ???
-            "uploader_url": None,  # ??? ??
+            "extractor": None,  # 타입
+            "title": None,  # 제목
+            "uploader": None,  # 업로더
+            "uploader_url": None,  # 업로더 주소
         }
         # info_dict에서 얻는 정보(entries)
         # self.info_dict['playlist_index'] = None
@@ -91,10 +91,10 @@ class MyYoutubeDL(object):
         # self.info_dict['thumbnail'] = None  # 썸네일
         # progress_hooks에서 얻는 정보
         self.progress_hooks = {
-            "downloaded_bytes": None,  # ????? ??
-            "total_bytes": None,  # ?? ??
-            "eta": None,  # ?? ??(s)
-            "speed": None,  # ???? ??(bytes/s)
+            "downloaded_bytes": None,  # 다운로드한 크기
+            "total_bytes": None,  # 전체 크기
+            "eta": None,  # 예상 시간(s)
+            "speed": None,  # 다운로드 속도(bytes/s)
         }
 
     def start(self):
@@ -144,9 +144,9 @@ class MyYoutubeDL(object):
                         continue
                     celery_shutil.move(i, path)
                 self.status = Status.COMPLETED
-        except Exception as e:
+        except Exception as error:
             self.status = Status.ERROR
-            logger.error("Exception:%s", e)
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
         finally:
             # 임시폴더 삭제
@@ -187,25 +187,25 @@ class MyYoutubeDL(object):
                 ydl_opts["cookiefile"] = cookiefile
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return None
         return info
 
-    def my_hook(self, d):
+    def my_hook(self, data):
         if self.status != Status.STOP:
             self.status = {
                 "downloading": Status.DOWNLOADING,
                 "error": Status.ERROR,
-                "finished": Status.FINISHED,  # ???? ??. ?? ??
-            }[d["status"]]
-        if d["status"] != "error":
-            self.filename = os.path.basename(d.get("filename"))
-            self.progress_hooks["downloaded_bytes"] = d.get("downloaded_bytes")
-            self.progress_hooks["total_bytes"] = d.get("total_bytes")
-            self.progress_hooks["eta"] = d.get("eta")
-            self.progress_hooks["speed"] = d.get("speed")
+                "finished": Status.FINISHED,  # 다운로드 완료. 변환 시작
+            }[data["status"]]
+        if data["status"] != "error":
+            self.filename = os.path.basename(data.get("filename"))
+            self.progress_hooks["downloaded_bytes"] = data.get("downloaded_bytes")
+            self.progress_hooks["total_bytes"] = data.get("total_bytes")
+            self.progress_hooks["eta"] = data.get("eta")
+            self.progress_hooks["speed"] = data.get("speed")
 
     def match_filter_func(self, info_dict):
         self.info_dict["playlist_index"] = info_dict["playlist_index"]
