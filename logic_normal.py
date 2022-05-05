@@ -27,8 +27,8 @@ class LogicNormal(object):
     def get_youtube_dl_version():
         try:
             return MyYoutubeDL.get_version()
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return "패키지 임포트 실패"
 
@@ -138,8 +138,8 @@ class LogicNormal(object):
             youtube_dl.key = kwagrs.get("key")
             LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return None
 
@@ -189,8 +189,8 @@ class LogicNormal(object):
             youtube_dl.key = kwagrs.get("key")
             LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return None
 
@@ -237,8 +237,8 @@ class LogicNormal(object):
             youtube_dl.key = kwagrs.get("key")
             LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return None
 
@@ -315,10 +315,10 @@ class LogicNormal(object):
                 data["start_time"] = youtube_dl.start_time.strftime("%m-%d %H:%M:%S")
                 data[
                     "download_time"
-                ] = f"{download_time.seconds / 60:02d}:{download_time.seconds % 60:02d}"
+                ] = f"{download_time.seconds / 60:02f}:{download_time.seconds % 60:02f}"
             return data
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return None
 
