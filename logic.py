@@ -19,7 +19,7 @@ logger = get_logger(package_name)
 class Logic(object):
     db_default = {
         "db_version": "2",
-        "youtube_dl_package": "0",
+        "youtube_dl_package": "1",
         "ffmpeg_path": ""
         if platform.system() != "Windows"
         else os.path.join(path_app_root, "bin", "Windows", "ffmpeg.exe"),
@@ -37,8 +37,8 @@ class Logic(object):
                     db.session.add(ModelSetting(key, value))
             db.session.commit()
             Logic.migration()
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
 
     @staticmethod
@@ -65,16 +65,16 @@ class Logic(object):
             Util.save_from_dict_to_json(
                 plugin_info, os.path.join(os.path.dirname(__file__), "info.json")
             )
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
 
     @staticmethod
     def plugin_unload():
         try:
             logger.debug("%s plugin_unload", package_name)
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
 
     @staticmethod
@@ -98,6 +98,6 @@ class Logic(object):
             connect.close()
             ModelSetting.set("db_version", Logic.db_default["db_version"])
             db.session.flush()
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())

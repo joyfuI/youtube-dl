@@ -47,7 +47,7 @@ menu = {
 }
 
 plugin_info = {
-    "version": "3.1.0",
+    "version": "3.1.1",
     "name": "youtube-dl",
     "category_name": "vod",
     "developer": "joyfuI",
@@ -123,8 +123,8 @@ def first_menu(sub):
 
         elif sub == "log":
             return render_template("log.html", package=package_name)
-    except Exception as e:
-        logger.error("Exception:%s", e)
+    except Exception as error:
+        logger.error("Exception:%s", error)
         logger.error(traceback.format_exc())
     return render_template("sample.html", title=f"{package_name} - {sub}")
 
@@ -228,8 +228,8 @@ def ajax(sub):
             index = int(request.form["index"])
             LogicNormal.youtube_dl_list[index].stop()
             return jsonify([])
-    except Exception as e:
-        logger.error("Exception:%s", e)
+    except Exception as error:
+        logger.error("Exception:%s", error)
         logger.error(traceback.format_exc())
 
 
@@ -486,8 +486,8 @@ def api(sub):
             ret["temp_path"] = youtube_dl.temp_path
             ret["save_path"] = youtube_dl.save_path
             return jsonify(ret)
-    except Exception as e:
-        logger.error("Exception:%s", e)
+    except Exception as error:
+        logger.error("Exception:%s", error)
         logger.error(traceback.format_exc())
         abort(500)  # 500 에러(서버 오류)
     abort(404)  # 404 에러(페이지 없음)

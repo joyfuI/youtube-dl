@@ -37,24 +37,24 @@ class ModelSetting(db.Model):
             return (
                 db.session.query(ModelSetting).filter_by(key=key).first().value.strip()
             )
-        except Exception as e:
-            logger.error("Exception:%s %s", e, key)
+        except Exception as error:
+            logger.error("Exception:%s %s", error, key)
             logger.error(traceback.format_exc())
 
     @staticmethod
     def get_int(key):
         try:
             return int(ModelSetting.get(key))
-        except Exception as e:
-            logger.error("Exception:%s %s", e, key)
+        except Exception as error:
+            logger.error("Exception:%s %s", error, key)
             logger.error(traceback.format_exc())
 
     @staticmethod
     def get_bool(key):
         try:
             return ModelSetting.get(key) == "True"
-        except Exception as e:
-            logger.error("Exception:%s %s", e, key)
+        except Exception as error:
+            logger.error("Exception:%s %s", error, key)
             logger.error(traceback.format_exc())
 
     @staticmethod
@@ -71,8 +71,8 @@ class ModelSetting(db.Model):
                 db.session.commit()
             else:
                 db.session.add(ModelSetting(key, value.strip()))
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             logger.error("Error Key:%s Value:%s", key, value)
 
@@ -80,8 +80,8 @@ class ModelSetting(db.Model):
     def to_dict():
         try:
             return Util.db_list_to_dict(db.session.query(ModelSetting).all())
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
 
     @staticmethod
@@ -102,8 +102,8 @@ class ModelSetting(db.Model):
                 entity.value = value
             db.session.commit()
             return True
-        except Exception as e:
-            logger.error("Exception:%s", e)
+        except Exception as error:
+            logger.error("Exception:%s", error)
             logger.error(traceback.format_exc())
             return False
 
@@ -114,6 +114,6 @@ class ModelSetting(db.Model):
             values = [x.strip().strip() for x in value.replace("\n", "|").split("|")]
             values = Util.get_list_except_empty(values)
             return values
-        except Exception as e:
-            logger.error("Exception:%s %s", e, key)
+        except Exception as error:
+            logger.error("Exception:%s %s", error, key)
             logger.error(traceback.format_exc())
