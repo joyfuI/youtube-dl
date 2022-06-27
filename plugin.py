@@ -80,6 +80,7 @@ def first_menu(sub):
         arg = {
             "package_name": package_name,
             "template_name": f"{package_name}_{sub}",
+            "package_version": plugin_info["version"],
         }
 
         if sub == "setting":

@@ -2,7 +2,7 @@
 
 <link
   rel="stylesheet"
-  href="{{ url_for('.static', filename='%s.css' % arg['template_name']) }}"
+  href="{{ url_for('.static', filename='%s.css' % arg['template_name']) }}?ver={{ arg['package_version'] }}"
 />
 
 {{ macros.m_row_start() }} {{ macros.m_button('all_stop_btn', '전체 중지') }} {{
@@ -30,6 +30,6 @@ macros.m_row_end() }}
   'use strict';
   const package_name = '{{ arg["package_name"] }}';
 </script>
-<script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}"></script>
+<script src="{{ url_for('.static', filename='%s.js' % arg['template_name']) }}?ver={{ arg['package_version'] }}"></script>
 
 {% endblock %}
