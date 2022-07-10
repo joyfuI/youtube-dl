@@ -8,11 +8,18 @@ from datetime import datetime
 from threading import Thread
 from enum import Enum
 
-from framework.logger import get_logger
 import framework.common.celery as celery_shutil
 
-package_name = __name__.split(".", maxsplit=1)[0]
-logger = get_logger(package_name)
+from .plugin import Plugin
+
+logger = Plugin.logger
+ModelSetting = Plugin.ModelSetting
+
+youtube_dl_package = Plugin.youtube_dl_packages[
+    int(ModelSetting.get("youtube_dl_package"))
+    if ModelSetting.get("youtube_dl_package")
+    else 1  # LogicMain.db_default["youtube_dl_package"]
+].replace("-", "_")
 
 
 class Status(Enum):
@@ -29,7 +36,7 @@ class Status(Enum):
         return str_list[self.value]
 
 
-class MyYoutubeDL(object):
+class MyYoutubeDL:
     DEFAULT_FILENAME = "%(title)s-%(id)s.%(ext)s"
 
     _index = 0
@@ -47,8 +54,6 @@ class MyYoutubeDL(object):
         datebefore=None,
     ):
         # from youtube_dl.utils import DateRange
-        from .plugin import youtube_dl_package
-
         DateRange = __import__(
             f"{youtube_dl_package}.utils", fromlist=["DateRange"]
         ).DateRange
@@ -106,8 +111,6 @@ class MyYoutubeDL(object):
 
     def run(self):
         # import youtube_dl
-        from .plugin import youtube_dl_package
-
         youtube_dl = __import__(youtube_dl_package)
 
         try:
@@ -164,8 +167,6 @@ class MyYoutubeDL(object):
     @staticmethod
     def get_version():
         # from youtube_dl.version import __version__
-        from .plugin import youtube_dl_package
-
         __version__ = __import__(
             f"{youtube_dl_package}.version", fromlist=["__version__"]
         ).__version__
@@ -175,8 +176,6 @@ class MyYoutubeDL(object):
     @staticmethod
     def get_info_dict(url, proxy=None, cookiefile=None):
         # import youtube_dl
-        from .plugin import youtube_dl_package
-
         youtube_dl = __import__(youtube_dl_package)
 
         try:
@@ -220,13 +219,13 @@ class MyYoutubeDL(object):
 
     @status.setter
     def status(self, value):
-        from .plugin import socketio_emit
+        from .main import LogicMain
 
         self._status = value
-        socketio_emit("status", self)
+        LogicMain.socketio_emit("status", self)
 
 
-class MyLogger(object):
+class MyLogger:
     def debug(self, msg):
         if msg.find(" ETA ") != -1:
             # 과도한 로그 방지

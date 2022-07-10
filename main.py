@@ -1,27 +1,229 @@
+import os
+import sys
+import platform
 import traceback
+import subprocess
+import sqlite3
 from datetime import datetime
 
-from flask import jsonify
+from flask import render_template, jsonify
 
-from framework.logger import get_logger
+from framework import db, path_app_root, path_data, socketio
+from framework.common.plugin import LogicModuleBase, default_route_socketio
 
+from .plugin import Plugin
 from .my_youtube_dl import MyYoutubeDL, Status
 
-package_name = __name__.split(".", maxsplit=1)[0]
-logger = get_logger(package_name)
+logger = Plugin.logger
+package_name = Plugin.package_name
+ModelSetting = Plugin.ModelSetting
 
 
-class LogicNormal(object):
+class LogicMain(LogicModuleBase):
+    db_default = {
+        "db_version": "2",
+        "youtube_dl_package": "1",
+        "ffmpeg_path": ""
+        if platform.system() != "Windows"
+        else os.path.join(path_app_root, "bin", "Windows", "ffmpeg.exe"),
+        "temp_path": os.path.join(path_data, "download_tmp"),
+        "save_path": os.path.join(path_data, "download"),
+        "default_filename": "",
+        "proxy": "",
+    }
+
+    def __init__(self, plugin):
+        super(LogicMain, self).__init__(plugin, None)
+        self.name = package_name  # 모듈명
+        default_route_socketio(plugin, self)
+
+    def plugin_load(self):
+        try:
+            # youtube-dl 업데이트
+            youtube_dl = Plugin.youtube_dl_packages[
+                int(ModelSetting.get("youtube_dl_package"))
+            ]
+            logger.debug(f"{youtube_dl} upgrade")
+            logger.debug(
+                subprocess.check_output(
+                    [sys.executable, "-m", "pip", "install", "--upgrade", youtube_dl],
+                    universal_newlines=True,
+                )
+            )
+        except Exception as error:
+            logger.error("Exception:%s", error)
+            logger.error(traceback.format_exc())
+
+    def process_menu(self, sub, req):
+        try:
+            arg = {
+                "package_name": package_name,
+                "sub": sub,
+                "template_name": f"{package_name}_{sub}",
+                "package_version": Plugin.plugin_info["version"],
+            }
+
+            if sub == "setting":
+                arg.update(ModelSetting.to_dict())
+                arg["package_list"] = Plugin.youtube_dl_packages
+                arg["youtube_dl_version"] = LogicMain.get_youtube_dl_version()
+                arg["DEFAULT_FILENAME"] = LogicMain.get_default_filename()
+
+            elif sub == "download":
+                default_filename = ModelSetting.get("default_filename")
+                arg["filename"] = (
+                    default_filename
+                    if default_filename
+                    else LogicMain.get_default_filename()
+                )
+                arg["preset_list"] = LogicMain.get_preset_list()
+                arg["postprocessor_list"] = LogicMain.get_postprocessor_list()
+
+            elif sub == "thumbnail":
+                default_filename = ModelSetting.get("default_filename")
+                arg["filename"] = (
+                    default_filename
+                    if default_filename
+                    else LogicMain.get_default_filename()
+                )
+
+            elif sub == "sub":
+                default_filename = ModelSetting.get("default_filename")
+                arg["filename"] = (
+                    default_filename
+                    if default_filename
+                    else LogicMain.get_default_filename()
+                )
+
+            elif sub == "list":
+                pass
+
+            return render_template(f"{package_name}_{sub}.html", arg=arg)
+        except Exception as error:
+            logger.error("Exception:%s", error)
+            logger.error(traceback.format_exc())
+            return render_template("sample.html", title=f"{package_name} - {sub}")
+
+    def process_ajax(self, sub, req):
+        try:
+            logger.debug("AJAX: %s, %s", sub, req.values)
+            ret = {"ret": "success"}
+
+            if sub == "ffmpeg_version":
+                path = req.form["path"]
+                output = subprocess.check_output([path, "-version"])
+                output = output.decode().replace("\n", "<br>")
+                ret["data"] = output
+
+            elif sub == "download":
+                postprocessor = req.form["postprocessor"]
+                video_convertor, extract_audio = LogicMain.get_postprocessor()
+                preferedformat = None
+                preferredcodec = None
+                preferredquality = None
+                if postprocessor in video_convertor:
+                    preferedformat = postprocessor
+                elif postprocessor in extract_audio:
+                    preferredcodec = postprocessor
+                    preferredquality = 192
+                youtube_dl = LogicMain.download(
+                    plugin=package_name,
+                    url=req.form["url"],
+                    filename=req.form["filename"],
+                    temp_path=ModelSetting.get("temp_path"),
+                    save_path=ModelSetting.get("save_path"),
+                    format=req.form["format"],
+                    preferedformat=preferedformat,
+                    preferredcodec=preferredcodec,
+                    preferredquality=preferredquality,
+                    proxy=ModelSetting.get("proxy"),
+                    ffmpeg_path=ModelSetting.get("ffmpeg_path")
+                    if req.form["ffmpeg_path"] != "ffmpeg"
+                    else None,
+                )
+                youtube_dl.start()
+                LogicMain.socketio_emit("add", youtube_dl)
+
+            elif sub == "thumbnail":
+                youtube_dl = LogicMain.thumbnail(
+                    plugin=package_name,
+                    url=req.form["url"],
+                    filename=req.form["filename"],
+                    temp_path=ModelSetting.get("temp_path"),
+                    save_path=ModelSetting.get("save_path"),
+                    all_thumbnails=req.form["all_thumbnails"],
+                    proxy=ModelSetting.get("proxy"),
+                    ffmpeg_path=ModelSetting.get("ffmpeg_path")
+                    if req.form["ffmpeg_path"] != "ffmpeg"
+                    else None,
+                )
+                youtube_dl.start()
+                LogicMain.socketio_emit("add", youtube_dl)
+
+            elif sub == "sub":
+                youtube_dl = LogicMain.sub(
+                    plugin=package_name,
+                    url=req.form["url"],
+                    filename=req.form["filename"],
+                    temp_path=ModelSetting.get("temp_path"),
+                    save_path=ModelSetting.get("save_path"),
+                    all_subs=req.form["all_subs"],
+                    sub_lang=req.form["sub_lang"],
+                    auto_sub=req.form["auto_sub"],
+                    proxy=ModelSetting.get("proxy"),
+                    ffmpeg_path=ModelSetting.get("ffmpeg_path")
+                    if req.form["ffmpeg_path"] != "ffmpeg"
+                    else None,
+                )
+                youtube_dl.start()
+                LogicMain.socketio_emit("add", youtube_dl)
+
+            elif sub == "list":
+                ret["data"] = []
+                for i in LogicMain.youtube_dl_list:
+                    data = LogicMain.get_data(i)
+                    if data is not None:
+                        ret["data"].append(data)
+
+            elif sub == "all_stop":
+                for i in LogicMain.youtube_dl_list:
+                    i.stop()
+
+            elif sub == "stop":
+                index = int(req.form["index"])
+                LogicMain.youtube_dl_list[index].stop()
+
+            return jsonify(ret)
+        except Exception as error:
+            logger.error("Exception:%s", error)
+            logger.error(traceback.format_exc())
+            return jsonify({"ret": "danger", "msg": str(error)})
+
+    def migration(self):
+        try:
+            db_version = ModelSetting.get_int("db_version")
+            connect = sqlite3.connect(
+                os.path.join(path_data, "db", f"{package_name}.db")
+            )
+
+            if db_version < 2:
+                logger.debug("youtube-dlc uninstall")
+                logger.debug(
+                    subprocess.check_output(
+                        [sys.executable, "-m", "pip", "uninstall", "-y", "youtube-dlc"],
+                        universal_newlines=True,
+                    )
+                )
+
+            connect.commit()
+            connect.close()
+            ModelSetting.set("db_version", LogicMain.db_default["db_version"])
+            db.session.flush()
+        except Exception as error:
+            logger.error("Exception:%s", error)
+            logger.error(traceback.format_exc())
+
     youtube_dl_list = []
-
-    @staticmethod
-    def get_youtube_dl_package(index=None, import_pkg=False):
-        packages = ["youtube-dl", "yt-dlp"]
-        import_name = ["youtube_dl", "yt_dlp"]
-        if import_pkg:
-            return import_name if index is None else import_name[int(index)]
-        else:
-            return packages if index is None else packages[int(index)]
 
     @staticmethod
     def get_youtube_dl_version():
@@ -79,7 +281,7 @@ class LogicNormal(object):
     def get_postprocessor():
         video_convertor = []
         extract_audio = []
-        for i in LogicNormal.get_postprocessor_list():
+        for i in LogicMain.get_postprocessor_list():
             if i[2] == "비디오 변환":
                 video_convertor.append(i[0])
             elif i[2] == "오디오 추출":
@@ -136,7 +338,7 @@ class LogicNormal(object):
                 plugin, "video", url, filename, temp_path, save_path, opts, dateafter
             )
             youtube_dl.key = kwagrs.get("key")
-            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+            LogicMain.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
         except Exception as error:
             logger.error("Exception:%s", error)
@@ -187,7 +389,7 @@ class LogicNormal(object):
                 dateafter,
             )
             youtube_dl.key = kwagrs.get("key")
-            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+            LogicMain.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
         except Exception as error:
             logger.error("Exception:%s", error)
@@ -235,7 +437,7 @@ class LogicNormal(object):
                 plugin, "subtitle", url, filename, temp_path, save_path, opts, dateafter
             )
             youtube_dl.key = kwagrs.get("key")
-            LogicNormal.youtube_dl_list.append(youtube_dl)  # 리스트 추가
+            LogicMain.youtube_dl_list.append(youtube_dl)  # 리스트 추가
             return youtube_dl
         except Exception as error:
             logger.error("Exception:%s", error)
@@ -284,9 +486,7 @@ class LogicNormal(object):
                 else ""
             )
             data["speed_str"] = (
-                LogicNormal.human_readable_size(
-                    youtube_dl.progress_hooks["speed"], "/s"
-                )
+                LogicMain.human_readable_size(youtube_dl.progress_hooks["speed"], "/s")
                 if youtube_dl.progress_hooks["speed"] is not None
                 else ""
             )
@@ -303,10 +503,10 @@ class LogicNormal(object):
                     youtube_dl.progress_hooks["downloaded_bytes"],
                     youtube_dl.progress_hooks["total_bytes"],
                 ):  # 둘 다 값이 있으면
-                    data["downloaded_bytes_str"] = LogicNormal.human_readable_size(
+                    data["downloaded_bytes_str"] = LogicMain.human_readable_size(
                         youtube_dl.progress_hooks["downloaded_bytes"]
                     )
-                    data["total_bytes_str"] = LogicNormal.human_readable_size(
+                    data["total_bytes_str"] = LogicMain.human_readable_size(
                         youtube_dl.progress_hooks["total_bytes"]
                     )
                     data[
@@ -335,6 +535,7 @@ class LogicNormal(object):
         return f"{size:.1f} YB{suffix}"
 
     @staticmethod
-    def abort(base, code):
-        base["errorCode"] = code
-        return jsonify(base)
+    def socketio_emit(cmd, data):
+        socketio.emit(
+            cmd, LogicMain.get_data(data), namespace=f"/{package_name}", broadcast=True
+        )
