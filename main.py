@@ -137,12 +137,12 @@ class LogicMain(LogicModuleBase):
                     preferredcodec=preferredcodec,
                     preferredquality=preferredquality,
                     proxy=ModelSetting.get("proxy"),
-                    ffmpeg_path=ModelSetting.get("ffmpeg_path")
-                    if req.form["ffmpeg_path"] != "ffmpeg"
-                    else None,
+                    ffmpeg_path=ModelSetting.get("ffmpeg_path"),
                 )
                 youtube_dl.start()
                 LogicMain.socketio_emit("add", youtube_dl)
+                ret["ret"] = "info"
+                ret["msg"] = "분석중..."
 
             elif sub == "thumbnail":
                 youtube_dl = LogicMain.thumbnail(
@@ -153,12 +153,12 @@ class LogicMain(LogicModuleBase):
                     save_path=ModelSetting.get("save_path"),
                     all_thumbnails=req.form["all_thumbnails"],
                     proxy=ModelSetting.get("proxy"),
-                    ffmpeg_path=ModelSetting.get("ffmpeg_path")
-                    if req.form["ffmpeg_path"] != "ffmpeg"
-                    else None,
+                    ffmpeg_path=ModelSetting.get("ffmpeg_path"),
                 )
                 youtube_dl.start()
                 LogicMain.socketio_emit("add", youtube_dl)
+                ret["ret"] = "info"
+                ret["msg"] = "분석중..."
 
             elif sub == "sub":
                 youtube_dl = LogicMain.sub(
@@ -171,12 +171,12 @@ class LogicMain(LogicModuleBase):
                     sub_lang=req.form["sub_lang"],
                     auto_sub=req.form["auto_sub"],
                     proxy=ModelSetting.get("proxy"),
-                    ffmpeg_path=ModelSetting.get("ffmpeg_path")
-                    if req.form["ffmpeg_path"] != "ffmpeg"
-                    else None,
+                    ffmpeg_path=ModelSetting.get("ffmpeg_path"),
                 )
                 youtube_dl.start()
                 LogicMain.socketio_emit("add", youtube_dl)
+                ret["ret"] = "info"
+                ret["msg"] = "분석중..."
 
             elif sub == "list":
                 ret["data"] = []
