@@ -1,5 +1,6 @@
 import os
 import traceback
+import json
 
 from flask import Blueprint, request, jsonify, abort
 
@@ -121,6 +122,7 @@ def api(sub):
             archive = request.values.get("archive", None)
             start = request.values.get("start", False)
             cookiefile = request.values.get("cookiefile", None)
+            headers = request.values.get("headers", None)
             ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicAbort.abort(ret, 1)  # 필수 요청 변수가 없음
@@ -157,6 +159,7 @@ def api(sub):
                 ffmpeg_path=Plugin.ModelSetting.get("ffmpeg_path"),
                 key=key,
                 cookiefile=cookiefile,
+                headers=json.loads(headers),
             )
             if youtube_dl is None:
                 return LogicAbort.abort(ret, 10)  # 실패
@@ -181,6 +184,7 @@ def api(sub):
             archive = request.values.get("archive", None)
             start = request.values.get("start", False)
             cookiefile = request.values.get("cookiefile", None)
+            headers = request.values.get("headers", None)
             ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicAbort.abort(ret, 1)  # 필수 요청 변수가 없음
@@ -202,6 +206,7 @@ def api(sub):
                 ffmpeg_path=Plugin.ModelSetting.get("ffmpeg_path"),
                 key=key,
                 cookiefile=cookiefile,
+                headers=json.loads(headers),
             )
             if youtube_dl is None:
                 return LogicAbort.abort(ret, 10)  # 실패
@@ -228,6 +233,7 @@ def api(sub):
             archive = request.values.get("archive", None)
             start = request.values.get("start", False)
             cookiefile = request.values.get("cookiefile", None)
+            headers = request.values.get("headers", None)
             ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicAbort.abort(ret, 1)  # 필수 요청 변수가 없음
@@ -251,6 +257,7 @@ def api(sub):
                 ffmpeg_path=Plugin.ModelSetting.get("ffmpeg_path"),
                 key=key,
                 cookiefile=cookiefile,
+                headers=json.loads(headers),
             )
             if youtube_dl is None:
                 return LogicAbort.abort(ret, 10)  # 실패

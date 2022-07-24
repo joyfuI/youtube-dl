@@ -333,6 +333,8 @@ class LogicMain(LogicModuleBase):
                 opts["ffmpeg_location"] = kwagrs["ffmpeg_path"]
             if "cookiefile" in kwagrs and kwagrs["cookiefile"]:
                 opts["cookiefile"] = kwagrs["cookiefile"]
+            if "headers" in kwagrs and kwagrs["headers"]:
+                opts["http_headers"] = kwagrs["headers"]
             dateafter = kwagrs.get("dateafter")
             youtube_dl = MyYoutubeDL(
                 plugin, "video", url, filename, temp_path, save_path, opts, dateafter
@@ -377,6 +379,8 @@ class LogicMain(LogicModuleBase):
                 opts["ffmpeg_location"] = kwagrs["ffmpeg_path"]
             if "cookiefile" in kwagrs and kwagrs["cookiefile"]:
                 opts["cookiefile"] = kwagrs["cookiefile"]
+            if "headers" in kwagrs and kwagrs["headers"]:
+                opts["http_headers"] = kwagrs["headers"]
             dateafter = kwagrs.get("dateafter")
             youtube_dl = MyYoutubeDL(
                 plugin,
@@ -432,6 +436,8 @@ class LogicMain(LogicModuleBase):
                 opts["ffmpeg_location"] = kwagrs["ffmpeg_path"]
             if "cookiefile" in kwagrs and kwagrs["cookiefile"]:
                 opts["cookiefile"] = kwagrs["cookiefile"]
+            if "headers" in kwagrs and kwagrs["headers"]:
+                opts["http_headers"] = kwagrs["headers"]
             dateafter = kwagrs.get("dateafter")
             youtube_dl = MyYoutubeDL(
                 plugin, "subtitle", url, filename, temp_path, save_path, opts, dateafter

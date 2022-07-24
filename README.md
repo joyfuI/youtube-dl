@@ -15,7 +15,7 @@ SJVA에서 "시스템 → 플러그인 → 플러그인 수동 설치" 칸에 �
 API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로드를 요청할 수 있습니다.  
 다른 플러그인이 멋대로 다운로드를 중지할 수 없도록 다운로드를 요청할 때 임의의 키를 넘겨받습니다. 중지 요청 시 키가 일치해야 요청이 실행됩니다.
 
-[youtube-dl](https://github.com/ytdl-org/youtube-dl)의 DMCA 테이크다운 사태 이후, 비슷한 상황을 대비하기 위해 youtube-dl의 포크 프로젝트 [youtube-dlc](https://github.com/blackjack4494/yt-dlc)의 포크 프로젝트(...)인 [yt-dlp](https://github.com/pukkandan/yt-dlp)를 추가했습니다.  
+[youtube-dl](https://github.com/ytdl-org/youtube-dl)의 DMCA 테이크다운 사태 이후, 비슷한 상황을 대비하기 위해 youtube-dl의 포크 프로젝트 [youtube-dlc](https://github.com/blackjack4494/yt-dlc)의 포크 프로젝트(...)인 [yt-dlp](https://github.com/yt-dlp/yt-dlp)를 추가했습니다.  
 설정에서 취향껏 골라서 사용하시면 되며 youtube-dl가 우선 지원됩니다.
 
 ## API
@@ -93,8 +93,10 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 | `archive`          | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음                       | X    | String  |
 | `start`            | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false`                                                                                          | X    | Boolean |
 | `cookiefile`       | 다운로드 시 필요한 쿠키 파일 경로                                                                                                                        | X    | String  |
+| `headers`          | 다운로드 시 사용할 HTTP 헤더 정보                                                                                                                        | X    | String  |
 
-`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.  
+`headers` 키에 넣는 값은 `json` 형식의 문자열입니다.
 
 `playlist` 키에 넣을 수 있는 값은 `"1-3,7,10-13"` 형식의 범위 또는 `"reverse"`, `"random"`입니다.  
 범위를 넣으면 플레이리스트에서 선택한 것만 다운로드합니다.  
@@ -127,8 +129,10 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 | `archive`        | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X    | String  |
 | `start`          | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false`                                                                    | X    | Boolean |
 | `cookiefile`     | 다운로드 시 필요한 쿠키 파일 경로                                                                                                  | X    | String  |
+| `headers`        | 다운로드 시 사용할 HTTP 헤더 정보                                                                                                  | X    | String  |
 
-`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.  
+`headers` 키에 넣는 값은 `json` 형식의 문자열입니다.
 
 `playlist` 키에 넣을 수 있는 값은 `"1-3,7,10-13"` 형식의 범위 또는 `"reverse"`, `"random"`입니다.  
 범위를 넣으면 플레이리스트에서 선택한 것만 다운로드합니다.  
@@ -163,8 +167,10 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 | `archive`    | 다운로드한 동영상의 ID를 기록할 파일 경로. 파일이 이미 있으면 이미 다운로드한 동영상은 다운로드 하지 않음. 미지정 시 기록하지 않음 | X    | String  |
 | `start`      | 다운로드 준비 후 바로 다운로드를 시작할지 여부. 기본값: `false`                                                                    | X    | Boolean |
 | `cookiefile` | 다운로드 시 필요한 쿠키 파일 경로                                                                                                  | X    | String  |
+| `headers`    | 다운로드 시 사용할 HTTP 헤더 정보                                                                                                  | X    | String  |
 
-`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.
+`dateafter` 키에 넣을 수 있는 날짜는 `"YYYYMMDD"` 또는 `"(now|today)[+-][0-9](day|week|month|year)(s)?"` 형식의 문자열입니다.  
+`headers` 키에 넣는 값은 `json` 형식의 문자열입니다.
 
 `playlist` 키에 넣을 수 있는 값은 `"1-3,7,10-13"` 형식의 범위 또는 `"reverse"`, `"random"`입니다.  
 범위를 넣으면 플레이리스트에서 선택한 것만 다운로드합니다.  
@@ -248,6 +254,8 @@ API를 제공합니다. 다른 플러그인에서 동영상 정보나 다운로�
 v4.0.0
 
 - 최신 플러그인 구조로 변경
+- download, thumbnail, sub API에 headers 키 추가  
+  http 헤더 수정이 필요한 경우 활용할 수 있습니다.
 
 v3.1.1
 

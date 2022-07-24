@@ -118,7 +118,10 @@ class MyYoutubeDL:
             self.status = Status.START
             # 동영상 정보 가져오기
             info_dict = MyYoutubeDL.get_info_dict(
-                self.url, self.opts.get("proxy"), self.opts.get("cookiefile")
+                self.url,
+                self.opts.get("proxy"),
+                self.opts.get("cookiefile"),
+                self.opts.get("http_headers"),
             )
             if info_dict is None:
                 self.status = Status.ERROR
@@ -174,7 +177,7 @@ class MyYoutubeDL:
         return __version__
 
     @staticmethod
-    def get_info_dict(url, proxy=None, cookiefile=None):
+    def get_info_dict(url, proxy=None, cookiefile=None, http_headers=None):
         # import youtube_dl
         youtube_dl = __import__(youtube_dl_package)
 
@@ -184,6 +187,8 @@ class MyYoutubeDL:
                 ydl_opts["proxy"] = proxy
             if cookiefile:
                 ydl_opts["cookiefile"] = cookiefile
+            if http_headers:
+                ydl_opts["http_headers"] = http_headers
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
         except Exception as error:
