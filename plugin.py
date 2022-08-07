@@ -40,7 +40,7 @@ class Plugin:
     }
 
     plugin_info = {
-        "version": "4.0.0",
+        "version": "4.0.1",
         "name": package_name,
         "category_name": "vod",
         "developer": "joyfuI",
@@ -122,7 +122,7 @@ def api(sub):
             archive = request.values.get("archive", None)
             start = request.values.get("start", False)
             cookiefile = request.values.get("cookiefile", None)
-            headers = request.values.get("headers", None)
+            headers = request.values.get("headers", "null")
             ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicAbort.abort(ret, 1)  # 필수 요청 변수가 없음
@@ -184,7 +184,7 @@ def api(sub):
             archive = request.values.get("archive", None)
             start = request.values.get("start", False)
             cookiefile = request.values.get("cookiefile", None)
-            headers = request.values.get("headers", None)
+            headers = request.values.get("headers", "null")
             ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicAbort.abort(ret, 1)  # 필수 요청 변수가 없음
@@ -233,7 +233,7 @@ def api(sub):
             archive = request.values.get("archive", None)
             start = request.values.get("start", False)
             cookiefile = request.values.get("cookiefile", None)
-            headers = request.values.get("headers", None)
+            headers = request.values.get("headers", "null")
             ret = {"errorCode": 0, "index": None}
             if None in (key, url):
                 return LogicAbort.abort(ret, 1)  # 필수 요청 변수가 없음
