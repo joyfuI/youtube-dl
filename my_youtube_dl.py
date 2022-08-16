@@ -37,7 +37,7 @@ class Status(Enum):
 
 
 class MyYoutubeDL:
-    DEFAULT_FILENAME = "%(title)s-%(id)s.%(ext)s"
+    DEFAULT_FILENAME = "%(title)s [%(id)s].%(ext)s"
 
     _index = 0
 

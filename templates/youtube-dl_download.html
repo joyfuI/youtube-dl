@@ -33,9 +33,9 @@
 
 <form id="download">
     {{ macros.setting_input_text('url', 'URL', placeholder='http:// 주소', desc='유튜브, 네이버TV 등 동영상 주소') }}
-    {{ macros.setting_input_text('filename', '파일명', value=arg['filename'], desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template 참고') }}
+    {{ macros.setting_input_text('filename', '파일명', value=arg['filename'], desc='템플릿 규칙은 https://github.com/yt-dlp/yt-dlp#output-template 참고') }}
     {{ macros.setting_select('preset', '동영상 포맷 프리셋', arg['preset_list'], col='3') }}
-    {{ macros.setting_input_text('format', '동영상 포맷', desc=['포맷 지정은 https://github.com/ytdl-org/youtube-dl/#format-selection 참고', '빈칸으로 두면 최고 화질로 다운로드합니다.']) }}
+    {{ macros.setting_input_text('format', '동영상 포맷', desc=['포맷 지정은 https://github.com/yt-dlp/yt-dlp#format-selection 참고', '빈칸으로 두면 최고 화질로 다운로드합니다.']) }}
     {{ my_setting_select('postprocessor', '후처리', arg['postprocessor_list'], col='3', desc='다운로드 후 FFmpeg로 후처리합니다.') }}
     {{ macros.setting_button([['download_btn', '다운로드']]) }}
 </form>

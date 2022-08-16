@@ -4,8 +4,8 @@
   {{ macros.setting_input_text('url', 'URL', placeholder='http:// 주소',
   desc='유튜브, 네이버TV 등 동영상 주소') }} {{
   macros.setting_input_text('filename', '파일명', value=arg['filename'],
-  desc='템플릿 규칙은 https://github.com/ytdl-org/youtube-dl/#output-template
-  참고') }} {{ macros.setting_checkbox('all_thumbnails', '모든 썸네일 다운로드',
+  desc='템플릿 규칙은 https://github.com/yt-dlp/yt-dlp#output-template 참고') }}
+  {{ macros.setting_checkbox('all_thumbnails', '모든 썸네일 다운로드',
   value='False') }} {{ macros.setting_button([['download_btn', '다운로드']]) }}
 </form>
 
